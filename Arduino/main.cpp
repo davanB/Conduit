@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include "main.h"
 
 #define COMMAND_HEADER 16
 
@@ -13,22 +14,16 @@
 
 byte commandId = 0;
 
-byte waitForByte() {
-    while (Serial.available() == 0);
-    return Serial.read();
+void setup() {
+    Serial.begin(9600);
+    pinMode(LED_BUILTIN, OUTPUT);
 }
 
-void sendError(byte code) {
-}
-
-void debugLEDBlink() {
-    byte numBlinks = waitForByte();
-    while (numBlinks > 0) {
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(1000);
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(1000);
-        numBlinks = numBlinks - 1;
+void loop() {
+    if (Serial.available()) {
+        if (COMMAND_HEADER == Serial.read()) {
+            processCommand();
+        }
     }
 }
 
@@ -50,15 +45,22 @@ void processCommand() {
     }
 }
 
-void setup() {
-    Serial.begin(9600);
-    pinMode(LED_BUILTIN, OUTPUT);
+void debugLEDBlink() {
+    byte numBlinks = waitForByte();
+    while (numBlinks > 0) {
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(1000);
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(1000);
+        numBlinks = numBlinks - 1;
+    }
 }
 
-void loop() {
-    if (Serial.available()) {
-        if (COMMAND_HEADER == Serial.read()) {
-            processCommand();
-        }
-    }
+
+byte waitForByte() {
+    while (Serial.available() == 0);
+    return Serial.read();
+}
+
+void sendError(byte code) {
 }
