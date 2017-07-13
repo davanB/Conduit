@@ -14,9 +14,16 @@
 
 byte commandId = 0;
 
+RF24 radio(9,10);
+
+
 void setup() {
     Serial.begin(9600);
     pinMode(LED_BUILTIN, OUTPUT);
+
+    radio.begin();
+    radio.setPALevel(RF24_PA_LOW);
+    radio.setDataRate(RF24_250KBPS);
 }
 
 void loop() {
@@ -34,8 +41,10 @@ void processCommand() {
             debugLEDBlink();
             break;
         case COMMAND_OPEN_WRITING_PIPE:
+            openWritingPipe();
             break;
         case COMMAND_OPEN_READING_PIPE:
+            openReadingPipe();
             break;
         case COMMAND_WRITE:
             break;
@@ -56,6 +65,16 @@ void debugLEDBlink() {
     }
 }
 
+void openWritingPipe() {
+    byte address = waitForByte();
+    radio.openWritingPipe(address);
+}
+
+void openReadingPipe() {
+    byte pipeNumber = waitForByte();
+    byte address = waitForByte();
+    radio.openReadingPipe(pipeNumber, address);
+}
 
 byte waitForByte() {
     while (Serial.available() == 0);
