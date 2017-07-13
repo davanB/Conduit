@@ -13,21 +13,27 @@
 
 byte commandId = 0;
 
+byte waitForByte() {
+    while (Serial.available() == 0);
+    return Serial.read();
+}
+
 void sendError(byte code) {
 }
 
 void debugLEDBlink() {
-    byte numBlinks = Serial.read();
-    while (numBlinks-- > 0) {
+    byte numBlinks = waitForByte();
+    while (numBlinks > 0) {
         digitalWrite(LED_BUILTIN, HIGH);
         delay(1000);
         digitalWrite(LED_BUILTIN, LOW);
         delay(1000);
+        numBlinks = numBlinks - 1;
     }
 }
 
 void processCommand() {
-    commandId = Serial.read();
+    commandId = waitForByte();
     switch(commandId) {
         case COMMAND_DEBUG_LED_BLINK:
             debugLEDBlink();
