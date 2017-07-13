@@ -2,6 +2,7 @@ package ca.uwaterloo.fydp.conduit;
 
 import android.os.Bundle;
 import android.view.Gravity;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,14 @@ import com.github.clans.fab.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
+    FloatingActionMenu mainMenu;
+    FloatingActionButton textButton;
+    FloatingActionButton mapButton;
+    FloatingActionButton mediaButton;
+
+    EditText mEdit;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,51 +32,45 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionMenu mainMenu = (FloatingActionMenu) findViewById(R.id.menu_red);
-        mainMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        mainMenu = (FloatingActionMenu) findViewById(R.id.main_menu);
+        mEdit   = (EditText)findViewById(R.id.plain_text_input);
 
-        final FloatingActionButton fab1 = (FloatingActionButton) findViewById(R.id.fab1);
-        final FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
-        final FloatingActionButton fab3 = (FloatingActionButton) findViewById(R.id.fab3);
+        setupFloatingActionsButtons();
 
-        fab1.setLabelText("Button 1");
-        fab2.setLabelText("Button 2");
-        fab3.setLabelText("Button 3");
-
-
-        View.OnClickListener clickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.fab1:
-                        Toast toast = Toast.makeText(MainActivity.this,"fab1 pressed", Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER, 0, 0);
-                        toast.show();
-                        break;
-                    case R.id.fab2:
-                        Toast toast2 = Toast.makeText(MainActivity.this,"fab2 pressed", Toast.LENGTH_LONG);
-                        toast2.setGravity(Gravity.CENTER, 0, 0);
-                        toast2.show();
-                        break;
-                    case R.id.fab3:
-                        Toast toast3 = Toast.makeText(MainActivity.this,"fab3 pressed", Toast.LENGTH_LONG);
-                        toast3.setGravity(Gravity.CENTER, 0, 0);
-                        toast3.show();
-                        break;
-                }
-            }
-        };
-
-        fab1.setOnClickListener(clickListener);
-        fab2.setOnClickListener(clickListener);
-        fab3.setOnClickListener(clickListener);
     }
+
+    void setupFloatingActionsButtons() {
+        textButton = (FloatingActionButton) findViewById(R.id.text);
+        mapButton = (FloatingActionButton) findViewById(R.id.map);
+        mediaButton = (FloatingActionButton) findViewById(R.id.media);
+
+        textButton.setLabelText("Compose Text");
+        mapButton.setLabelText("Send Location");
+        mediaButton.setLabelText("Media");
+
+        textButton.setOnClickListener(clickListener);
+        mapButton.setOnClickListener(clickListener);
+        mediaButton.setOnClickListener(clickListener);
+    }
+
+    View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.text:
+                    Toast toast = Toast.makeText(MainActivity.this,mEdit.getText().toString() + "toast", Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    break;
+                case R.id.map:
+                    // intent to collect GPS data
+                    break;
+                case R.id.media:
+                    // intent to get an image
+                    break;
+            }
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
