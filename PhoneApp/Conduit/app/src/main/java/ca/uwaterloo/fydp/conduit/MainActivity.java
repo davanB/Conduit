@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             String userInput = userText.getText().toString();
             if (!userInput.equals("")) {
-                // do something with it, then clear it
+                // TODO do something with it, then clear it
                 userText.setText("");
             }
         }
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     int accessFineGPSDataCheck = ContextCompat.checkSelfPermission(MainActivity.this,
                             Manifest.permission.ACCESS_FINE_LOCATION);
                     if (accessFineGPSDataCheck == PackageManager.PERMISSION_GRANTED) {
-                        // do something with GPS
+                        // TODO do something with GPS
                     }
                     break;
                 case R.id.media:
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             if (requestCode == PICK_IMAGE) {
                 Uri selectedImageUri = data.getData();
                 String selectedImagePath = getPath(selectedImageUri);
-                // do something with path to image
+                // TODO do something with path to image
             }
         }
     }
@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
         // try to retrieve the image from the media store first
         // this will only work for images selected from gallery
         String[] projection = { MediaStore.Images.Media.DATA };
+        // TODO find another way to do this to not use depressciated method
         Cursor cursor = managedQuery(uri, projection, null, null, null);
         if( cursor != null ){
             int column_index = cursor
