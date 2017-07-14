@@ -5,7 +5,7 @@
 
 extern "C" {
 JNIEXPORT jstring JNICALL
-Java_com_example_davanb_jniexample_MainActivity_compressSmallString(
+Java_ca_uwaterloo_fydp_conduit_DataTransformation_compressSmallString(
         JNIEnv *env, jobject /* this */, jstring message) {
     const char* str;
     char* output;
@@ -25,7 +25,7 @@ Java_com_example_davanb_jniexample_MainActivity_compressSmallString(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_example_davanb_jniexample_MainActivity_decompressCompressedString(
+Java_ca_uwaterloo_fydp_conduit_DataTransformation_decompressCompressedString(
         JNIEnv *env, jobject /* this */, jstring message) {
     const char* str;
     char* output;
