@@ -29,7 +29,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                l.debugEcho((byte) 'b');
+                l.openWritingPipe((byte) 'b');
+                //l.openReadingPipe((byte)1, (byte)'a');
+                l.debugEcho((byte) 'a');
+                l.write("hello class".getBytes());
+                l.debugEcho((byte)'b');
             }
         });
 
