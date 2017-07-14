@@ -5,6 +5,6 @@ void debugEcho();
 void openWritingPipe();
 void openReadingPipe();
 void write();
-void tx();
+void tx(byte payloadSize);
 void readRadio();
 void processCommand();
