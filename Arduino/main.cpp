@@ -16,11 +16,10 @@
 byte commandId = 0;
 
 RF24 radio(9,10);
-
+byte* payload = new byte[BUFFER_SIZE];
 
 void setup() {
     Serial.begin(9600);
-    pinMode(LED_BUILTIN, OUTPUT);
 
     radio.begin();
     radio.setPALevel(RF24_PA_LOW);
