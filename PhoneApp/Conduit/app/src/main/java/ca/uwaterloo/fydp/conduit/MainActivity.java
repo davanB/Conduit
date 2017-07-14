@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         textButton.setOnClickListener(clickListener);
         mapButton.setOnClickListener(clickListener);
         mediaButton.setOnClickListener(clickListener);
+        mainMenu.setClosedOnTouchOutside(true);
     }
 
     private View.OnClickListener clickTextBoxListener = new View.OnClickListener() {
