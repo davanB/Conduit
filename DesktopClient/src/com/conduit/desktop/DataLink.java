@@ -71,6 +71,8 @@ public class DataLink {
         byte buf[] = {COMMAND_HEADER,COMMAND_WRITE};
         buf = concatBuffers(buf, payload);
         buf = concatBuffers(buf, new byte[]{COMMAND_TERMINATOR});
+        System.out.println("Buffer length:" + buf.length);
+        System.out.println("Buffer:" + Arrays.toString(buf));
         comPort.writeBytes(buf, buf.length);
     }
 
@@ -92,7 +94,8 @@ public class DataLink {
                 return;
             byte[] newData = new byte[comPort.bytesAvailable()];
             int numRead = comPort.readBytes(newData, newData.length);
-            System.out.println("Read " + numRead + " bytes: " + Arrays.toString(newData));
+//            System.out.println("Read " + numRead + " bytes: " + Arrays.toString(newData) + " " + new String(newData));
+            System.out.print(new String(newData));
         }
     };
 
