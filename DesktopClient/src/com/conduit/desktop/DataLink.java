@@ -18,7 +18,7 @@ public class DataLink {
 
     private static final byte ERROR_INVALID_COMMAND = 1;
 
-    private static final byte COMMAND_TERMINATOR = '0';
+    private static final byte COMMAND_TERMINATOR = 0;
 
 
     SerialPort comPort;
@@ -29,6 +29,7 @@ public class DataLink {
     public DataLink() {
         SerialPort ports[] = SerialPort.getCommPorts();
         comPort = ports[ports.length - 2];
+        comPort.setBaudRate(9600);
 
         System.out.println(comPort.getSystemPortName());
 
