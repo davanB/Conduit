@@ -4,4 +4,7 @@ void debugLEDBlink();
 void debugEcho();
 void openWritingPipe();
 void openReadingPipe();
+void write();
+void tx();
+void readRadio();
 void processCommand();

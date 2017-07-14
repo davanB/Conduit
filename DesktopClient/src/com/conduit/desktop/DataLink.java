@@ -11,11 +11,14 @@ public class DataLink {
     private static final byte COMMAND_HEADER = 16;
 
     private static final byte COMMAND_DEBUG_LED_BLINK = 100;
+    private static final byte COMMAND_DEBUG_ECHO = 101;
     private static final byte COMMAND_OPEN_WRITING_PIPE = 125;
     private static final byte COMMAND_OPEN_READING_PIPE = 126;
     private static final byte COMMAND_WRITE = 127;
 
     private static final byte ERROR_INVALID_COMMAND = 1;
+
+    private static final byte COMMAND_TERMINATOR = '0';
 
 
     SerialPort comPort;
@@ -24,17 +27,19 @@ public class DataLink {
     DataLinkListener dataLinkListener;
 
     public DataLink() {
-//        comPort = SerialPort.getCommPort("cu.usbmodem1421");
-//
-//        for (SerialPort port : SerialPort.getCommPorts()) {
-//            System.out.println(port.getSystemPortName());
-//        }
-//
         SerialPort ports[] = SerialPort.getCommPorts();
         comPort = ports[ports.length - 2];
 
+        System.out.println(comPort.getSystemPortName());
+
         comPort.openPort();
         comPort.addDataListener(serialPortDataListener);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -44,13 +49,29 @@ public class DataLink {
         comPort.writeBytes(buf, buf.length);
     }
 
-    void openWritingPipe() {
+    void debugEcho(byte value) {
+        byte buf[] = { COMMAND_HEADER, COMMAND_DEBUG_ECHO, value };
+        System.out.println(Arrays.toString(buf));
+        comPort.writeBytes(buf, buf.length);
     }
 
-    void openReadingPipe() {
+    void openWritingPipe(byte address) {
+        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE, address };
+        System.out.println(Arrays.toString(buf));
+        comPort.writeBytes(buf, buf.length);
     }
 
-    void write() {
+    void openReadingPipe(byte pipeNumber, byte address) {
+        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber, address };
+        System.out.println(Arrays.toString(buf));
+        comPort.writeBytes(buf, buf.length);
+    }
+
+    void write(byte[] payload) {
+        byte buf[] = {COMMAND_HEADER,COMMAND_WRITE};
+        buf = concatBuffers(buf, payload);
+        buf = concatBuffers(buf, new byte[]{COMMAND_TERMINATOR});
+        comPort.writeBytes(buf, buf.length);
     }
 
     public void setDataLinkListener(DataLinkListener dataLinkListener) {
@@ -71,7 +92,16 @@ public class DataLink {
                 return;
             byte[] newData = new byte[comPort.bytesAvailable()];
             int numRead = comPort.readBytes(newData, newData.length);
-            System.out.println("Read " + numRead + " bytes.");
+            System.out.println("Read " + numRead + " bytes: " + Arrays.toString(newData));
         }
     };
+
+    public byte[] concatBuffers(byte[] first, byte[] second) {
+        int aLen = first.length;
+        int bLen = second.length;
+        byte[] c= new byte[aLen+bLen];
+        System.arraycopy(first, 0, c, 0, aLen);
+        System.arraycopy(second, 0, c, aLen, bLen);
+        return c;
+    }
 }
