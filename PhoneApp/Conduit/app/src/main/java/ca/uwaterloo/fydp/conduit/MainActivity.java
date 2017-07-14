@@ -17,12 +17,13 @@ import com.github.clans.fab.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
-    FloatingActionMenu mainMenu;
-    FloatingActionButton textButton;
-    FloatingActionButton mapButton;
-    FloatingActionButton mediaButton;
+    private FloatingActionMenu mainMenu;
 
-    EditText mEdit;
+    private FloatingActionButton textButton;
+    private FloatingActionButton mapButton;
+    private FloatingActionButton mediaButton;
+
+    private EditText userText;
 
 
     @Override
@@ -32,14 +33,20 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mainMenu = (FloatingActionMenu) findViewById(R.id.main_menu);
-        mEdit   = (EditText)findViewById(R.id.plain_text_input);
-
         setupFloatingActionsButtons();
+        setupUserInputBox();
 
     }
 
-    void setupFloatingActionsButtons() {
+    private void setupUserInputBox() {
+        userText   = (EditText)findViewById(R.id.plain_text_input);
+
+        userText.setOnClickListener(clickTextBoxListener);
+    }
+
+
+    private void setupFloatingActionsButtons() {
+        mainMenu = (FloatingActionMenu) findViewById(R.id.main_menu);
         textButton = (FloatingActionButton) findViewById(R.id.text);
         mapButton = (FloatingActionButton) findViewById(R.id.map);
         mediaButton = (FloatingActionButton) findViewById(R.id.media);
@@ -53,14 +60,23 @@ public class MainActivity extends AppCompatActivity {
         mediaButton.setOnClickListener(clickListener);
     }
 
+    View.OnClickListener clickTextBoxListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String userInput = userText.getText().toString();
+            if (!userInput.equals("")) {
+                // do something with it, then clear it
+                userText.setText("");
+            }
+        }
+    };
+
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.text:
-                    Toast toast = Toast.makeText(MainActivity.this,mEdit.getText().toString() + "toast", Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
+                    userText.requestFocus();
                     break;
                 case R.id.map:
                     // intent to collect GPS data
