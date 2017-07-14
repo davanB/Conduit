@@ -6,6 +6,7 @@
 #define COMMAND_HEADER 16
 
 #define COMMAND_DEBUG_LED_BLINK 100
+#define COMMAND_DEBUG_ECHO 101
 #define COMMAND_OPEN_WRITING_PIPE 125
 #define COMMAND_OPEN_READING_PIPE 126
 #define COMMAND_WRITE 127
@@ -40,6 +41,9 @@ void processCommand() {
         case COMMAND_DEBUG_LED_BLINK:
             debugLEDBlink();
             break;
+        case COMMAND_DEBUG_ECHO:
+            debugEcho();
+            break;
         case COMMAND_OPEN_WRITING_PIPE:
             openWritingPipe();
             break;
@@ -63,6 +67,12 @@ void debugLEDBlink() {
         delay(1000);
         numBlinks = numBlinks - 1;
     }
+}
+
+void debugEcho() {
+    byte value = waitForByte();
+    Serial.write(value);
+    Serial.flush();
 }
 
 void openWritingPipe() {
