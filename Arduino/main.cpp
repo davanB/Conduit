@@ -11,12 +11,16 @@
 #define COMMAND_OPEN_READING_PIPE 126
 #define COMMAND_WRITE 127
 
+#define COMMAND_TERMINATOR '0'
+
 #define ERROR_INVALID_COMMAND 1
+
+#define BUFFER_SIZE 255
 
 byte commandId = 0;
 
 RF24 radio(9,10);
-byte* payload = new byte[BUFFER_SIZE];
+byte* buffer = new byte[BUFFER_SIZE];
 
 void setup() {
     Serial.begin(9600);
@@ -27,7 +31,9 @@ void setup() {
 }
 
 void loop() {
-    if (Serial.available()) {
+    if (radio.available()) {
+        readRadio();
+    } else if (Serial.available()) {
         if (COMMAND_HEADER == Serial.read()) {
             processCommand();
         }
@@ -50,6 +56,7 @@ void processCommand() {
             openReadingPipe();
             break;
         case COMMAND_WRITE:
+            write();
             break;
         default:
             sendError(ERROR_INVALID_COMMAND);
@@ -76,13 +83,71 @@ void debugEcho() {
 
 void openWritingPipe() {
     byte address = waitForByte();
-    radio.openWritingPipe(address);
+    radio.openWritingPipe(0xF0F0F0F0E1LL);
+    Serial.write(56);
+    Serial.flush();
 }
 
 void openReadingPipe() {
     byte pipeNumber = waitForByte();
     byte address = waitForByte();
-    radio.openReadingPipe(pipeNumber, address);
+    radio.openReadingPipe(pipeNumber, 0xF0F0F0F0E1LL);
+    radio.startListening();
+    Serial.write(57);
+    Serial.flush();
+}
+
+void write() {
+    uint32_t i = 0;
+    byte recvByte = 0;
+    Serial.println("WRITE!");
+    while(true) {
+        // Fill buffer
+        if (Serial.available()) {
+            recvByte = Serial.read();
+            buffer[i] = recvByte;
+            if(buffer[i] == COMMAND_TERMINATOR){
+                Serial.println("TERMINATED");
+                tx();
+                break;
+            }
+            i++;
+        }
+
+        if (i >= BUFFER_SIZE) {
+            Serial.println("TX Start");
+            tx();
+            i = 0;
+        }
+    }
+}
+
+void tx() {
+    int ack_buffer[1] = {5};
+    // Write buffer to radio
+    if (radio.write(buffer, sizeof(byte) * BUFFER_SIZE)) {
+        Serial.println("...tx success");
+        if (radio.isAckPayloadAvailable()) {
+            radio.read(ack_buffer, sizeof(int));
+            Serial.print("received ack payload is : ");
+            Serial.println(ack_buffer[0]);
+        } else {
+            Serial.println("ACK MISSED");
+            // delay(1000);
+        }
+    } else {
+        Serial.println("...tx fail");
+    }
+}
+
+void readRadio() {
+    int ack_buffer[1] = {5};
+    radio.writeAckPayload(1, ack_buffer, sizeof(int));
+    radio.read(&buffer, sizeof(byte) * BUFFER_SIZE);
+    ack_buffer[0]+=2;
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        Serial.write(buffer[i]);
+    }
 }
 
 byte waitForByte() {
