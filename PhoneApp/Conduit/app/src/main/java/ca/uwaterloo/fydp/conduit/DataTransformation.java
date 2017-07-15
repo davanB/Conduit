@@ -4,7 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
 
+import org.encryptor4j.Encryptor;
+import org.encryptor4j.factory.KeyFactory;
+
 import java.io.File;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+
+import javax.crypto.SecretKey;
 
 import id.zelory.compressor.Compressor;
 
@@ -22,10 +29,15 @@ import id.zelory.compressor.Compressor;
  */
 public class DataTransformation {
 
+    // context of activity instantiating this class
     private Context context;
+
+    // key used for encrypting messages
+    private Key secretKey;
 
     public DataTransformation(Context context){
         this.context = context;
+        this.secretKey = KeyFactory.AES.randomKey();
     }
 
     /*
@@ -64,16 +76,51 @@ public class DataTransformation {
         (this output format needs to be decided, the interface will need to be developed with Conduit group)
      */
     public int compressData(String uncompressedData) {
+        String compressedString = compressSmallString(uncompressedData);
         return 0;
     }
 
-    public int decompressData(String compressedString) {
+    // TODO the paramater might have to change depending on how data is retrieved from Conduit
+    public String decompressData(String compressedString) {
+        String uncompressedString = decompressCompressedString(compressedString);
+        return uncompressedString;
+    }
+
+    // TODO tune these parameters or make them configurable?
+    public int compressData(File imageToCompress) {
+        Bitmap compressedBitmap = compressImage(imageToCompress,640,640,75);
         return 0;
     }
 
-    public int comppressData(File imageToCompress) {
-        return 0;
+    /*
+        Cryptographic functions
+        PKCS5Padding is actually PKCS7Padding (prob a type)
+        PKCS5Padding is for 8byte block ciphers (3DES) not 16byte ciphers like AES
+     */
+    //TODO possibly convert byte[] to string?
+    public byte[] encryptMessage(String message) {
+        try {
+            Encryptor encryptor = new Encryptor(secretKey, "AES/CBC/PKCS5Padding", 16);
+            byte[] encrypted = encryptor.encrypt(message.getBytes());
+            return encrypted;
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            System.out.println(e);
+        } finally {
+            return null;
+        }
     }
 
+    public byte[] decryptMessage(byte[] encryptedData) {
+        try {
+            Encryptor encryptor = new Encryptor(secretKey, "AES/GCM/NoPadding", 16, 128);
+            byte[] decrypted = encryptor.decrypt(encryptedData);
+            return decrypted;
+        } catch (GeneralSecurityException e) {
+            System.out.println(e);
+        } finally {
+            return null;
+        }
+    }
 
 }

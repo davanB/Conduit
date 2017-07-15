@@ -19,6 +19,8 @@ import android.view.MenuItem;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
 
     // Used to load the 'native-lib' library on application startup.
@@ -135,8 +137,12 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == PICK_IMAGE) {
                 Uri selectedImageUri = data.getData();
-                String selectedImagePath = getPath(selectedImageUri);
-                // TODO do something with path to image
+                File selectedImagePath = getPath(selectedImageUri);
+                if (selectedImagePath != null) {
+                    // TODO do something with path to image
+                } else {
+                    // TODO error handling
+                }
             }
         }
     }
@@ -144,27 +150,24 @@ public class MainActivity extends AppCompatActivity {
     /**
      * helper to retrieve the path of an image URI
      */
-    private String getPath(Uri uri) {
+    private File getPath(Uri uri) {
         // just some safety built in
         if( uri == null ) {
             // TODO perform some logging or show user feedback
             return null;
         }
-        // try to retrieve the image from the media store first
-        // this will only work for images selected from gallery
-        String[] projection = { MediaStore.Images.Media.DATA };
-        // TODO find another way to do this to not use depressciated method
-        Cursor cursor = managedQuery(uri, projection, null, null, null);
-        if( cursor != null ){
-            int column_index = cursor
-                    .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            String path = cursor.getString(column_index);
-            cursor.close();
-            return path;
-        }
-        // this is our fallback here
-        return uri.getPath();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = getContentResolver().query(
+                uri, filePathColumn, null, null, null);
+        cursor.moveToFirst();
+
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String filePath = cursor.getString(columnIndex);
+        cursor.close();
+
+        File file = new File(filePath);
+        return file;
     }
 
     private void launchImageIntent() {
