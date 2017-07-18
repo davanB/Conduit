@@ -27,8 +27,18 @@ public class DataLink {
     DataLinkListener dataLinkListener;
 
     public DataLink() {
-        SerialPort ports[] = SerialPort.getCommPorts();
-        comPort = ports[ports.length - 2];
+        this(null);
+    }
+
+    public DataLink(String port) {
+
+        if (port == null) {
+            SerialPort ports[] = SerialPort.getCommPorts();
+            comPort = ports[ports.length - 2];
+        } else {
+            comPort = SerialPort.getCommPort(port);
+        }
+
         comPort.setBaudRate(9600);
 
         System.out.println(comPort.getSystemPortName());
@@ -42,7 +52,6 @@ public class DataLink {
             e.printStackTrace();
         }
     }
-
 
     void debugLEDBlink(byte numBlinks) {
         byte buf[] = { COMMAND_HEADER, COMMAND_DEBUG_LED_BLINK, numBlinks };
@@ -82,6 +91,9 @@ public class DataLink {
     }
 
     private SerialPortDataListener serialPortDataListener = new SerialPortDataListener() {
+
+        String accumulated = "";
+
         @Override
         public int getListeningEvents() { return SerialPort.LISTENING_EVENT_DATA_AVAILABLE | SerialPort.LISTENING_EVENT_DATA_WRITTEN; }
         @Override
@@ -95,8 +107,10 @@ public class DataLink {
                 return;
             byte[] newData = new byte[comPort.bytesAvailable()];
             int numRead = comPort.readBytes(newData, newData.length);
-//            System.out.println("Read " + numRead + " bytes: " + Arrays.toString(newData) + " " + new String(newData));
-            System.out.print(new String(newData));
+            System.out.println("Read " + numRead + " bytes: " + Arrays.toString(newData) + " " + new String(newData));
+
+//            accumulated +=
+
         }
     };
 
