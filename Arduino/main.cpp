@@ -130,7 +130,7 @@ void write() {
 }
 
 void tx(byte payloadSize) {
-    // radio.stopListening(); ??
+    radio.stopListening(); //TODO: Evaluate effect on dropped packets
     int ack_buffer[1] = {5};
     // Write buffer to radio
     if (radio.write(buffer, payloadSize)) {
@@ -145,7 +145,7 @@ void tx(byte payloadSize) {
     } else {
         Serial.println("...tx fail");
     }
-    // radio.startListening(); ??
+    radio.startListening(); //TODO: Evaluate effect on dropped packets
 }
 
 void readRadio() {
