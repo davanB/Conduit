@@ -31,15 +31,18 @@ public class Main {
 
         DataLink dataLink = new DataLink(serialPorts.get(portNumber));
 
+        long addrA = 0xF0F0F0F0E1L;
+        long addrB = 0xF0F0F0F0A0L;
+
         // Assuming ports are off by one
         if (portNumber % 2 == 0) {
             System.out.println("This is radio A");
-            dataLink.openReadingPipe((byte)1, (byte)'b');
-            dataLink.openWritingPipe((byte)'a');
+            dataLink.openReadingPipe((byte)1, addrB);
+            dataLink.openWritingPipe(addrA);
         } else {
             System.out.println("This is radio B");
-            dataLink.openReadingPipe((byte)1, (byte)'a');
-            dataLink.openWritingPipe((byte)'b');
+            dataLink.openReadingPipe((byte)1, addrA);
+            dataLink.openWritingPipe(addrB);
         }
 
         System.out.println("Ready to Tx/Rx");

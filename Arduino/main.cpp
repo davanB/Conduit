@@ -87,17 +87,19 @@ void debugEcho() {
 }
 
 void openWritingPipe() {
-    byte address = waitForByte();
+    byte* address = new byte[8];
+    Serial.readBytes(address, 8);
     radio.stopListening();
-    radio.openWritingPipe(address);
+    radio.openWritingPipe((uint64_t)*address);
     Serial.write(56);
     Serial.flush();
 }
 
 void openReadingPipe() {
     byte pipeNumber = waitForByte();
-    byte address = waitForByte();
-    radio.openReadingPipe(pipeNumber, address);
+    byte* address = new byte[8];
+    Serial.readBytes(address, 8);
+    radio.openReadingPipe(pipeNumber, (uint64_t)*address);
     radio.startListening();
     Serial.write(57);
     Serial.flush();

@@ -4,6 +4,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class DataLink {
@@ -65,14 +66,20 @@ public class DataLink {
         comPort.writeBytes(buf, buf.length);
     }
 
-    void openWritingPipe(byte address) {
-        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE, address };
+    void openWritingPipe(long address) {
+        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE };
+        byte addressBuf[] = longToBytes(address);
+        buf = concatBuffers(buf, addressBuf);
+
         System.out.println(Arrays.toString(buf));
         comPort.writeBytes(buf, buf.length);
     }
 
-    void openReadingPipe(byte pipeNumber, byte address) {
-        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber, address };
+    void openReadingPipe(byte pipeNumber, long address) {
+        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber };
+        byte addressBuf[] = longToBytes(address);
+        buf = concatBuffers(buf, addressBuf);
+
         System.out.println(Arrays.toString(buf));
         comPort.writeBytes(buf, buf.length);
     }
@@ -122,4 +129,11 @@ public class DataLink {
         System.arraycopy(second, 0, c, aLen, bLen);
         return c;
     }
+
+    public byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.putLong(x);
+        return buffer.array();
+    }
+
 }
