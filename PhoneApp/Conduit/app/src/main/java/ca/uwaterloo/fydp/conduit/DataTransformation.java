@@ -44,8 +44,8 @@ public class DataTransformation {
         Methods to for small string compression/decompression (Shoco)
         Implementations defined in native-lib.cpp
      */
-    private native String compressSmallString(String uncompressedString);
-    private native String decompressCompressedString(String compressedString);
+    private native byte[] compressSmallString(String uncompressedString);
+    private native byte[] decompressCompressedString(byte[] compressedString);
 
     /*
         Compressor image compression library methods
@@ -75,21 +75,21 @@ public class DataTransformation {
         Will output data in a format consumable by Conduit device
         (this output format needs to be decided, the interface will need to be developed with Conduit group)
      */
-    public int compressData(String uncompressedData) {
-        String compressedString = compressSmallString(uncompressedData);
-        return 0;
+    public byte[] compressData(String uncompressedData) {
+        byte[] compressedString = compressSmallString(uncompressedData);
+        return compressedString;
     }
 
     // TODO the paramater might have to change depending on how data is retrieved from Conduit
-    public String decompressData(String compressedString) {
-        String uncompressedString = decompressCompressedString(compressedString);
+    public byte[] decompressData(byte[] compressedString) {
+        byte[] uncompressedString = decompressCompressedString(compressedString);
         return uncompressedString;
     }
 
     // TODO tune these parameters or make them configurable?
-    public int compressData(File imageToCompress) {
+    public Bitmap compressData(File imageToCompress) {
         Bitmap compressedBitmap = compressImage(imageToCompress,640,640,75);
-        return 0;
+        return compressedBitmap;
     }
 
     /*
@@ -98,29 +98,40 @@ public class DataTransformation {
         PKCS5Padding is for 8byte block ciphers (3DES) not 16byte ciphers like AES
      */
     //TODO possibly convert byte[] to string?
-    public byte[] encryptMessage(String message) {
+    public byte[] encryptMessage(byte[] message) {
         try {
             Encryptor encryptor = new Encryptor(secretKey, "AES/CBC/PKCS5Padding", 16);
-            byte[] encrypted = encryptor.encrypt(message.getBytes());
+            byte[] encrypted = encryptor.encrypt(message);
             return encrypted;
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
             System.out.println(e);
-        } finally {
-            return null;
         }
+        return null;
     }
 
     public byte[] decryptMessage(byte[] encryptedData) {
         try {
-            Encryptor encryptor = new Encryptor(secretKey, "AES/GCM/NoPadding", 16, 128);
+            Encryptor encryptor = new Encryptor(secretKey, "AES/CBC/PKCS5Padding", 16);
             byte[] decrypted = encryptor.decrypt(encryptedData);
             return decrypted;
         } catch (GeneralSecurityException e) {
             System.out.println(e);
-        } finally {
-            return null;
         }
+        return null;
     }
 
+    public byte[] compressAndEncrypt(String uncompressed) {
+        byte[] compressed = compressData(uncompressed);
+        byte[] encrypted = encryptMessage(compressed);
+        return encrypted;
+    }
+
+    public byte[] decompressAndDecrypt(byte[] encryped) {
+        byte[] decrypted = decryptMessage(encryped);
+        byte[] uncompressed = decompressData(decrypted);
+        return uncompressed;
+    }
+
+    // TODO consider encrypting images too?
 }

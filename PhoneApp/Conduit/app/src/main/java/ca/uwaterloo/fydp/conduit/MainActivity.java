@@ -21,6 +21,8 @@ import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;
 
+import ca.uwaterloo.fydp.conduit.DataTransformation;
+
 public class MainActivity extends AppCompatActivity {
 
     // Used to load the 'native-lib' library on application startup.
@@ -46,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_FINE_LOCATION};
 
+    private DataTransformation transformer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        transformer = new DataTransformation(this);
 
         setupFloatingActionsButtons();
         setupUserInputBox();
@@ -100,9 +106,12 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             String userInput = userText.getText().toString();
             if (!userInput.equals("")) {
-                // TODO do something with it, then clear it
+                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
                 userText.setText("");
-            }
+                byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(compressedAndEncryptedText);
+                String res = new String(decyeptedAndDecompressed);
+                userText.setText(res);
+        }
         }
     };
 

@@ -4,41 +4,52 @@
 #include <malloc.h>
 
 extern "C" {
-JNIEXPORT jstring JNICALL
+JNIEXPORT jbyteArray JNICALL
 Java_ca_uwaterloo_fydp_conduit_DataTransformation_compressSmallString(
         JNIEnv *env, jobject /* this */, jstring message) {
     const char* str;
     char* output;
 
-    str = env->GetStringUTFChars(message, 0);
-    size_t buffSize = strlen(str);
+    str = env->GetStringUTFChars(message, NULL);
+    size_t buffSize = env->GetStringUTFLength(message);
 
     output = (char*)malloc((buffSize) * sizeof(char));           // allocate memory
 
     size_t result = shoco_compress(str, buffSize, output, buffSize); // compress and save to output
 
-    jstring compressedString = env->NewStringUTF(output);
+    jbyteArray compressedString = env->NewByteArray(result);
+    env->SetByteArrayRegion(compressedString,0,result, (jbyte*)output);
 
     free(output);                                           // deallocate memory
 
     return compressedString;                                // return populated Byte[]
 }
 
-JNIEXPORT jstring JNICALL
+JNIEXPORT jbyteArray JNICALL
 Java_ca_uwaterloo_fydp_conduit_DataTransformation_decompressCompressedString(
-        JNIEnv *env, jobject /* this */, jstring message) {
+        JNIEnv *env, jobject /* this */, jbyteArray message) {
     const char* str;
     char* output;
 
-    str = env->GetStringUTFChars(message, 0);
-    size_t buffSize = strlen(str)*2;
+    size_t inputSize = env->GetArrayLength(message);
+    size_t buffSize = inputSize*2;
 
-    output = (char*)malloc((buffSize) * sizeof(char));              // allocate memory
+    jbyte* bytes = env->GetByteArrayElements(message, 0);
 
-    size_t result = shoco_decompress(str, buffSize, output, buffSize); // max 50% compression
+    str = (char*)malloc((buffSize) * sizeof(char));
+    str = (char*) bytes;
 
-    jstring uncompressedString = env->NewStringUTF(output);         // return decompress str
+//    env->GetByteArrayRegion(message, 0, buffSize, (jbyte*)str);
 
+    output = (char*)malloc((buffSize) * sizeof(char));     // allocate memory
+
+    size_t result = shoco_decompress(str, inputSize, output, buffSize); // max 50% compression
+
+    jbyteArray uncompressedString = env->NewByteArray(result);
+    env->SetByteArrayRegion(uncompressedString,0,result, (jbyte*)output);  // return decompress str
+
+    free((void*)str);
+    env->ReleaseByteArrayElements(message, bytes, JNI_ABORT);
     free(output);
 
     return uncompressedString;
