@@ -66,7 +66,7 @@ public class DataLink {
         comPort.writeBytes(buf, buf.length);
     }
 
-    void openWritingPipe(long address) {
+    void openWritingPipe(int address) {
         byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE };
         byte addressBuf[] = longToBytes(address);
         buf = concatBuffers(buf, addressBuf);
@@ -75,7 +75,7 @@ public class DataLink {
         comPort.writeBytes(buf, buf.length);
     }
 
-    void openReadingPipe(byte pipeNumber, long address) {
+    void openReadingPipe(byte pipeNumber, int address) {
         byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber };
         byte addressBuf[] = longToBytes(address);
         buf = concatBuffers(buf, addressBuf);

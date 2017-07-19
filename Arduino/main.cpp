@@ -26,6 +26,7 @@ void setup() {
     Serial.begin(9600);
 
     radio.begin();
+    radio.setAddressWidth(4); // 4 bytes
     radio.setAutoAck(true);
     radio.enableAckPayload();
     radio.enableDynamicPayloads();
@@ -87,19 +88,19 @@ void debugEcho() {
 }
 
 void openWritingPipe() {
-    byte* address = new byte[8];
-    Serial.readBytes(address, 8);
+    byte* address = new byte[4];
+    Serial.readBytes(address, 4);
     radio.stopListening();
-    radio.openWritingPipe((uint64_t)*address);
+    radio.openWritingPipe((uint32_t)*address);
     Serial.write(56);
     Serial.flush();
 }
 
 void openReadingPipe() {
     byte pipeNumber = waitForByte();
-    byte* address = new byte[8];
-    Serial.readBytes(address, 8);
-    radio.openReadingPipe(pipeNumber, (uint64_t)*address);
+    byte* address = new byte[4];
+    Serial.readBytes(address, 4);
+    radio.openReadingPipe(pipeNumber, (uint32_t)*address);
     radio.startListening();
     Serial.write(57);
     Serial.flush();
