@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-    }
+    };
 
     private boolean requestUserPermissions(String[] Permissions) {
         for (String permission : Permissions) {
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(compressedAndEncryptedText);
                 String res = new String(decyeptedAndDecompressed);
                 userText.setText(res);
-        }
+            }
         }
     };
 
@@ -145,11 +145,11 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.text:
                     userText.requestFocus();
 
-                    dataLink.debugEcho((byte)69);
-                    dataLink.debugEcho((byte)71);
-                    dataLink.debugEcho((byte)71);
-                    dataLink.debugEcho((byte)111);
-                    dataLink.debugEcho((byte)33);
+//                    dataLink.debugEcho((byte)69);
+//                    dataLink.debugEcho((byte)71);
+//                    dataLink.debugEcho((byte)71);
+//                    dataLink.debugEcho((byte)111);
+//                    dataLink.debugEcho((byte)33);
                     break;
                 case R.id.map:
                     // intent to collect GPS data
