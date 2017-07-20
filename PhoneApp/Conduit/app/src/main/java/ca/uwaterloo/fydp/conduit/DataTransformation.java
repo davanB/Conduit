@@ -8,10 +8,15 @@ import org.encryptor4j.Encryptor;
 import org.encryptor4j.factory.KeyFactory;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import id.zelory.compressor.Compressor;
 
@@ -37,7 +42,21 @@ public class DataTransformation {
 
     public DataTransformation(Context context){
         this.context = context;
-        this.secretKey = KeyFactory.AES.randomKey();
+        char[] password = "123VConduit!".toCharArray();
+//        this.secretKey = KeyFactory.DES.keyFromPassword(password);
+
+        try {
+            byte[] key = ("123VConduit").getBytes("UTF8");
+            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, 16); // use only first 128 bit
+
+            this.secretKey = new SecretKeySpec(key, "AES");
+        } catch (UnsupportedEncodingException e){
+            System.out.println("ohshit");
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("wheres the algo");
+        }
     }
 
     /*
