@@ -37,7 +37,8 @@ public class DataTransformation {
 
     public DataTransformation(Context context){
         this.context = context;
-        this.secretKey = KeyFactory.AES.randomKey();
+        char[] password = "123VConduit!".toCharArray();
+        this.secretKey = KeyFactory.AES.keyFromPassword(password);
     }
 
     /*

@@ -17,11 +17,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.conduit.libdatalink.DataLink;
 import com.conduit.libdatalink.DataLinkListener;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton mediaButton;
 
     private EditText userText;
+    private TextView textView;
 
     private final int PICK_IMAGE = 100;
 
@@ -68,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         transformer = new DataTransformation(this);
 
         setupFloatingActionsButtons();
-        setupUserInputBox();
+        setUpTextBoxes();
 
         if (!requestUserPermissions(PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_AND_GPS);
@@ -83,14 +87,19 @@ public class MainActivity extends AppCompatActivity {
     DataLinkListener dataLinkListener  = new DataLinkListener() {
         @Override
         public void OnReceiveData(final String data) {
-            userText.post(new Runnable() {
+            textView.post(new Runnable() {
                 @Override
                 public void run() {
-                    userText.append(data);
+                    // TODO this needs to be built so that data can be decrypted and uncompressed
+                    textView.append(data);
+
+//                    byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(compressedAndEncryptedText);
+//                    String res = new String(decyeptedAndDecompressed);
+//                    textView.append(res);
                 }
             });
         }
-    }
+    };
 
     private boolean requestUserPermissions(String[] Permissions) {
         for (String permission : Permissions) {
@@ -101,8 +110,9 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void setupUserInputBox() {
-        userText   = (EditText)findViewById(R.id.plain_text_input);
+    private void setUpTextBoxes() {
+        userText = (EditText)findViewById(R.id.plain_text_input);
+        textView = (TextView)findViewById(R.id.plain_textView);
 
         userText.setOnClickListener(clickTextBoxListener);
     }
@@ -130,10 +140,8 @@ public class MainActivity extends AppCompatActivity {
             String userInput = userText.getText().toString();
             if (!userInput.equals("")) {
                 byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
-                userText.setText("");
-                byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(compressedAndEncryptedText);
-                String res = new String(decyeptedAndDecompressed);
-                userText.setText(res);
+                dataLink.write(compressedAndEncryptedText);
+                textView.append(userInput);
         }
         }
     };
