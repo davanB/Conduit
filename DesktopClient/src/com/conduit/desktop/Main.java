@@ -1,5 +1,6 @@
 package com.conduit.desktop;
 
+import com.conduit.libdatalink.DataLink;
 import com.fazecast.jSerialComm.SerialPort;
 
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ public class Main {
             portNumber = in.nextInt();
         }
 
-        DataLink dataLink = new DataLink(serialPorts.get(portNumber));
+        DataLink dataLink = new DataLink(new UsbDriver(serialPorts.get(portNumber)));
+        dataLink.debugEcho((byte)69);
 
         // Only the last byte should differ
         int addrA = 0xCDABCD71;

@@ -1,0 +1,2 @@
+include ':datalinklib'
+project(':datalinklib').projectDir = new File('../PhoneApp/Conduit/libdatalink/')

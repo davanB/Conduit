@@ -3,15 +3,16 @@
 #include <RF24.h>
 #include "main.h"
 
-#define COMMAND_HEADER 16
+#define CONTROL_START_OF_HEADING 1
+#define CONTROL_START_OF_TEXT 2
+#define CONTROL_END_OF_TEXT 3
 
 #define COMMAND_DEBUG_LED_BLINK 100
 #define COMMAND_DEBUG_ECHO 101
 #define COMMAND_OPEN_WRITING_PIPE 125
 #define COMMAND_OPEN_READING_PIPE 126
 #define COMMAND_WRITE 127
-
-#define COMMAND_TERMINATOR 0
+#define COMMAND_READ 128
 
 #define ERROR_INVALID_COMMAND 1
 
@@ -40,7 +41,7 @@ void loop() {
         Serial.println("New data");
         readRadio();
     } else if (Serial.available()) {
-        if (COMMAND_HEADER == Serial.read()) {
+        if (CONTROL_START_OF_HEADING == Serial.read()) {
             processCommand();
         }
     }
@@ -115,7 +116,7 @@ void write() {
         if (Serial.available()) {
             recvByte = Serial.read();
             buffer[i] = recvByte;
-            if(buffer[i] == COMMAND_TERMINATOR){
+            if(buffer[i] == CONTROL_END_OF_TEXT){
                 Serial.println("TERMINATED");
                 tx(i + 1); // Ensure we transmit the null terminator
                 break;

@@ -1,7 +1,6 @@
 package com.conduit.libdatalink;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class DataLink implements DataLinkInterface{
 
@@ -16,9 +15,11 @@ public class DataLink implements DataLinkInterface{
     private static final byte COMMAND_TERMINATOR = 0;
 
     private UsbDriverInterface usbDriver;
+    private DataLinkListener dataLinkListener;
 
     public DataLink(UsbDriverInterface usbDriver) {
         this.usbDriver = usbDriver;
+        this.usbDriver.setReadListener(usbSerialListener);
     }
 
     public void debugLEDBlink(byte numBlinks) {
@@ -32,20 +33,16 @@ public class DataLink implements DataLinkInterface{
     }
 
     public void openWritingPipe(int address) {
-        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE };
-        byte addressBuf[] = longToBytes(address);
+        byte buf[] = {COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE};
+        byte addressBuf[] = intToBytes(address);
         buf = concatBuffers(buf, addressBuf);
-
-        System.out.println(Arrays.toString(buf));
         usbDriver.sendBuffer(buf);
     }
 
     public void openReadingPipe(byte pipeNumber, int address) {
-        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber };
-        byte addressBuf[] = longToBytes(address);
+        byte buf[] = {COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber};
+        byte addressBuf[] = intToBytes(address);
         buf = concatBuffers(buf, addressBuf);
-
-        System.out.println(Arrays.toString(buf));
         usbDriver.sendBuffer(buf);
     }
 
@@ -56,14 +53,24 @@ public class DataLink implements DataLinkInterface{
         usbDriver.sendBuffer(buf);
     }
 
-    public byte[] longToBytes(long x) {
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.putLong(x);
-        return buffer.array();
+    public void setReadListener(DataLinkListener listener) {
+        dataLinkListener = listener;
     }
 
-    public void setReadListener(DataLinkListener listener) {
-        usbDriver.setReadListener(listener);
+    private UsbSerialListener usbSerialListener = new UsbSerialListener() {
+        @Override
+        public void OnReceiveData(byte[] data) {
+            // TODO: Accumulate data and parse out control signals
+            if (dataLinkListener != null) {
+                dataLinkListener.OnReceiveData(new String(data));
+            }
+        }
+    };
+
+    public byte[] intToBytes(int x) {
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        buffer.putInt(x);
+        return buffer.array();
     }
 
     private byte[] concatBuffers(byte[] first, byte[] second) {
