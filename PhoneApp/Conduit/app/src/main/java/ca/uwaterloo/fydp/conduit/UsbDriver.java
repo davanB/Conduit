@@ -1,12 +1,12 @@
 package ca.uwaterloo.fydp.conduit;
 
-import com.conduit.libdatalink.DataLinkListener;
 import com.conduit.libdatalink.UsbDriverInterface;
 
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 
+import com.conduit.libdatalink.UsbSerialListener;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -27,7 +27,7 @@ public class UsbDriver implements UsbDriverInterface {
 
     private static final String TAG = "YEET";
 
-    private DataLinkListener dataLinkListener;
+    private UsbSerialListener usbSerialListener;
     private UsbSerialPort port;
     private UsbDeviceConnection connection;
 
@@ -59,7 +59,7 @@ public class UsbDriver implements UsbDriverInterface {
     private SerialInputOutputManager.Listener seriaListener = new SerialInputOutputManager.Listener() {
         @Override
         public void onNewData(byte[] data) {
-            dataLinkListener.OnReceiveData(new String(data));
+            usbSerialListener.OnReceiveData(data);
         }
 
         @Override
@@ -76,8 +76,8 @@ public class UsbDriver implements UsbDriverInterface {
         }
     }
 
-    public void setReadListener(DataLinkListener dataLinkListener) {
-        this.dataLinkListener = dataLinkListener;
+    public void setReadListener(UsbSerialListener usbSerialListener) {
+        this.usbSerialListener = usbSerialListener;
     }
 
 }
