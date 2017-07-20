@@ -13,7 +13,7 @@ public class DataLink implements DataLinkInterface{
     private static final byte COMMAND_OPEN_READING_PIPE = 126;
     private static final byte COMMAND_WRITE = 127;
 
-    private static final byte COMMAND_TERMINATOR = '0';
+    private static final byte COMMAND_TERMINATOR = 0;
 
     private UsbDriverInterface usbDriver;
 

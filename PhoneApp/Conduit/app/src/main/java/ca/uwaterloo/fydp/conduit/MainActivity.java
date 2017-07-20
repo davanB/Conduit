@@ -141,8 +141,8 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             String userInput = userText.getText().toString();
             if (!userInput.equals("")) {
-                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
-                dataLink.write(compressedAndEncryptedText);
+//                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
+                dataLink.write(userInput.getBytes());
                 textView.append(userInput);
             }
         }
