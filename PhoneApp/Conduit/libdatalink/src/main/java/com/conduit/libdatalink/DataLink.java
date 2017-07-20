@@ -1,5 +1,8 @@
 package com.conduit.libdatalink;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 public class DataLink implements DataLinkInterface{
 
     private static final byte COMMAND_HEADER = 16;
@@ -28,13 +31,21 @@ public class DataLink implements DataLinkInterface{
         usbDriver.sendBuffer(buf);
     }
 
-    public void openWritingPipe(byte address) {
-        byte buf[] = {COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE, address};
+    public void openWritingPipe(int address) {
+        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE };
+        byte addressBuf[] = longToBytes(address);
+        buf = concatBuffers(buf, addressBuf);
+
+        System.out.println(Arrays.toString(buf));
         usbDriver.sendBuffer(buf);
     }
 
-    public void openReadingPipe(byte pipeNumber, byte address) {
-        byte buf[] = {COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber, address};
+    public void openReadingPipe(byte pipeNumber, int address) {
+        byte buf[] = { COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber };
+        byte addressBuf[] = longToBytes(address);
+        buf = concatBuffers(buf, addressBuf);
+
+        System.out.println(Arrays.toString(buf));
         usbDriver.sendBuffer(buf);
     }
 
@@ -43,6 +54,12 @@ public class DataLink implements DataLinkInterface{
         buf = concatBuffers(buf, payload);
         buf = concatBuffers(buf, new byte[]{COMMAND_TERMINATOR});
         usbDriver.sendBuffer(buf);
+    }
+
+    public byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        buffer.putLong(x);
+        return buffer.array();
     }
 
     public void setReadListener(DataLinkListener listener) {

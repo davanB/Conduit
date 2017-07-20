@@ -5,9 +5,9 @@ public interface DataLinkInterface {
 
     void debugEcho(byte value);
 
-    void openWritingPipe(byte address);
+    void openWritingPipe(int address);
 
-    void openReadingPipe(byte pipeNumber, byte address);
+    void openReadingPipe(byte pipeNumber, int address);
 
     void write(byte payload[]);
 
