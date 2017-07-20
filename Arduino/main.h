@@ -1,0 +1,10 @@
+byte waitForByte();
+void sendError(byte code);
+void debugLEDBlink();
+void debugEcho();
+void openWritingPipe();
+void openReadingPipe();
+void write();
+void tx(byte payloadSize);
+void readRadio();
+void processCommand();
