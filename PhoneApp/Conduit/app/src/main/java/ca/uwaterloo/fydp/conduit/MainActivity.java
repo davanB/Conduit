@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
                 dataLink.write(compressedAndEncryptedText);
                 textView.append(userInput);
-        }
+            }
         }
     };
 

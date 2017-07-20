@@ -51,7 +51,7 @@ public class DataTransformation {
             key = sha.digest(key);
             key = Arrays.copyOf(key, 16); // use only first 128 bit
 
-            SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+            this.secretKey = new SecretKeySpec(key, "AES");
         } catch (UnsupportedEncodingException e){
             System.out.println("ohshit");
         } catch (NoSuchAlgorithmException e) {
