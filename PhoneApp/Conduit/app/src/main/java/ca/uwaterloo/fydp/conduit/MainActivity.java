@@ -1,9 +1,11 @@
 package ca.uwaterloo.fydp.conduit;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -17,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.conduit.libdatalink.DataLink;
+import com.conduit.libdatalink.DataLinkListener;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
@@ -26,6 +29,7 @@ import ca.uwaterloo.fydp.conduit.DataTransformation;
 
 public class MainActivity extends AppCompatActivity {
 
+    UsbManager manager;
     DataLink dataLink;
 
     // Used to load the 'native-lib' library on application startup.
@@ -69,6 +73,20 @@ public class MainActivity extends AppCompatActivity {
         if (!requestUserPermissions(PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_AND_GPS);
         }
+
+        manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        dataLink = new DataLink(new UsbDriver(manager));
+        dataLink.setReadListener(new DataLinkListener() {
+            @Override
+            public void OnReceiveData(final String data) {
+                userText.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        userText.append(data);
+                    }
+                });
+            }
+        });
 
     }
 
@@ -124,6 +142,12 @@ public class MainActivity extends AppCompatActivity {
             switch (v.getId()) {
                 case R.id.text:
                     userText.requestFocus();
+
+                    dataLink.debugEcho((byte)69);
+                    dataLink.debugEcho((byte)71);
+                    dataLink.debugEcho((byte)71);
+                    dataLink.debugEcho((byte)111);
+                    dataLink.debugEcho((byte)33);
                     break;
                 case R.id.map:
                     // intent to collect GPS data
