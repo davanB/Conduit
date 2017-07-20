@@ -40,13 +40,13 @@ public class Main {
         // Assuming ports are off by one
         if (portNumber % 2 == 0) {
             System.out.println("This is radio A");
+            dataLink.openWritingPipe(addrA);
             dataLink.openReadingPipe((byte)1, addrB);
-//            dataLink.openWritingPipe(addrA);
             remote = addrB;
         } else {
             System.out.println("This is radio B");
+            dataLink.openWritingPipe(addrB);
             dataLink.openReadingPipe((byte)1, addrA);
-//            dataLink.openWritingPipe(addrB);
             remote = addrA;
         }
 
@@ -56,9 +56,9 @@ public class Main {
             String line = in.nextLine();
             if (line.length() > 1) {
                 System.out.println("Transmitting: " + line);
-                dataLink.openWritingPipe(remote);
+//                dataLink.openWritingPipe(remote);
                 dataLink.write(line.getBytes());
-                dataLink.openReadingPipe((byte)1, remote);
+//                dataLink.openReadingPipe((byte)1, remote);
             }
         }
     }
@@ -70,11 +70,10 @@ public class Main {
 
         for (SerialPort serialPort : serialPorts) {
             String name = serialPort.getSystemPortName();
-            if (name.contains("cu.usbmodem")){
+            if (name.contains("cu.usbmodem") || name.contains("cu.usbserial")){
                 ports.add(serialPort.getSystemPortName());
             }
         }
-
         return ports;
     }
 }
