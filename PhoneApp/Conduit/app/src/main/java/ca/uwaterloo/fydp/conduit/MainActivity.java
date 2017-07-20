@@ -1,7 +1,9 @@
 package ca.uwaterloo.fydp.conduit;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -139,8 +141,8 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             String userInput = userText.getText().toString();
             if (!userInput.equals("")) {
-                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
-                dataLink.write(compressedAndEncryptedText);
+//                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
+                dataLink.write(userInput.getBytes());
                 textView.append(userInput);
             }
         }
@@ -245,6 +247,27 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if(id == R.id.action_setup) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Pick a user");
+            builder.setItems(new CharSequence[] {"Friend #1", "Friend #2"}, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    int addrA = 0xCDABCD71;
+                    int addrB = 0xCDABCD69;
+                    int me = addrA;
+                    int you = addrB;
+                    if(which == 0){
+                        me = addrB;
+                        you = addrA;
+                    }
+
+                    dataLink.openWritingPipe(me);
+                    dataLink.openReadingPipe((byte)1, you);
+                }
+            });
+            builder.show();
             return true;
         }
 
