@@ -16,6 +16,15 @@
         android:layout_width="match_parent"
         android:inputType="text"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Your hint"
+        android:inputType="textMultiLine"
+        android:text="Nothing Written to Conduit Yet"
+        style="@android:style/Widget.EditText"
+        />
+
 
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/main_menu"

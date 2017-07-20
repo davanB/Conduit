@@ -76,18 +76,20 @@ public class MainActivity extends AppCompatActivity {
 
         manager = (UsbManager) getSystemService(Context.USB_SERVICE);
         dataLink = new DataLink(new UsbDriver(manager));
-        dataLink.setReadListener(new DataLinkListener() {
-            @Override
-            public void OnReceiveData(final String data) {
-                userText.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        userText.append(data);
-                    }
-                });
-            }
-        });
+        dataLink.setReadListener(dataLinkListener);
 
+    }
+
+    DataLinkListener dataLinkListener  = new DataLinkListener() {
+        @Override
+        public void OnReceiveData(final String data) {
+            userText.post(new Runnable() {
+                @Override
+                public void run() {
+                    userText.append(data);
+                }
+            });
+        }
     }
 
     private boolean requestUserPermissions(String[] Permissions) {
