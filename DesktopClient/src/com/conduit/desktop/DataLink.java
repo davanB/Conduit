@@ -131,7 +131,7 @@ public class DataLink {
     }
 
     public byte[] longToBytes(long x) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        ByteBuffer buffer = ByteBuffer.allocate(8);
         buffer.putLong(x);
         return buffer.array();
     }
