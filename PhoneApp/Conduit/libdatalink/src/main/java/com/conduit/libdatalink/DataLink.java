@@ -4,15 +4,16 @@ import java.nio.ByteBuffer;
 
 public class DataLink implements DataLinkInterface{
 
-    private static final byte COMMAND_HEADER = 16;
+    private static final byte CONTROL_START_OF_HEADING = 1;
+    private static final byte CONTROL_START_OF_TEXT = 2;
+    private static final byte CONTROL_END_OF_TEXT = 3;
 
-    private static final byte COMMAND_DEBUG_LED_BLINK = 100;
-    private static final byte COMMAND_DEBUG_ECHO = 101;
-    private static final byte COMMAND_OPEN_WRITING_PIPE = 125;
-    private static final byte COMMAND_OPEN_READING_PIPE = 126;
-    private static final byte COMMAND_WRITE = 127;
-
-    private static final byte COMMAND_TERMINATOR = 0;
+    private static final byte COMMAND_DEBUG_LED_BLINK = 33;
+    private static final byte COMMAND_DEBUG_ECHO = 34;
+    private static final byte COMMAND_OPEN_WRITING_PIPE = 40;
+    private static final byte COMMAND_OPEN_READING_PIPE = 41;
+    private static final byte COMMAND_WRITE = 42;
+    private static final byte COMMAND_READ = 43;
 
     private UsbDriverInterface usbDriver;
     private DataLinkListener dataLinkListener;
@@ -23,33 +24,33 @@ public class DataLink implements DataLinkInterface{
     }
 
     public void debugLEDBlink(byte numBlinks) {
-        byte buf[] = {COMMAND_HEADER, COMMAND_DEBUG_LED_BLINK, numBlinks};
+        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_DEBUG_LED_BLINK, numBlinks};
         usbDriver.sendBuffer(buf);
     }
 
     public void debugEcho(byte value) {
-        byte buf[] = {COMMAND_HEADER, COMMAND_DEBUG_ECHO, value};
+        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_DEBUG_ECHO, value};
         usbDriver.sendBuffer(buf);
     }
 
     public void openWritingPipe(int address) {
-        byte buf[] = {COMMAND_HEADER, COMMAND_OPEN_WRITING_PIPE};
+        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_OPEN_WRITING_PIPE};
         byte addressBuf[] = intToBytes(address);
         buf = concatBuffers(buf, addressBuf);
         usbDriver.sendBuffer(buf);
     }
 
     public void openReadingPipe(byte pipeNumber, int address) {
-        byte buf[] = {COMMAND_HEADER, COMMAND_OPEN_READING_PIPE, pipeNumber};
+        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_OPEN_READING_PIPE, pipeNumber};
         byte addressBuf[] = intToBytes(address);
         buf = concatBuffers(buf, addressBuf);
         usbDriver.sendBuffer(buf);
     }
 
     public void write(byte[] payload) {
-        byte buf[] = {COMMAND_HEADER,COMMAND_WRITE};
+        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_WRITE, CONTROL_START_OF_TEXT};
         buf = concatBuffers(buf, payload);
-        buf = concatBuffers(buf, new byte[]{COMMAND_TERMINATOR});
+        buf = concatBuffers(buf, new byte[]{CONTROL_END_OF_TEXT});
         usbDriver.sendBuffer(buf);
     }
 
