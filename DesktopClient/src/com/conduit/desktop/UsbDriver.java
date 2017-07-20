@@ -53,6 +53,7 @@ public class UsbDriver implements UsbDriverInterface {
 
     @Override
     public void sendBuffer(byte[] buf) {
+        System.out.println("Sending: " + Arrays.toString(buf));
         comPort.writeBytes(buf, buf.length);
     }
 

@@ -31,6 +31,7 @@ public class Main {
         }
 
         DataLink dataLink = new DataLink(new UsbDriver(serialPorts.get(portNumber)));
+        dataLink.debugEcho((byte)69);
 
         // Only the last byte should differ
         int addrA = 0xCDABCD71;
@@ -41,13 +42,13 @@ public class Main {
         // Assuming ports are off by one
         if (portNumber % 2 == 0) {
             System.out.println("This is radio A");
-            dataLink.openWritingPipe((byte)addrA);
-            dataLink.openReadingPipe((byte)1, (byte)addrB);
+            dataLink.openWritingPipe(addrA);
+            dataLink.openReadingPipe((byte)1, addrB);
             remote = addrB;
         } else {
             System.out.println("This is radio B");
-            dataLink.openWritingPipe((byte)addrB);
-            dataLink.openReadingPipe((byte)1, (byte)addrA);
+            dataLink.openWritingPipe(addrB);
+            dataLink.openReadingPipe((byte)1, addrA);
             remote = addrA;
         }
 
