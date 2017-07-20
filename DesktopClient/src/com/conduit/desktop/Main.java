@@ -1,5 +1,6 @@
 package com.conduit.desktop;
 
+import com.conduit.libdatalink.DataLink;
 import com.fazecast.jSerialComm.SerialPort;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class Main {
             portNumber = in.nextInt();
         }
 
-        DataLink dataLink = new DataLink(serialPorts.get(portNumber));
+        DataLink dataLink = new DataLink(new UsbDriver(serialPorts.get(portNumber)));
 
         // Only the last byte should differ
         int addrA = 0xCDABCD71;
@@ -40,13 +41,13 @@ public class Main {
         // Assuming ports are off by one
         if (portNumber % 2 == 0) {
             System.out.println("This is radio A");
-            dataLink.openWritingPipe(addrA);
-            dataLink.openReadingPipe((byte)1, addrB);
+            dataLink.openWritingPipe((byte)addrA);
+            dataLink.openReadingPipe((byte)1, (byte)addrB);
             remote = addrB;
         } else {
             System.out.println("This is radio B");
-            dataLink.openWritingPipe(addrB);
-            dataLink.openReadingPipe((byte)1, addrA);
+            dataLink.openWritingPipe((byte)addrB);
+            dataLink.openReadingPipe((byte)1, (byte)addrA);
             remote = addrA;
         }
 

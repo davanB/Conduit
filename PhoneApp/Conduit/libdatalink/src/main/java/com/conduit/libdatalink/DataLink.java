@@ -13,9 +13,11 @@ public class DataLink implements DataLinkInterface{
     private static final byte COMMAND_TERMINATOR = '0';
 
     private UsbDriverInterface usbDriver;
+    private DataLinkListener dataLinkListener;
 
     public DataLink(UsbDriverInterface usbDriver) {
         this.usbDriver = usbDriver;
+        this.usbDriver.setReadListener(usbSerialListener);
     }
 
     public void debugLEDBlink(byte numBlinks) {
@@ -46,8 +48,18 @@ public class DataLink implements DataLinkInterface{
     }
 
     public void setReadListener(DataLinkListener listener) {
-        usbDriver.setReadListener(listener);
+        dataLinkListener = listener;
     }
+
+    private UsbSerialListener usbSerialListener = new UsbSerialListener() {
+        @Override
+        public void OnReceiveData(byte[] data) {
+            // TODO: Accumulate data and parse out control signals
+            if (dataLinkListener != null) {
+                dataLinkListener.OnReceiveData(new String(data));
+            }
+        }
+    };
 
     private byte[] concatBuffers(byte[] first, byte[] second) {
         int aLen = first.length;
