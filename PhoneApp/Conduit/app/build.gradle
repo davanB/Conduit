@@ -41,7 +41,7 @@ dependencies {
     compile 'id.zelory:compressor:2.0.0'
     compile 'org.encryptor4j:encryptor4j:0.1.1'
     compile project(':usb-serial-for-android:usbSerialForAndroid')
-    compile project(':DataLink')
     testCompile 'junit:junit:4.12'
 
+    compile project(path: ':libdatalink')
 }

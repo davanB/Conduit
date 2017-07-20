@@ -1,1 +1,1 @@
-include ':app', ':usb-serial-for-android', ':usb-serial-for-android:usbSerialForAndroid', ':DataLink'
+include ':app', ':usb-serial-for-android', ':usb-serial-for-android:usbSerialForAndroid', ':libdatalink'

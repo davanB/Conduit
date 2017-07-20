@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.conduit.libdatalink.DataLink;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
@@ -24,6 +25,8 @@ import java.io.File;
 import ca.uwaterloo.fydp.conduit.DataTransformation;
 
 public class MainActivity extends AppCompatActivity {
+
+    DataLink dataLink;
 
     // Used to load the 'native-lib' library on application startup.
     static {
