@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Button;
+import android.text.Html;
 import android.widget.EditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -86,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         manager = (UsbManager) getSystemService(Context.USB_SERVICE);
         dataLink = new DataLink(new UsbDriver(manager));
         dataLink.setReadListener(dataLinkListener);
-
     }
 
     DataLinkListener dataLinkListener  = new DataLinkListener() {
@@ -96,7 +96,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     // TODO this needs to be built so that data can be decrypted and uncompressed
-                    textView.append(data);
+                    String newText = String.format("<b>Friend> </b>%s<br>", data);
+                    String oldText = Html.toHtml(textView.getEditableText()).toString();
+                    textView.setText(Html.fromHtml(newText + oldText));
 
 //                    byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(compressedAndEncryptedText);
 //                    String res = new String(decyeptedAndDecompressed);
@@ -152,7 +154,10 @@ public class MainActivity extends AppCompatActivity {
             if (!userInput.equals("")) {
 //                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
                 dataLink.write(userInput.getBytes());
-                textView.append(userInput);
+                String newText = String.format("<b>You> </b>%s<br>", userInput);
+                String oldText = Html.toHtml(textView.getEditableText()).toString();
+                textView.setText(Html.fromHtml(newText + oldText));
+                userText.getText().clear();
             }
         }
     };
