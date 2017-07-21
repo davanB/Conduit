@@ -56,10 +56,10 @@ public class MainActivity extends AppCompatActivity {
     private final int PERMISSIONS_REQUEST_READ_STORAGE = 200; // write is also given
     private final int PERMISSIONS_REQUEST_FINE_LOCATION = 201; // course is also given
 
-    private final int PERMISSIONS_READ_AND_GPS = 401;
+    private final int PERMISSIONS_READ_CAMERA_GPS = 401;
 
     private final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_FINE_LOCATION};
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA};
 
     private DataTransformation transformer;
 
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         setUpTextBoxes();
 
         if (!requestUserPermissions(PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_AND_GPS);
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_CAMERA_GPS);
         }
 
         manager = (UsbManager) getSystemService(Context.USB_SERVICE);
@@ -248,6 +248,10 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_QRsetup) {
+            // launch new intent for QR
+            Intent intent = new Intent(this,QRGenerationAvtivity.class);
+            startActivity(intent);
         } else if(id == R.id.action_setup) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Pick a user");

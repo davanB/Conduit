@@ -11,4 +11,10 @@
         android:title="setup"
         android:orderInCategory="100"
         app:showAsAction="never" />
+
+    <item android:id="@+id/action_QRsetup"
+        android:title="Generate QR Code"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
 </menu>
