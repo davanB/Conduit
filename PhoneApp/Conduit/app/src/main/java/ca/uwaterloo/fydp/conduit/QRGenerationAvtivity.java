@@ -2,14 +2,12 @@ package ca.uwaterloo.fydp.conduit;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
-import com.google.zxing.qrcode.encoder.Encoder;
 
 
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,16 +16,27 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import ca.uwaterloo.fydp.conduit.HandShakeData;
+
+
+/*
+    This was also copy pasted from some random tutorial
+    it needs to be mofdified but maybe we need to give credit to the guy?
+ */
+
 public class QRGenerationAvtivity extends Activity implements OnClickListener{
 
-    private String LOG_TAG = "GenerateQRCode";
+    HandShakeData handShakeData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrgeneration_avtivity);
 
-        Button button1 = (Button) findViewById(R.id.button1);
+        int[] friendData = new int[6]; // TODO populate this somewhere
+        handShakeData = new HandShakeData(friendData);
+
+        Button button1 = (Button) findViewById(R.id.generateButton);
         button1.setOnClickListener(this);
 
     }
@@ -35,10 +44,8 @@ public class QRGenerationAvtivity extends Activity implements OnClickListener{
     public void onClick(View v) {
 
         switch (v.getId()) {
-            case R.id.button1:
-                EditText qrInput = (EditText) findViewById(R.id.qrInput);
-                String qrInputText = qrInput.getText().toString();
-                Log.v(LOG_TAG, qrInputText);
+            case R.id.generateButton:
+                String qrInputText = handShakeData.toString();
 
                 //Find screen size
                 WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -58,7 +65,7 @@ public class QRGenerationAvtivity extends Activity implements OnClickListener{
                         smallerDimension);
                 try {
                     Bitmap bitmap = qrCodeEncoder.encodeAsBitmap();
-                    ImageView myImage = (ImageView) findViewById(R.id.imageView1);
+                    ImageView myImage = (ImageView) findViewById(R.id.QRView);
                     myImage.setImageBitmap(bitmap);
 
                 } catch (WriterException e) {

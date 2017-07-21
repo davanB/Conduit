@@ -1,8 +1,5 @@
 package ca.uwaterloo.fydp.conduit;
 
-/**
- * Created by davanb on 2017-07-20.
- */
 
 //
 // * Copyright (C) 2008 ZXing authors
