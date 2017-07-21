@@ -25,10 +25,8 @@
         android:id="@+id/plain_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Your hint"
-        android:inputType="textMultiLine"
-        android:text="Nothing Written to Conduit Yet"
-        style="@android:style/Widget.EditText" />
+        android:hint="You have no messages ..."
+        android:inputType="textMultiLine"/>
 
     </LinearLayout>
 
