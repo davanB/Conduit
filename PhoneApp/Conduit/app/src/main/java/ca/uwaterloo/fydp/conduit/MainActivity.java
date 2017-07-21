@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.widget.Button;
 import android.widget.EditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText userText;
     private TextView textView;
+    private Button sendButton;
 
     private final int PICK_IMAGE = 100;
 
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupFloatingActionsButtons();
         setUpTextBoxes();
+        setUpSendButton();
 
         if (!requestUserPermissions(PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_AND_GPS);
@@ -116,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         userText = (EditText)findViewById(R.id.plain_text_input);
         textView = (TextView)findViewById(R.id.plain_textView);
 
-        userText.setOnClickListener(clickTextBoxListener);
+//        userText.setOnClickListener(clickTextBoxListener);
     }
 
 
@@ -134,6 +137,12 @@ public class MainActivity extends AppCompatActivity {
         mapButton.setOnClickListener(clickListener);
         mediaButton.setOnClickListener(clickListener);
         mainMenu.setClosedOnTouchOutside(true);
+    }
+
+    private void setUpSendButton() {
+        sendButton = (Button) findViewById(R.id.send_button);
+
+        sendButton.setOnClickListener(clickTextBoxListener);
     }
 
     private View.OnClickListener clickTextBoxListener = new View.OnClickListener() {

@@ -13,12 +13,13 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout">
 
     <EditText
         android:id="@+id/plain_text_input"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:layout_width="318dp"
         android:inputType="text"/>
 
     <TextView
@@ -70,5 +71,13 @@
             fab:fab_label="Text" />
 
     </com.github.clans.fab.FloatingActionMenu>
+
+    <Button
+        android:id="@+id/send_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
