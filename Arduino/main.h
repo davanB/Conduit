@@ -1,5 +1,5 @@
 byte waitForByte();
-void sendError(byte code);
+void sendError(byte commandId, byte errorCode);
 void debugLEDBlink();
 void debugEcho();
 void openWritingPipe();

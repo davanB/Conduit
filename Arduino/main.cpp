@@ -6,15 +6,21 @@
 #define CONTROL_START_OF_HEADING 1
 #define CONTROL_START_OF_TEXT 2
 #define CONTROL_END_OF_TEXT 3
+#define CONTROL_END_OF_TRANSMISSION 4
 
-#define COMMAND_DEBUG_LED_BLINK 100
-#define COMMAND_DEBUG_ECHO 101
-#define COMMAND_OPEN_WRITING_PIPE 125
-#define COMMAND_OPEN_READING_PIPE 126
-#define COMMAND_WRITE 127
-#define COMMAND_READ 128
+#define COMMAND_DEBUG_LED_BLINK 33
+#define COMMAND_DEBUG_ECHO 34
+#define COMMAND_OPEN_WRITING_PIPE 40
+#define COMMAND_OPEN_READING_PIPE 41
+#define COMMAND_WRITE 42
+#define COMMAND_READ 43
+
+#define STATUS_SUCCESS 100
+#define STATUS_FAILURE 101
 
 #define ERROR_INVALID_COMMAND 1
+#define ERROR_TX_FAIL 110
+#define ERROR_ACK_MISS 111
 
 #define BUFFER_SIZE 32
 
@@ -38,7 +44,6 @@ void setup() {
 
 void loop() {
     if (radio.available()) {
-        Serial.println("New data");
         readRadio();
     } else if (Serial.available()) {
         if (CONTROL_START_OF_HEADING == Serial.read()) {
@@ -66,7 +71,7 @@ void processCommand() {
             write();
             break;
         default:
-            sendError(ERROR_INVALID_COMMAND);
+            sendError(COMMAND_READ, ERROR_INVALID_COMMAND);
             break;
     }
 }
@@ -84,7 +89,11 @@ void debugLEDBlink() {
 
 void debugEcho() {
     byte value = waitForByte();
+    Serial.write(CONTROL_START_OF_HEADING);
+    Serial.write(COMMAND_DEBUG_ECHO);
+    Serial.write(STATUS_SUCCESS);
     Serial.write(value);
+    Serial.write(CONTROL_END_OF_TRANSMISSION);
     Serial.flush();
 }
 
@@ -93,7 +102,10 @@ void openWritingPipe() {
     Serial.readBytes(address, 4);
     radio.stopListening();
     radio.openWritingPipe((uint32_t)*address);
-    Serial.write(56);
+    Serial.write(CONTROL_START_OF_HEADING);
+    Serial.write(COMMAND_OPEN_WRITING_PIPE);
+    Serial.write(STATUS_SUCCESS);
+    Serial.write(CONTROL_END_OF_TRANSMISSION);
     Serial.flush();
 }
 
@@ -103,21 +115,22 @@ void openReadingPipe() {
     Serial.readBytes(address, 4);
     radio.openReadingPipe(pipeNumber, (uint32_t)*address);
     radio.startListening();
-    Serial.write(57);
+    Serial.write(CONTROL_START_OF_HEADING);
+    Serial.write(COMMAND_OPEN_READING_PIPE);
+    Serial.write(STATUS_SUCCESS);
+    Serial.write(CONTROL_END_OF_TRANSMISSION);
     Serial.flush();
 }
 
 void write() {
     uint32_t i = 0;
     byte recvByte = 0;
-    Serial.println("Write start!");
     while(true) {
         // Fill buffer
         if (Serial.available()) {
             recvByte = Serial.read();
             buffer[i] = recvByte;
             if(buffer[i] == CONTROL_END_OF_TEXT){
-                Serial.println("TERMINATED");
                 tx(i + 1); // Ensure we transmit the null terminator
                 break;
             }
@@ -125,12 +138,15 @@ void write() {
         }
 
         if (i >= BUFFER_SIZE) {
-            Serial.println("TX Start");
             tx(BUFFER_SIZE);
             i = 0;
         }
     }
-    Serial.println("Write done!");
+
+    Serial.write(CONTROL_START_OF_HEADING);
+    Serial.write(COMMAND_WRITE);
+    Serial.write(STATUS_SUCCESS);
+    Serial.write(CONTROL_END_OF_TRANSMISSION);
 }
 
 void tx(byte payloadSize) {
@@ -138,16 +154,20 @@ void tx(byte payloadSize) {
     int ack_buffer[1] = {5};
     // Write buffer to radio
     if (radio.write(buffer, payloadSize)) {
-        Serial.println("...tx success");
         if (radio.isAckPayloadAvailable()) {
             radio.read(ack_buffer, sizeof(int));
-            Serial.print("received ack payload is : ");
-            Serial.println(ack_buffer[0]);
+            // Send ACK payload
+            Serial.write(CONTROL_START_OF_HEADING);
+            Serial.write(COMMAND_WRITE);
+            Serial.write(STATUS_SUCCESS);
+            Serial.print(ack_buffer[0]);
+            Serial.write(CONTROL_END_OF_TRANSMISSION);
+            Serial.flush();
         } else {
-            Serial.println("ACK MISSED");
+            sendError(COMMAND_WRITE, ERROR_ACK_MISS);
         }
     } else {
-        Serial.println("...tx fail");
+        sendError(COMMAND_WRITE, ERROR_TX_FAIL);
     }
     radio.startListening(); //TODO: Evaluate effect on dropped packets
 }
@@ -157,7 +177,12 @@ void readRadio() {
     radio.writeAckPayload(1, ack_buffer, sizeof(int));
     byte payloadSize = radio.getPayloadSize();
     radio.read(buffer, payloadSize);
+
+    Serial.write(CONTROL_START_OF_HEADING);
+    Serial.write(COMMAND_READ);
+    Serial.write(STATUS_SUCCESS);
     Serial.write(buffer, payloadSize);
+    Serial.write(CONTROL_END_OF_TRANSMISSION);
 }
 
 byte waitForByte() {
@@ -165,5 +190,11 @@ byte waitForByte() {
     return Serial.read();
 }
 
-void sendError(byte code) {
+void sendError(byte commandId, byte errorCode) {
+    Serial.write(CONTROL_START_OF_HEADING);
+    Serial.write(commandId);
+    Serial.write(STATUS_FAILURE);
+    Serial.write(errorCode);
+    Serial.write(CONTROL_END_OF_TRANSMISSION);
+    Serial.flush();
 }
