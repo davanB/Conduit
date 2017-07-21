@@ -19,6 +19,8 @@
 #define STATUS_FAILURE 101
 
 #define ERROR_INVALID_COMMAND 1
+#define ERROR_TX_FAIL 110
+#define ERROR_ACK_MISS 111
 
 #define BUFFER_SIZE 32
 
@@ -42,7 +44,6 @@ void setup() {
 
 void loop() {
     if (radio.available()) {
-        Serial.println("New data");
         readRadio();
     } else if (Serial.available()) {
         if (CONTROL_START_OF_HEADING == Serial.read()) {
@@ -70,7 +71,7 @@ void processCommand() {
             write();
             break;
         default:
-            sendError(ERROR_INVALID_COMMAND);
+            sendError(COMMAND_READ, ERROR_INVALID_COMMAND);
             break;
     }
 }
@@ -124,14 +125,12 @@ void openReadingPipe() {
 void write() {
     uint32_t i = 0;
     byte recvByte = 0;
-    Serial.println("Write start!");
     while(true) {
         // Fill buffer
         if (Serial.available()) {
             recvByte = Serial.read();
             buffer[i] = recvByte;
             if(buffer[i] == CONTROL_END_OF_TEXT){
-                Serial.println("TERMINATED");
                 tx(i + 1); // Ensure we transmit the null terminator
                 break;
             }
@@ -139,7 +138,6 @@ void write() {
         }
 
         if (i >= BUFFER_SIZE) {
-            Serial.println("TX Start");
             tx(BUFFER_SIZE);
             i = 0;
         }
@@ -156,16 +154,20 @@ void tx(byte payloadSize) {
     int ack_buffer[1] = {5};
     // Write buffer to radio
     if (radio.write(buffer, payloadSize)) {
-        Serial.println("...tx success");
         if (radio.isAckPayloadAvailable()) {
             radio.read(ack_buffer, sizeof(int));
-            Serial.print("received ack payload is : ");
-            Serial.println(ack_buffer[0]);
+            // Send ACK payload
+            Serial.write(CONTROL_START_OF_HEADING);
+            Serial.write(COMMAND_WRITE);
+            Serial.write(STATUS_SUCCESS);
+            Serial.print(ack_buffer[0]);
+            Serial.write(CONTROL_END_OF_TRANSMISSION);
+            Serial.flush();
         } else {
-            Serial.println("ACK MISSED");
+            sendError(COMMAND_WRITE, ERROR_ACK_MISS);
         }
     } else {
-        Serial.println("...tx fail");
+        sendError(COMMAND_WRITE, ERROR_TX_FAIL);
     }
     radio.startListening(); //TODO: Evaluate effect on dropped packets
 }
@@ -188,5 +190,11 @@ byte waitForByte() {
     return Serial.read();
 }
 
-void sendError(byte code) {
+void sendError(byte commandId, byte errorCode) {
+    Serial.write(CONTROL_START_OF_HEADING);
+    Serial.write(commandId);
+    Serial.write(STATUS_FAILURE);
+    Serial.write(errorCode);
+    Serial.write(CONTROL_END_OF_TRANSMISSION);
+    Serial.flush();
 }

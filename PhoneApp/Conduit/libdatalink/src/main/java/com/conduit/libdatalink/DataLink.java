@@ -22,6 +22,10 @@ public class DataLink implements DataLinkInterface{
     public static final byte STATUS_SUCCESS = 100;
     public static final byte STATUS_FAILURE = 101;
 
+    public static final byte ERROR_INVALID_COMMAND = 1;
+    public static final byte ERROR_TX_FAIL = 110;
+    public static final byte ERROR_ACK_MISS = 111;
+
     private UsbDriverInterface usbDriver;
     private DataLinkListener dataLinkListener;
 
@@ -74,11 +78,8 @@ public class DataLink implements DataLinkInterface{
             // Persist all bytes
             for (int i = 0; i < data.length; i++) accumulator.add(data[i]);
 
-            System.out.println("ACCUMULATOR:" + Arrays.toString(accumulator.toArray()));
-
             while (accumulator.contains(CONTROL_START_OF_HEADING) && accumulator.contains(CONTROL_END_OF_TRANSMISSION)) {
                 // Full packet(s); find and parse
-                System.out.println("Found packet, parsing...");
                 CommandResultHolder result = parseCommand(accumulator);
                 System.out.println(result);
 
@@ -102,8 +103,6 @@ public class DataLink implements DataLinkInterface{
             if (data.get(i) == CONTROL_END_OF_TRANSMISSION) term_idx = i;
 
             if (head_idx >= 0 && term_idx >= 0 && head_idx < term_idx) {
-
-                System.out.println("head_idx: " + head_idx + "   term_idx" + term_idx);
 
                 // Found a good packet, remove header and terminator
                 data.remove(term_idx);
