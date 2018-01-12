@@ -1,0 +1,12 @@
+machine:
+  java:
+    version:
+      oraclejdk8
+
+general:
+  artifacts:
+    - "conduit/PhoneApp/Conduit/libdatalink/build/reports/tests" # preserve the generated HTML test reports
+
+test:
+  override:
+    - cd DesktopClient && gradle test -is

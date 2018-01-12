@@ -94,10 +94,9 @@ public class DataLink implements DataLinkInterface{
     };
 
     public static CommandResultHolder parseCommand(List<Byte> data) {
-        CommandResultHolder result = null;
-
         int head_idx = -1;
         int term_idx = -1;
+
         for (int i = 0; i < data.size(); i++) {
             if (data.get(i) == CONTROL_START_OF_HEADING) head_idx = i;
             if (data.get(i) == CONTROL_END_OF_TRANSMISSION) term_idx = i;
@@ -109,11 +108,11 @@ public class DataLink implements DataLinkInterface{
                 data.remove(head_idx);
 
                 // Parse packet
-                result = new CommandResultHolder(data.subList(head_idx, term_idx - 1));
+                return new CommandResultHolder(data.subList(head_idx, term_idx - 1));
             }
         }
 
-        return result;
+        return null;
     }
 
     public byte[] intToBytes(int x) {
