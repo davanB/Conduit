@@ -12,6 +12,9 @@ dependencies {
 test {
     testLogging.showStandardStreams = true
     testLogging.exceptionFormat = 'full'
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
 }
 
 sourceCompatibility = "1.6"
