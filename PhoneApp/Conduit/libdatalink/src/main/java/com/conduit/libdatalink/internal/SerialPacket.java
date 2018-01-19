@@ -1,7 +1,6 @@
 package com.conduit.libdatalink.internal;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import static com.conduit.libdatalink.internal.Constants.*;
 
@@ -24,6 +23,9 @@ public class SerialPacket {
      */
     protected SerialPacket(byte commandId, int payloadSize) {
         packetData = ByteBuffer.allocate(HEADER_SIZE + payloadSize + FOOTER_SIZE);
+        packetData.put(CONTROL_START_OF_PACKET)
+                .put(commandId)
+                .putInt(payloadSize);
     }
 
     /**
@@ -32,14 +34,11 @@ public class SerialPacket {
      * @param payload
      */
     public SerialPacket(byte commandId, byte[] payload) {
+        // Call incremental constructor then append the payload
         this(commandId, payload.length);
 
-        packetData.put(CONTROL_START_OF_PACKET)
-                .put(commandId)
-                .putInt(payload.length)
-                .put(payload)
-                .put(CONTROL_END_OF_PACKET)
-                .array();
+        packetData.put(payload)
+                .put(CONTROL_END_OF_PACKET);
     }
 
     public byte getCommandId() {
