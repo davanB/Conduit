@@ -42,6 +42,8 @@ public class SerialPacketParser {
             if (start == -1) return;
             if (accumulator.size() < start + SerialPacket.HEADER_SIZE) return;
 
+            if (start != 0) System.out.println("WARNING: Accumulator had residual data!!");
+
             // Consume header and partially build incoming packet
             accumulator.remove(start);
             byte commandId = accumulator.remove(start);
@@ -52,14 +54,30 @@ public class SerialPacketParser {
                     accumulator.remove(start)
             });
 
-            if (accumulator.size() != 0) {
-                // TODO: Handle this error condition properly
-                System.out.println("WARNING: Accumulator not empty!");
-                accumulator.clear();
-            }
-
+            // Build our packet with the header information received
             currentPacket = new SerialPacket(commandId, payloadSize);
             state = State.ACCUMULATING;
+
+            // Handle the case where a portion of the payload is received - we need to move from accumulator to the packet
+            if (accumulator.size() != 0) {
+
+                int remaining = currentPacket.getPacketByteBuffer().remaining();
+                for (int i = 0; i < remaining; i++) {
+                    if (accumulator.size() == 0) break;
+                    if (start > accumulator.size()) break; // This should never happen
+
+                    // Fill up current packet buffer
+                    currentPacket.getPacketByteBuffer().put(accumulator.remove(start));
+                }
+
+                remaining = currentPacket.getPacketByteBuffer().remaining();
+
+                if (remaining == 0) {
+                    output.add(currentPacket);
+                    currentPacket = null;
+                    state = State.WAITING;
+                }
+            }
 
         } else if (state == State.ACCUMULATING) {
 

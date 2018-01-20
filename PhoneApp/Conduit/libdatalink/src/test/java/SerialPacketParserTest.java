@@ -39,8 +39,8 @@ public class SerialPacketParserTest {
     }
 
     @Test
-    public void testBinaryPacketParse(){
-        // The packet parser should handle packets with termination signals in the payload
+    public void testIncrementalBinaryPacketParse(){
+        // The packet parser should handle an incremental build of packets with termination signals in the payload
 
         byte[] payload = { 12, CONTROL_END_OF_PACKET, 56, 26, 58, CONTROL_END_OF_PACKET };
 
@@ -64,8 +64,8 @@ public class SerialPacketParserTest {
     }
 
     @Test
-    public void testMultiplePacketParse(){
-        // The packet parser should correctly handle mutiple consecutive packets and return them in order
+    public void testIncrementalMultiplePacketParse(){
+        // The packet parser should correctly handle incremental receive mutiple consecutive packets and return them in order
 
         byte[] payload1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit".getBytes();
         byte[] payload2 = "Mauris lobortis posuere turpis, in volutpat lorem fringilla ac".getBytes();
@@ -95,6 +95,27 @@ public class SerialPacketParserTest {
         byte[] parsedPayload2 = new byte[packet2.getPayloadSize()];
         packet2.getPacketPayload(parsedPayload2);
         assertArrayEquals(payload2, parsedPayload2);
+    }
+
+    @Test
+    public void testCompleteBinaryPacketParse(){
+        // The packet parser should handle receiving an entire packet at once
+        final byte[] PAYLOAD = "Hello World".getBytes();
+
+        SerialPacket inPacket = new SerialPacket(COMMAND_OPEN_READING_PIPE, PAYLOAD);
+
+        SerialPacketParser parser = new SerialPacketParser();
+        assertFalse(parser.isPacketReady());
+
+        // Receive all bytes at once
+        parser.addBytes(inPacket.getPacketByteBuffer().array());
+        assertTrue(parser.isPacketReady());
+
+        // Validate payload
+        SerialPacket outPacket = parser.getPacket();
+        byte[] parsedPayload = new byte[outPacket.getPayloadSize()];
+        outPacket.getPacketPayload(parsedPayload);
+        assertArrayEquals(PAYLOAD, parsedPayload);
     }
 
 }
