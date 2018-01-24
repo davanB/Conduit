@@ -61,4 +61,9 @@ public class UsbDriver implements UsbDriverInterface {
     public void setReadListener(UsbSerialListener listener) {
         this.usbSerialListener = listener;
     }
+
+    @Override
+    public boolean isConnected() {
+        return true;
+    }
 }
