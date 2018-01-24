@@ -2,16 +2,13 @@ package ca.uwaterloo.fydp.conduit;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Button;
 import android.text.Html;
@@ -23,26 +20,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.conduit.libdatalink.DataLink;
-import com.conduit.libdatalink.DataLinkListener;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 
-import ca.uwaterloo.fydp.conduit.DataTransformation;
+import ca.uwaterloo.fydp.conduit.connectionutils.ConduitDataLink;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
-
-    UsbManager manager;
-    DataLink dataLink;
-
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
     }
+    private ConduitDataLink dataLink;
 
     private FloatingActionMenu mainMenu;
 
@@ -55,14 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private Button sendButton;
 
     private final int PICK_IMAGE = 100;
-
-    private final int PERMISSIONS_REQUEST_READ_STORAGE = 200; // write is also given
-    private final int PERMISSIONS_REQUEST_FINE_LOCATION = 201; // course is also given
-
-    private final int PERMISSIONS_READ_AND_GPS = 401;
-
-    private final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_FINE_LOCATION};
 
     private DataTransformation transformer;
 
@@ -80,18 +64,13 @@ public class MainActivity extends AppCompatActivity {
         setUpTextBoxes();
         setUpSendButton();
 
-        if (!requestUserPermissions(PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_AND_GPS);
-        }
-
-        manager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        dataLink = new DataLink(new UsbDriver(manager));
-        dataLink.setReadListener(dataLinkListener);
+        dataLink = new ConduitDataLink(this);
+        dataLink.setGenericConduitListener(genericDataListener);
     }
 
-    DataLinkListener dataLinkListener  = new DataLinkListener() {
+    Function1<String, Unit> genericDataListener = new Function1<String, Unit>() {
         @Override
-        public void OnReceiveData(final String data) {
+        public Unit invoke(final String data) {
             textView.post(new Runnable() {
                 @Override
                 public void run() {
@@ -105,17 +84,9 @@ public class MainActivity extends AppCompatActivity {
 //                    textView.append(res);
                 }
             });
+            return null;
         }
     };
-
-    private boolean requestUserPermissions(String[] Permissions) {
-        for (String permission : Permissions) {
-            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private void setUpTextBoxes() {
         userText = (EditText)findViewById(R.id.plain_text_input);
@@ -153,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             String userInput = userText.getText().toString();
             if (!userInput.equals("")) {
 //                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
-                dataLink.write(userInput.getBytes());
+                dataLink.write(userInput);
                 String newText = String.format("<b>You> </b>%s<br>", userInput);
                 String oldText = Html.toHtml(textView.getEditableText()).toString();
                 textView.setText(Html.fromHtml(newText + oldText));
@@ -278,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     dataLink.openWritingPipe(me);
-                    dataLink.openReadingPipe((byte)1, you);
+                    dataLink.openReadingPipe(1, you);
                 }
             });
             builder.show();

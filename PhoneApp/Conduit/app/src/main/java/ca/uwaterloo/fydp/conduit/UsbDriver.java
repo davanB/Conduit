@@ -56,6 +56,10 @@ public class UsbDriver implements UsbDriverInterface {
         }
     }
 
+    public boolean isConnected() {
+        return connection != null && port != null;
+    }
+
     private SerialInputOutputManager.Listener seriaListener = new SerialInputOutputManager.Listener() {
         @Override
         public void onNewData(byte[] data) {
