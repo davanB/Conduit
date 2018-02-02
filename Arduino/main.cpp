@@ -2,31 +2,8 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 #include "main.h"
-#include "SerialPacket.cpp"
-
-#define htonl(x) ( ((x)<<24 & 0xFF000000UL) | \
-                   ((x)<< 8 & 0x00FF0000UL) | \
-                   ((x)>> 8 & 0x0000FF00UL) | \
-                   ((x)>>24 & 0x000000FFUL) )
-
-#define CONTROL_START_OF_PACKET 1
-#define CONTROL_START_OF_TEXT 2
-#define CONTROL_END_OF_TEXT 3
-#define CONTROL_END_OF_PACKET 4
-
-#define COMMAND_DEBUG_LED_BLINK 33
-#define COMMAND_DEBUG_ECHO 34
-#define COMMAND_OPEN_WRITING_PIPE 40
-#define COMMAND_OPEN_READING_PIPE 41
-#define COMMAND_WRITE 42
-#define COMMAND_READ 43
-
-#define STATUS_SUCCESS 100
-#define STATUS_FAILURE 101
-
-#define ERROR_INVALID_COMMAND 1
-#define ERROR_TX_FAIL 110
-#define ERROR_ACK_MISS 111
+#include "Constants.h"
+#include "SerialPacket.h"
 
 #define BUFFER_SIZE 32
 
@@ -103,15 +80,10 @@ void debugLEDBlink() {
 
 void debugEcho() {
     byte value = waitForByte();
-    Serial.write(CONTROL_START_OF_PACKET);
-    Serial.write(COMMAND_DEBUG_ECHO);
-    // Serial.write((uint32_t) 2);
-    uint32_t packetSize = htonl(2UL);
-    Serial.write((byte*)&packetSize, sizeof(packetSize));
-    Serial.write(STATUS_SUCCESS);
-    Serial.write(value);
-    Serial.write(CONTROL_END_OF_PACKET);
-    Serial.flush();
+    SerialPacket packet = SerialPacket(COMMAND_DEBUG_ECHO, 2);
+    packet.payload[0] = STATUS_SUCCESS;
+    packet.payload[1] = value;
+    packet.write();
 }
 
 void openWritingPipe() {
@@ -119,12 +91,10 @@ void openWritingPipe() {
     Serial.readBytes(address, 4);
     radio.stopListening();
     radio.openWritingPipe((uint32_t)*address);
-    Serial.write(CONTROL_START_OF_PACKET);
-    Serial.write(COMMAND_OPEN_WRITING_PIPE);
-    Serial.write((uint32_t) 1);
-    Serial.write(STATUS_SUCCESS);
-    Serial.write(CONTROL_END_OF_PACKET);
-    Serial.flush();
+
+    SerialPacket packet = SerialPacket(COMMAND_OPEN_WRITING_PIPE, 1);
+    packet.payload[0] = STATUS_SUCCESS;
+    packet.write();
 }
 
 void openReadingPipe() {
@@ -133,12 +103,10 @@ void openReadingPipe() {
     Serial.readBytes(address, 4);
     radio.openReadingPipe(pipeNumber, (uint32_t)*address);
     radio.startListening();
-    Serial.write(CONTROL_START_OF_PACKET);
-    Serial.write(COMMAND_OPEN_READING_PIPE);
-    Serial.write((uint32_t) 1);
-    Serial.write(STATUS_SUCCESS);
-    Serial.write(CONTROL_END_OF_PACKET);
-    Serial.flush();
+
+    SerialPacket packet = SerialPacket(COMMAND_OPEN_READING_PIPE, 1);
+    packet.payload[0] = STATUS_SUCCESS;
+    packet.write();
 }
 
 void write() {
@@ -162,11 +130,9 @@ void write() {
         }
     }
 
-    Serial.write(CONTROL_START_OF_PACKET);
-    Serial.write(COMMAND_WRITE);
-    Serial.write((uint32_t) 1);
-    Serial.write(STATUS_SUCCESS);
-    Serial.write(CONTROL_END_OF_PACKET);
+    SerialPacket packet = SerialPacket(COMMAND_WRITE, 1);
+    packet.payload[0] = STATUS_SUCCESS;
+    packet.write();
 }
 
 void tx(byte payloadSize) {
@@ -177,12 +143,14 @@ void tx(byte payloadSize) {
         if (radio.isAckPayloadAvailable()) {
             radio.read(ack_buffer, sizeof(int));
             // Send ACK payload
-            Serial.write(CONTROL_START_OF_PACKET);
-            Serial.write(COMMAND_WRITE);
-            Serial.write(STATUS_SUCCESS);
-            Serial.print(ack_buffer[0]);
-            Serial.write(CONTROL_END_OF_PACKET);
-            Serial.flush();
+
+            SerialPacket packet = SerialPacket(COMMAND_WRITE, 1 + sizeof(int));
+            packet.payload[0] = STATUS_SUCCESS;
+            // TODO: Figure out a better way to do this
+            packet.payload[1] = ack_buffer[0] & 0xFF00;
+            packet.payload[2] = ack_buffer[1] & 0x00FF;
+            packet.write();
+
         } else {
             sendError(COMMAND_WRITE, ERROR_ACK_MISS);
         }
@@ -196,13 +164,11 @@ void readRadio() {
     int ack_buffer[1] = {5};
     radio.writeAckPayload(1, ack_buffer, sizeof(int));
     byte payloadSize = radio.getPayloadSize();
-    radio.read(buffer, payloadSize);
 
-    Serial.write(CONTROL_START_OF_PACKET);
-    Serial.write(COMMAND_READ);
-    Serial.write(STATUS_SUCCESS);
-    Serial.write(buffer, payloadSize);
-    Serial.write(CONTROL_END_OF_PACKET);
+    SerialPacket packet = SerialPacket(COMMAND_READ, payloadSize + 1);
+    packet.payload[0] = STATUS_SUCCESS;
+    radio.read(packet.payload + 1, payloadSize);
+    packet.write();
 }
 
 byte waitForByte() {
@@ -211,10 +177,8 @@ byte waitForByte() {
 }
 
 void sendError(byte commandId, byte errorCode) {
-    Serial.write(CONTROL_START_OF_PACKET);
-    Serial.write(commandId);
-    Serial.write(STATUS_FAILURE);
-    Serial.write(errorCode);
-    Serial.write(CONTROL_END_OF_PACKET);
-    Serial.flush();
+    SerialPacket packet = SerialPacket(commandId, 2);
+    packet.payload[0] = STATUS_FAILURE;
+    packet.payload[1] = errorCode;
+    packet.write();
 }
