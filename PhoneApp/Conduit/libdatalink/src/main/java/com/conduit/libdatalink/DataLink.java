@@ -1,7 +1,7 @@
 package com.conduit.libdatalink;
 
-import com.conduit.libdatalink.internal.SerialPacket;
-import com.conduit.libdatalink.internal.SerialPacketParser;
+import com.conduit.libdatalink.internal.NetworkPacket;
+import com.conduit.libdatalink.internal.NetworkPacketParser;
 import com.conduit.libdatalink.internal.Utils;
 
 import java.util.*;
@@ -15,8 +15,8 @@ public class DataLink implements DataLinkInterface{
     private UsbDriverInterface usbDriver;
     private DataLinkListener dataLinkListener;
 
-    private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
-    private SerialPacketParser packetParser = new SerialPacketParser();
+    private BlockingQueue<NetworkPacket> processingQueue = new LinkedBlockingQueue<NetworkPacket>();
+    private NetworkPacketParser packetParser = new NetworkPacketParser();
 
     private QueueConsumer queueConsumer = new QueueConsumer();
     private Thread consumerThread = new Thread(queueConsumer);
@@ -28,35 +28,35 @@ public class DataLink implements DataLinkInterface{
     }
 
     public void debugLEDBlink(byte numBlinks) {
-        processingQueue.add(new SerialPacket(
+        processingQueue.add(new NetworkPacket(
                 COMMAND_DEBUG_LED_BLINK,
                 new byte[] {numBlinks}
         ));
     }
 
     public void debugEcho(byte value) {
-        processingQueue.add(new SerialPacket(
+        processingQueue.add(new NetworkPacket(
                 COMMAND_DEBUG_ECHO,
                 new byte[] {value}
         ));
     }
 
     public void openWritingPipe(int address) {
-        processingQueue.add(new SerialPacket(
+        processingQueue.add(new NetworkPacket(
                 COMMAND_OPEN_WRITING_PIPE,
                 Utils.intToBytes(address)
         ));
     }
 
     public void openReadingPipe(byte pipeNumber, int address) {
-        processingQueue.add(new SerialPacket(
+        processingQueue.add(new NetworkPacket(
                 COMMAND_OPEN_READING_PIPE,
                 Utils.intToBytes(address)
         ));
     }
 
     public void write(byte[] payload) {
-        processingQueue.add(new SerialPacket(
+        processingQueue.add(new NetworkPacket(
                 COMMAND_WRITE,
                 payload
         ));
@@ -74,7 +74,7 @@ public class DataLink implements DataLinkInterface{
             }
         }
 
-        void consume(SerialPacket packet) {
+        void consume(NetworkPacket packet) {
             // TODO: Send packets in chunks (128B at a time)
             usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
         }
@@ -93,7 +93,7 @@ public class DataLink implements DataLinkInterface{
 
             if (packetParser.isPacketReady()) {
                 System.out.println("Packet Ready!");
-                SerialPacket packet = packetParser.getPacket();
+                NetworkPacket packet = packetParser.getPacket();
                 byte[] payload = new byte[packet.getPayloadSize()];
                 packet.getPacketPayload(payload);
 

@@ -1,19 +1,17 @@
-import com.conduit.libdatalink.internal.SerialPacket;
-import com.conduit.libdatalink.internal.SerialPacketParser;
-import com.conduit.libdatalink.internal.Utils;
+import com.conduit.libdatalink.internal.NetworkPacket;
 import org.junit.Test;
 
 import static com.conduit.libdatalink.internal.Constants.*;
 import static org.junit.Assert.*;
 
-public class SerialPacketTest {
+public class NetworkPacketTest {
 
     @Test
     public void testSimplePacketCreation() {
-        SerialPacket packet = new SerialPacket(COMMAND_DEBUG_ECHO, new byte[] {42});
+        NetworkPacket packet = new NetworkPacket(COMMAND_DEBUG_ECHO, new byte[] {42});
         assertEquals(1, packet.getPayloadSize());
         assertEquals(COMMAND_DEBUG_ECHO, packet.getCommandId());
-        assertEquals(SerialPacket.HEADER_SIZE + SerialPacket.FOOTER_SIZE + packet.getPayloadSize(), packet.getPacketSize());
+        assertEquals(NetworkPacket.HEADER_SIZE + NetworkPacket.FOOTER_SIZE + packet.getPayloadSize(), packet.getPacketSize());
 
         byte[] payload = new byte[packet.getPayloadSize()];
         packet.getPacketPayload(payload);
@@ -24,7 +22,7 @@ public class SerialPacketTest {
     @Test
     public void testImmutablePosition() {
         // Ensure the underlying ByteBuffer position does not change with packet operations
-        SerialPacket packet = new SerialPacket(COMMAND_DEBUG_ECHO, new byte[] {24, 32, 12});
+        NetworkPacket packet = new NetworkPacket(COMMAND_DEBUG_ECHO, new byte[] {24, 32, 12});
 
         int oldPos = packet.getPacketByteBuffer().position();
 

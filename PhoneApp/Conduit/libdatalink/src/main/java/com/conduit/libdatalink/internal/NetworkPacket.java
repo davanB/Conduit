@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import static com.conduit.libdatalink.internal.Constants.*;
 
-public class SerialPacket {
+public class NetworkPacket {
 
     public static final int HEADER_SIZE = 1 + 1 + 4; // SOP, COMMAND_ID, PAYLOAD_SIZE
     public static final int FOOTER_SIZE = 1; // EOP
@@ -17,11 +17,11 @@ public class SerialPacket {
     private ByteBuffer packetData;
 
     /**
-     * Initialize a new SerialPacket; intended for incrementally building a packet
+     * Initialize a new NetworkPacket; intended for incrementally building a packet
      * @param commandId
      * @param payloadSize
      */
-    protected SerialPacket(byte commandId, int payloadSize) {
+    protected NetworkPacket(byte commandId, int payloadSize) {
         packetData = ByteBuffer.allocate(HEADER_SIZE + payloadSize + FOOTER_SIZE);
         packetData.put(CONTROL_START_OF_PACKET)
                 .put(commandId)
@@ -29,11 +29,11 @@ public class SerialPacket {
     }
 
     /**
-     * Initialize a new SerialPacket; intended for creating a complete packet
+     * Initialize a new NetworkPacket; intended for creating a complete packet
      * @param commandId
      * @param payload
      */
-    public SerialPacket(byte commandId, byte[] payload) {
+    public NetworkPacket(byte commandId, byte[] payload) {
         // Call incremental constructor then append the payload
         this(commandId, payload.length);
 

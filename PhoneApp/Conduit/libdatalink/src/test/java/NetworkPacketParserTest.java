@@ -1,19 +1,19 @@
-import com.conduit.libdatalink.internal.SerialPacket;
-import com.conduit.libdatalink.internal.SerialPacketParser;
+import com.conduit.libdatalink.internal.NetworkPacket;
+import com.conduit.libdatalink.internal.NetworkPacketParser;
 import com.conduit.libdatalink.internal.Utils;
 import org.junit.Test;
 
 import static com.conduit.libdatalink.internal.Constants.*;
 import static org.junit.Assert.*;
 
-public class SerialPacketParserTest {
+public class NetworkPacketParserTest {
 
     @Test
     public void testBasicPacketParse(){
 
         byte[] payload = "Test Payload".getBytes();
 
-        SerialPacketParser parser = new SerialPacketParser();
+        NetworkPacketParser parser = new NetworkPacketParser();
         assertFalse(parser.isPacketReady());
 
         // Begin receiving bytes - packet should not be ready
@@ -32,7 +32,7 @@ public class SerialPacketParserTest {
         assertTrue(parser.isPacketReady());
 
         // Ensure parsed data is equal
-        SerialPacket packet = parser.getPacket();
+        NetworkPacket packet = parser.getPacket();
         byte[] parsedPayload = new byte[packet.getPayloadSize()];
         packet.getPacketPayload(parsedPayload);
         assertArrayEquals(payload, parsedPayload);
@@ -44,7 +44,7 @@ public class SerialPacketParserTest {
 
         byte[] payload = { 12, CONTROL_END_OF_PACKET, 56, 26, 58, CONTROL_END_OF_PACKET };
 
-        SerialPacketParser parser = new SerialPacketParser();
+        NetworkPacketParser parser = new NetworkPacketParser();
         assertFalse(parser.isPacketReady());
 
         // Begin receiving bytes - packet should not be ready
@@ -70,7 +70,7 @@ public class SerialPacketParserTest {
         byte[] payload1 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit".getBytes();
         byte[] payload2 = "Mauris lobortis posuere turpis, in volutpat lorem fringilla ac".getBytes();
 
-        SerialPacketParser parser = new SerialPacketParser();
+        NetworkPacketParser parser = new NetworkPacketParser();
 
         parser.addBytes(new byte[]{ CONTROL_START_OF_PACKET });
         parser.addBytes(new byte[]{ COMMAND_READ });
@@ -86,12 +86,12 @@ public class SerialPacketParserTest {
         parser.addBytes(new byte[]{ CONTROL_END_OF_PACKET });
         assertTrue(parser.isPacketReady());
 
-        SerialPacket packet1 = parser.getPacket();
+        NetworkPacket packet1 = parser.getPacket();
         byte[] parsedPayload1 = new byte[packet1.getPayloadSize()];
         packet1.getPacketPayload(parsedPayload1);
         assertArrayEquals(payload1, parsedPayload1);
 
-        SerialPacket packet2 = parser.getPacket();
+        NetworkPacket packet2 = parser.getPacket();
         byte[] parsedPayload2 = new byte[packet2.getPayloadSize()];
         packet2.getPacketPayload(parsedPayload2);
         assertArrayEquals(payload2, parsedPayload2);
@@ -102,9 +102,9 @@ public class SerialPacketParserTest {
         // The packet parser should handle receiving an entire packet at once
         final byte[] PAYLOAD = "Hello World".getBytes();
 
-        SerialPacket inPacket = new SerialPacket(COMMAND_OPEN_READING_PIPE, PAYLOAD);
+        NetworkPacket inPacket = new NetworkPacket(COMMAND_OPEN_READING_PIPE, PAYLOAD);
 
-        SerialPacketParser parser = new SerialPacketParser();
+        NetworkPacketParser parser = new NetworkPacketParser();
         assertFalse(parser.isPacketReady());
 
         // Receive all bytes at once
@@ -112,7 +112,7 @@ public class SerialPacketParserTest {
         assertTrue(parser.isPacketReady());
 
         // Validate payload
-        SerialPacket outPacket = parser.getPacket();
+        NetworkPacket outPacket = parser.getPacket();
         byte[] parsedPayload = new byte[outPacket.getPayloadSize()];
         outPacket.getPacketPayload(parsedPayload);
         assertArrayEquals(PAYLOAD, parsedPayload);

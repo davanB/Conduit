@@ -8,13 +8,13 @@ import java.util.Queue;
 import static com.conduit.libdatalink.internal.Constants.*;
 
 /**
- * SerialPacketParser parses SerialPackets from a discontinuous stream of bytes
+ * NetworkPacketParser parses SerialPackets from a discontinuous stream of bytes
  *
  * In the WAITING State, bytes are dumped into an accumulator list until the basic packet information is received.
  * Once this has occured, the parser creates the intermediate packet structure and toggles to the ACCUMULATE state
- * In the ACCUMULATE State, bytes are directly dumped into the SerialPacket's ByteBuffer to minimize unnecessary copying
+ * In the ACCUMULATE State, bytes are directly dumped into the NetworkPacket's ByteBuffer to minimize unnecessary copying
  */
-public class SerialPacketParser {
+public class NetworkPacketParser {
 
     public enum State {
         WAITING,
@@ -25,8 +25,8 @@ public class SerialPacketParser {
 
     List<Byte> accumulator = new ArrayList<Byte>();
 
-    private SerialPacket currentPacket = null;
-    private Queue<SerialPacket> output = new LinkedList<SerialPacket>();
+    private NetworkPacket currentPacket = null;
+    private Queue<NetworkPacket> output = new LinkedList<NetworkPacket>();
 
     public void addBytes(byte[] data) {
 
@@ -40,7 +40,7 @@ public class SerialPacketParser {
             // Need to accumulate header info for current packet
             int start = accumulator.indexOf(CONTROL_START_OF_PACKET);
             if (start == -1) return;
-            if (accumulator.size() < start + SerialPacket.HEADER_SIZE) return;
+            if (accumulator.size() < start + NetworkPacket.HEADER_SIZE) return;
 
             if (start != 0) System.out.println("WARNING: Accumulator had residual data!!");
 
@@ -55,10 +55,10 @@ public class SerialPacketParser {
             });
 
             // Build our packet with the header information received
-            currentPacket = new SerialPacket(commandId, payloadSize);
+            currentPacket = new NetworkPacket(commandId, payloadSize);
             state = State.ACCUMULATING;
 
-            System.out.println("[SerialPacketParser] expecting packet with payload size: " + payloadSize);
+            System.out.println("[NetworkPacketParser] expecting packet with payload size: " + payloadSize);
 
             // Handle the case where a portion of the payload is received - we need to move from accumulator to the packet
             if (accumulator.size() != 0) {
@@ -111,7 +111,7 @@ public class SerialPacketParser {
         return output.size() > 0;
     }
 
-    public SerialPacket getPacket() {
+    public NetworkPacket getPacket() {
         return output.remove();
     }
 
