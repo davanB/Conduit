@@ -46,7 +46,7 @@ public class UsbDriver implements UsbDriverInterface {
 
             byte[] newData = new byte[comPort.bytesAvailable()];
             int numRead = comPort.readBytes(newData, newData.length);
-            System.out.println("Read " + numRead + " bytes: " + Arrays.toString(newData) + " " + new String(newData));
+            System.out.println("[USBDRIVER] Read " + numRead + " bytes: " + Arrays.toString(newData) + " " + new String(newData));
             usbSerialListener.OnReceiveData(newData);
         }
     };
