@@ -58,6 +58,8 @@ public class SerialPacketParser {
             currentPacket = new SerialPacket(commandId, payloadSize);
             state = State.ACCUMULATING;
 
+            System.out.println("[SerialPacketParser] expecting packet with payload size: " + payloadSize);
+
             // Handle the case where a portion of the payload is received - we need to move from accumulator to the packet
             if (accumulator.size() != 0) {
 
