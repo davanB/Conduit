@@ -44,12 +44,15 @@ public class DataLinkTest {
             }
         });
 
-        dataLink.write("Hello World".getBytes());
+        final String DATA = "Hello World";
+
+        dataLink.write(DATA.getBytes());
 
         // Need to wait for callback to complete
         lock.await(2000, TimeUnit.MILLISECONDS);
 
         assertNotNull(receivedData[0]);
-        assertEquals("Hello World", receivedData[0]);
+        assertEquals(DATA.length(), receivedData[0].length());
+        assertEquals(DATA, receivedData[0]);
     }
 }
