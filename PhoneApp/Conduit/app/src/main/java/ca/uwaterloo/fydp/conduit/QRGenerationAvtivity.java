@@ -22,7 +22,7 @@ import ca.uwaterloo.fydp.conduit.HandShakeData;
 /*
     This was also copy pasted from some random tutorial
     it needs to be mofdified but maybe we need to give credit to the guy?
- */
+*/
 
 public class QRGenerationAvtivity extends Activity implements OnClickListener{
 

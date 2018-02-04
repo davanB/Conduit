@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     String oldText = Html.toHtml(textView.getEditableText()).toString();
                     textView.setText(Html.fromHtml(newText + oldText));
 
-//                    byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(compressedAndEncryptedText);
+//                    byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(data);
 //                    String res = new String(decyeptedAndDecompressed);
 //                    textView.append(res);
                 }
