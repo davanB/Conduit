@@ -7,6 +7,7 @@
 
 #define BUFFER_SIZE 32
 
+SerialPacket *inPacket;
 byte commandId = 0;
 
 RF24 radio(9,10);
@@ -14,6 +15,7 @@ byte* buffer = new byte[BUFFER_SIZE];
 
 void setup() {
     Serial.begin(9600);
+    inPacket = new SerialPacket();
 
     radio.begin();
     radio.setAddressWidth(4); // 4 bytes
@@ -29,23 +31,15 @@ void loop() {
     if (radio.available()) {
         readRadio();
     } else if (Serial.available()) {
-        if (CONTROL_START_OF_PACKET == Serial.read()) {
-            processCommand();
-        }
+        // Clear inPacket and parse incoming data into it
+        inPacket->reset();
+        inPacket->readIncomingPacket();
+        processCommand();
     }
 }
 
 void processCommand() {
-    commandId = waitForByte();
-
-    // uint32_t size = Serial.parseInt();
-    // 'read' size
-    waitForByte();
-    waitForByte();
-    waitForByte();
-    waitForByte();
-
-    switch(commandId) {
+    switch(inPacket->commandId) {
         case COMMAND_DEBUG_LED_BLINK:
             debugLEDBlink();
             break;
@@ -79,11 +73,9 @@ void debugLEDBlink() {
 }
 
 void debugEcho() {
-    byte value = waitForByte();
-    SerialPacket packet = SerialPacket(COMMAND_DEBUG_ECHO, 2);
-    packet.payload[0] = STATUS_SUCCESS;
-    packet.payload[1] = value;
-    packet.write();
+    SerialPacket resp = SerialPacket(COMMAND_DEBUG_ECHO, 0);
+    memcpy(resp.payload, inPacket->payload, PACKET_SIZE);
+    resp.write();
 }
 
 void openWritingPipe() {
