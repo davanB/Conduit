@@ -24,6 +24,17 @@ public class SerialPacket {
     }
 
     /**
+     * Initialize a new SerialPacket; intended for incrementally building a packet
+     */
+    protected SerialPacket(byte commandId, byte source) {
+        // Call incremental constructor then append the payload
+        this();
+
+        packetData.put(commandId)
+                .put(source);
+    }
+
+    /**
      * Initialize a new SerialPacket; intended for creating a complete packet
      * @param commandId
      * @param source

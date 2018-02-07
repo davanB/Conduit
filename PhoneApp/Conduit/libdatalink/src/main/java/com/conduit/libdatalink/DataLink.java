@@ -1,17 +1,19 @@
 package com.conduit.libdatalink;
 
-import com.conduit.libdatalink.internal.SerialPacket;
-import com.conduit.libdatalink.internal.SerialPacketParser;
-import com.conduit.libdatalink.internal.Utils;
+import com.conduit.libdatalink.internal.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import static com.conduit.libdatalink.internal.Constants.*;
 
 public class DataLink implements DataLinkInterface{
+
+    private static final int MAX_PACKETS_IN_FLIGHT = ARDUINO_SERIAL_RX_BUFFER_SIZE / SerialPacket.PACKET_SIZE;
 
     private UsbDriverInterface usbDriver;
     private DataLinkListener dataLinkListener;
@@ -19,6 +21,7 @@ public class DataLink implements DataLinkInterface{
     private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
 
+    final Semaphore txOkSem = new Semaphore(MAX_PACKETS_IN_FLIGHT);
     private QueueConsumer queueConsumer = new QueueConsumer();
     private Thread consumerThread = new Thread(queueConsumer);
 
@@ -42,12 +45,17 @@ public class DataLink implements DataLinkInterface{
         ));
     }
 
-    public void debugEcho(String value) {
-        if (value.getBytes().length > SerialPacket.PAYLOAD_SIZE) throw new IllegalArgumentException("string too big");
-        processingQueue.add(new SerialPacket(
+    public void debugEcho(byte[] payload) {
+        List<SerialPacket> packets = PacketGenerator.generateSerialPackets(
                 COMMAND_DEBUG_ECHO,
-                value.getBytes()
-        ));
+                new NetworkPacket(
+                        (byte) 1,
+                        payload
+                )
+        );
+
+        System.out.println("[DATALINK] Enqueued " + packets.size() + " SerialPackets");
+        processingQueue.addAll(packets);
     }
 
     public void openWritingPipe(int address) {
@@ -65,12 +73,10 @@ public class DataLink implements DataLinkInterface{
     }
 
     public void write(byte[] payload) {
-        throw new NotImplementedException();
-        //TODO: generate serialpackets from payload
-//        processingQueue.add(new SerialPacket(
-//                COMMAND_WRITE,
-//                payload
-//        ));
+        processingQueue.addAll(PacketGenerator.generateSerialPackets(
+                COMMAND_WRITE,
+                new NetworkPacket((byte) 1, payload)
+        ));
     }
 
     class QueueConsumer implements Runnable {
@@ -78,6 +84,8 @@ public class DataLink implements DataLinkInterface{
             System.out.println("Starting Datalink Queue Consumer");
             try {
                 while (true) {
+                    // wait till safe to send
+                    txOkSem.acquire();
                     consume(processingQueue.take());
                 }
             } catch (InterruptedException ex) {
@@ -98,18 +106,30 @@ public class DataLink implements DataLinkInterface{
     private UsbSerialListener usbSerialListener = new UsbSerialListener() {
         @Override
         public void OnReceiveData(byte[] data) {
-            serialPacketParser.addBytes(data);
+            try {
+                serialPacketParser.addBytes(data);
 
-            if (serialPacketParser.isPacketReady()) {
-                SerialPacket packet = serialPacketParser.getPacket();
-                byte[] payload = new byte[packet.getPayloadSize()];
-                packet.getPacketPayload(payload);
+                if (serialPacketParser.isPacketReady()) {
 
-                System.out.println("Packet Ready: " + Arrays.toString(payload));
-                System.out.println("Packet Ready: " + new String(payload));
+                    // Allow consumer to TX the next packet
+                    txOkSem.release();
 
-                // TODO: Update this to return generic byte[] data as well
-                dataLinkListener.OnReceiveData(new String(payload));
+                    SerialPacket packet = serialPacketParser.getPacket();
+                    byte[] payload = new byte[packet.getPayloadSize()];
+                    packet.getPacketPayload(payload);
+
+                    System.out.println("Packet Ready: " + Arrays.toString(payload));
+                    System.out.println("Packet Ready: " + new String(payload));
+
+                    if (dataLinkListener != null) {
+                        // TODO: Update this to return generic byte[] data as well
+                        dataLinkListener.OnReceiveData(new String(payload));
+                    }
+                }
+            } catch (Exception e) {
+                // We MUST capture all exceptions here - otherwise errors are bubbled up to the UsbDriver and
+                // silently squashed by the serial library
+                System.out.println("[DATALINK] Exception Occurred " + e.toString());
             }
         }
     };

@@ -12,7 +12,7 @@ public class NetworkPacket {
     private static final int INDEX_HEADER = 0;
     private static final int INDEX_COMMAND = 1;
     private static final int INDEX_PAYLOAD_SIZE = 2;
-    private static final int INDEX_PAYLOAD = 6;
+    protected static final int INDEX_PAYLOAD = 6;
 
     private ByteBuffer packetData;
 

@@ -3,6 +3,11 @@ package com.conduit.libdatalink.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * SerialPacketParser parses incoming SerialPackets from the UART port
+ *
+ * SerialPackets are a fixed size, thus parsing simply interprets a fixed size block as a packet
+ */
 public class SerialPacketParser {
 
     List<Byte> accumulator = new ArrayList<Byte>();
