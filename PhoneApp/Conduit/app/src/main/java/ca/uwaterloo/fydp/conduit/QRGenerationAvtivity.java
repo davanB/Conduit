@@ -16,7 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import ca.uwaterloo.fydp.conduit.HandShakeData;
+import ca.uwaterloo.fydp.conduit.GroupData;
 
 
 /*
@@ -26,16 +26,12 @@ import ca.uwaterloo.fydp.conduit.HandShakeData;
 
 public class QRGenerationAvtivity extends Activity implements OnClickListener{
 
-    HandShakeData handShakeData;
+    GroupData groupData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrgeneration_avtivity);
-
-        int[] friendData = new int[6]; // TODO populate this somewhere
-        handShakeData = new HandShakeData(friendData);
-
         Button button1 = (Button) findViewById(R.id.generateButton);
         button1.setOnClickListener(this);
 
@@ -45,7 +41,7 @@ public class QRGenerationAvtivity extends Activity implements OnClickListener{
 
         switch (v.getId()) {
             case R.id.generateButton:
-                String qrInputText = handShakeData.toString();
+                String qrInputText = groupData.GenerateHandShakeData().toString();
 
                 //Find screen size
                 WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
