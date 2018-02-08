@@ -40,6 +40,11 @@ public class FiniteBufferMockUsbDriver implements UsbDriverInterface {
 
     }
 
+    @Override
+    public boolean isConnected() {
+        return true;
+    }
+
     public boolean overflow() {
         return overflow;
     }

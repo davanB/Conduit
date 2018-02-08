@@ -23,4 +23,9 @@ public class EchoBackMockUsbDriver implements UsbDriverInterface {
         this.listener = listener;
     }
 
+    @Override
+    public boolean isConnected() {
+        return true;
+    }
+
 }
