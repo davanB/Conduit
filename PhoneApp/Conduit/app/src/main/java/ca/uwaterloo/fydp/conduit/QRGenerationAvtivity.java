@@ -5,6 +5,7 @@ import com.google.zxing.WriterException;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -32,6 +33,12 @@ public class QRGenerationAvtivity extends Activity implements OnClickListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrgeneration_avtivity);
+
+        Intent intent = getIntent();
+        String groupName = intent.getStringExtra(GroupCreationActivity.EXTRA_MESSAGE);
+
+        groupData = new GroupData(groupName);
+
         Button button1 = (Button) findViewById(R.id.generateButton);
         button1.setOnClickListener(this);
 

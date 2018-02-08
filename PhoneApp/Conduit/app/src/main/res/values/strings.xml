@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Conduit</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_group_creation">Start Group!</string>
+
+    <!-- Strings related to Group Creation -->
+    <string name="prompt_group_name">Group Name</string>
+    <string name="action_enter_group_name">Enter Group Name</string>
+    <string name="action_start_group">Start Group Creation</string>
+    <string name="error_invalid_group_name">This group name is invalid</string>
+
 </resources>
