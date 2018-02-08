@@ -26,8 +26,15 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_group_name"
                 android:inputType="textAutoComplete"
-                android:maxLines="1"
-                android:singleLine="true" />
+                android:maxLines="1" />
+
+            <AutoCompleteTextView
+                android:id="@+id/user_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/prompt_user_name"
+                android:inputType="textPersonName"
+                android:maxLines="1" />
 
         </android.support.design.widget.TextInputLayout>
 

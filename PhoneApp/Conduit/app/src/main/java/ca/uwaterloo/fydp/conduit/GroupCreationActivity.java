@@ -19,6 +19,7 @@ public class GroupCreationActivity extends AppCompatActivity {
 
     // UI references.
     private AutoCompleteTextView mGroupName;
+    private AutoCompleteTextView mUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +27,7 @@ public class GroupCreationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group_creation);
         // Set up the group form.
         mGroupName = (AutoCompleteTextView) findViewById(R.id.group_name);
+        mUserName = (AutoCompleteTextView) findViewById((R.id.user_name));
 
         Button mGroupNameButton = (Button) findViewById(R.id.group_creation_start_button);
         mGroupNameButton.setOnClickListener(new OnClickListener() {

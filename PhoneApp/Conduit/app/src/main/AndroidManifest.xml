@@ -40,7 +40,8 @@
         <activity android:name=".QRGenerationAvtivity" />
         <activity
             android:name=".GroupCreationActivity"
-            android:label="@string/title_activity_group_creation"></activity>
+            android:label="@string/title_activity_group_creation" />
+        <activity android:name=".AppModeActivity"></activity>
     </application>
 
 </manifest>
