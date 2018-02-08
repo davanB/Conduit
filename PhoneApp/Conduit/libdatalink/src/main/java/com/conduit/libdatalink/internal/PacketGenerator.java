@@ -10,30 +10,30 @@ public class PacketGenerator {
 
         //TODO: I'm assuming infinite memory (copying entire NetworkPacket buffer into SerialPackets)
 
-        int numSerialPackets = (int) Math.ceil((double) packet.getPayloadSize() / (double) SerialPacket.PAYLOAD_SIZE);
+        int numSerialPackets = (int) Math.ceil((double) packet.getPacketSize() / (double) SerialPacket.PAYLOAD_SIZE);
 
         // Create a duplicate view of NetworkPacket buffer
         ByteBuffer txPayload = packet.getPacketByteBuffer().duplicate();
         txPayload.rewind();
 
-        int offset = NetworkPacket.INDEX_PAYLOAD;
-        int limit = 0;
+        int start = 0;
+        int end = 0;
 
         for (int i = 0; i < numSerialPackets; i++) {
-            limit = offset + SerialPacket.PAYLOAD_SIZE;
+            end = start + SerialPacket.PAYLOAD_SIZE;
 
             // Set to payload limit
-            if (limit > packet.getPayloadSize()) limit = packet.getPacketByteBuffer().capacity() - NetworkPacket.FOOTER_SIZE;
+            if (end > packet.getPacketSize()) end = packet.getPacketSize();
 
-            txPayload.position(offset);
-            txPayload.limit(limit);
+            txPayload.position(start);
+            txPayload.limit(end);
 
             // Copy the buffer and add to list
             SerialPacket serialPacket = new SerialPacket(serialCommand, (byte) 0);
             serialPacket.getPacketByteBuffer().put(txPayload);
             serialPackets.add(serialPacket);
 
-            offset += SerialPacket.PAYLOAD_SIZE;
+            start += SerialPacket.PAYLOAD_SIZE;
         }
 
         return serialPackets;
