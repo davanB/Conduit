@@ -33,6 +33,7 @@ public class UsbDriver implements UsbDriverInterface {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
 
     private SerialPortDataListener serialPortDataListener = new SerialPortDataListener() {
@@ -46,14 +47,14 @@ public class UsbDriver implements UsbDriverInterface {
 
             byte[] newData = new byte[comPort.bytesAvailable()];
             int numRead = comPort.readBytes(newData, newData.length);
-            System.out.println("Read " + numRead + " bytes: " + Arrays.toString(newData) + " " + new String(newData));
-            usbSerialListener.OnReceiveData(newData);
+            System.out.println("[USBDRIVER] Read " + numRead + " bytes: " + Arrays.toString(newData) + " " + new String(newData));
+            if (usbSerialListener != null) usbSerialListener.OnReceiveData(newData);
         }
     };
 
     @Override
     public void sendBuffer(byte[] buf) {
-        System.out.println("Sending: " + Arrays.toString(buf));
+        System.out.println("[USBDRIVER] Sending: " + Arrays.toString(buf));
         comPort.writeBytes(buf, buf.length);
     }
 
