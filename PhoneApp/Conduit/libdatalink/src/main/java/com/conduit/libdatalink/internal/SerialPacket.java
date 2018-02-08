@@ -6,10 +6,10 @@ public class SerialPacket {
 
     public static final int HEADER_SIZE = 1 + 1; // COMMAND_ID, SOURCE
 
-    private static final int INDEX_HEADER = 0;
-    private static final int INDEX_COMMAND = INDEX_HEADER;
-    private static final int INDEX_SOURCE = INDEX_COMMAND + 1;
-    private static final int INDEX_PAYLOAD = INDEX_SOURCE + 1;
+    public static final int INDEX_HEADER = 0;
+    public static final int INDEX_COMMAND = INDEX_HEADER;
+    public static final int INDEX_SOURCE = INDEX_COMMAND + 1;
+    public static final int INDEX_PAYLOAD = INDEX_SOURCE + 1;
 
     public static final int PAYLOAD_SIZE = 32;
     public static final int PACKET_SIZE = HEADER_SIZE + PAYLOAD_SIZE;
