@@ -12,30 +12,35 @@ The master phone will need to keep track of all this before sending all the data
 */
 public class GroupData {
     private static final int START_ADDRESS = 0x00000000;
-    private static final int FINAL_ADDRESS = 0x00000005; // max 5 users
+    private static final int FINAL_ADDRESS = 0x00000005; // max 6 users
 
-    private int currentAddress;
-    private int masterAddress;
-    private String groupName;
+    private int mCurrentAddress;
+    private int mMasterAddress;
+    private String mGroupName;
+    private String mUserName;
 
-    private ArrayList<HandShakeData> handShakeDataList;
+    private ArrayList<HandShakeData> mHandShakeDataList;
 
-    public GroupData(String groupName) {
-        this.groupName = groupName;
-        handShakeDataList = new ArrayList<HandShakeData>();
-        this.currentAddress = START_ADDRESS;
-        this.masterAddress = START_ADDRESS;
+    public GroupData(String groupName, String userName) {
+        this.mGroupName = groupName;
+        mHandShakeDataList = new ArrayList<>();
+        this.mCurrentAddress = START_ADDRESS;
+        this.mMasterAddress = START_ADDRESS;
     }
 
     //Simply increment a counter for now, this ensures every addr is unique.
-    private int GenerateAddress() {
-        return ++(this.currentAddress);
+    private int generateAddress() {
+        return ++(this.mCurrentAddress);
     }
 
-    public HandShakeData GenerateHandShakeData() {
-        int friendAddr = GenerateAddress();
-        HandShakeData friendData = new HandShakeData(this.masterAddress, friendAddr, this.groupName);
-        handShakeDataList.add(friendData);
+    public ArrayList<HandShakeData> getUserList() {
+        return mHandShakeDataList;
+    }
+
+    public HandShakeData generateHandShakeData() {
+        int friendAddr = generateAddress();
+        HandShakeData friendData = new HandShakeData(this.mMasterAddress, friendAddr, this.mGroupName);
+        mHandShakeDataList.add(friendData);
         return friendData;
     }
 }

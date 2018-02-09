@@ -28,11 +28,7 @@ import com.conduit.libdatalink.DataLinkListener;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
-
-import ca.uwaterloo.fydp.conduit.DataTransformation;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -264,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_QRsetup) {
             // launch new intent for QR
-            Intent intent = new Intent(this,QRGenerationAvtivity.class);
+            Intent intent = new Intent(this,QRGenerationActivity.class);
             startActivity(intent);
         } else if(id == R.id.action_setup) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

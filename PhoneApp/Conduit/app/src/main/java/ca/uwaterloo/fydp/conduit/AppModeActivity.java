@@ -1,5 +1,6 @@
 package ca.uwaterloo.fydp.conduit;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,18 +13,31 @@ public class AppModeActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app_mode);
 
-        Button one = (Button) findViewById(R.id.startMasterButton);
-        one.setOnClickListener(this);
-        Button two = (Button) findViewById(R.id.startSlaveButton);
-        two.setOnClickListener(this);
+        Button master = (Button) findViewById(R.id.startMasterButton);
+        master.setOnClickListener(this);
+        Button slave = (Button) findViewById(R.id.startSlaveButton);
+        slave.setOnClickListener(this);
+    }
+
+    private void startMasterFlow() {
+        Intent myIntent = new Intent(this, QRGenerationActivity.class);
+        startActivity(myIntent);
+    }
+
+    private void startSlaveFlow() {
+        // TODO: Change the activity that is started here
+        Intent myIntent = new Intent(this, QRGenerationActivity.class);
+        startActivity(myIntent);
     }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.startMasterButton:
+                startMasterFlow();
                 break;
             case R.id.startSlaveButton:
+                startSlaveFlow();
                 break;
         }
     }

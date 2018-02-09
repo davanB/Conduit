@@ -14,4 +14,8 @@
     <string name="action_start_group">Start Group Creation</string>
     <string name="error_invalid_group_name">This group name is invalid</string>
 
+    <!-- To fix some rendering bug -->
+    <item name="visible" type="id"/>
+    <item name="masked" type="id"/>
+
 </resources>

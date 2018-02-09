@@ -25,7 +25,7 @@ import ca.uwaterloo.fydp.conduit.GroupData;
     it needs to be mofdified but maybe we need to give credit to the guy?
 */
 
-public class QRGenerationAvtivity extends Activity implements OnClickListener{
+public class QRGenerationActivity extends Activity implements OnClickListener{
 
     GroupData groupData;
 
@@ -35,10 +35,12 @@ public class QRGenerationAvtivity extends Activity implements OnClickListener{
         setContentView(R.layout.activity_qrgeneration_avtivity);
 
         Intent intent = getIntent();
-        String groupName = intent.getStringExtra(GroupCreationActivity.EXTRA_MESSAGE);
+        String groupName = intent.getStringExtra("GroupName");
+        String userName = intent.getStringExtra("UserName");
 
-        groupData = new GroupData(groupName);
+        groupData = new GroupData(groupName, userName);
 
+        // TODO: Remove this since the last screen should auto generate QR
         Button button1 = (Button) findViewById(R.id.generateButton);
         button1.setOnClickListener(this);
 
@@ -48,7 +50,7 @@ public class QRGenerationAvtivity extends Activity implements OnClickListener{
 
         switch (v.getId()) {
             case R.id.generateButton:
-                String qrInputText = groupData.GenerateHandShakeData().toString();
+                String qrInputText = groupData.generateHandShakeData().toString();
 
                 //Find screen size
                 WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
