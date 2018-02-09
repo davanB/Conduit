@@ -15,9 +15,7 @@ class MockUsbDriver : UsbDriverInterface {
     override fun sendBuffer(buf: ByteArray?) {
         if( buf != null) {
             // just a rough modification to relay any write messages back to the client
-            val modBuf = buf.plus(DataLink.CONTROL_END_OF_TRANSMISSION)
-            modBuf[1] = DataLink.COMMAND_READ
-            mockListener?.OnReceiveData(modBuf)
+            mockListener?.OnReceiveData(buf)
         }
     }
 

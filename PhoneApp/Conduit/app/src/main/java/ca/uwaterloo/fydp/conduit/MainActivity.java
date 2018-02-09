@@ -20,12 +20,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.conduit.libdatalink.ConduitGroup;
+import com.conduit.libdatalink.conduitabledata.ConduitMessage;
+import com.conduit.libdatalink.conduitabledata.ConduitableData;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;
 
-import ca.uwaterloo.fydp.conduit.connectionutils.ConduitDataLink;
+import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
@@ -34,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     static {
         System.loadLibrary("native-lib");
     }
-    private ConduitDataLink dataLink;
+    private ConduitGroup conduitGroup;
 
     private FloatingActionMenu mainMenu;
 
@@ -64,29 +67,28 @@ public class MainActivity extends AppCompatActivity {
         setUpTextBoxes();
         setUpSendButton();
 
-        dataLink = new ConduitDataLink(this);
-        dataLink.setGenericConduitListener(genericDataListener);
-    }
-
-    Function1<String, Unit> genericDataListener = new Function1<String, Unit>() {
-        @Override
-        public Unit invoke(final String data) {
-            textView.post(new Runnable() {
-                @Override
-                public void run() {
-                    // TODO this needs to be built so that data can be decrypted and uncompressed
-                    String newText = String.format("<b>Friend> </b>%s<br>", data);
-                    String oldText = Html.toHtml(textView.getEditableText()).toString();
-                    textView.setText(Html.fromHtml(newText + oldText));
+        conduitGroup = ConduitManager.getConduitGroup(900, 2);
+        conduitGroup.addConduitableDataListener(ConduitGroup.Companion.getPAYLOAD_TYPE_MESSAGE(), new Function1<ConduitableData, Unit>() {
+            @Override
+            public Unit invoke(ConduitableData conduitableData) {
+                final ConduitMessage message = (ConduitMessage) conduitableData;
+                textView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO this needs to be built so that data can be decrypted and uncompressed
+                        String newText = String.format("<b>Friend> </b>%s<br>", message.getMessage());
+                        String oldText = Html.toHtml(textView.getEditableText()).toString();
+                        textView.setText(Html.fromHtml(newText + oldText));
 
 //                    byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(compressedAndEncryptedText);
 //                    String res = new String(decyeptedAndDecompressed);
 //                    textView.append(res);
-                }
-            });
-            return null;
-        }
-    };
+                    }
+                });
+                return null;
+            }
+        });
+    }
 
     private void setUpTextBoxes() {
         userText = (EditText)findViewById(R.id.plain_text_input);
@@ -124,7 +126,9 @@ public class MainActivity extends AppCompatActivity {
             String userInput = userText.getText().toString();
             if (!userInput.equals("")) {
 //                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
-                dataLink.write(userInput);
+                ConduitMessage message = new ConduitMessage();
+                message.setMessage(userInput);
+                conduitGroup.send(3, message);
                 String newText = String.format("<b>You> </b>%s<br>", userInput);
                 String oldText = Html.toHtml(textView.getEditableText()).toString();
                 textView.setText(Html.fromHtml(newText + oldText));
@@ -234,25 +238,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         } else if(id == R.id.action_setup) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Pick a user");
-            builder.setItems(new CharSequence[] {"Friend #1", "Friend #2"}, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    int addrA = 0xCDABCD71;
-                    int addrB = 0xCDABCD69;
-                    int me = addrA;
-                    int you = addrB;
-                    if(which == 0){
-                        me = addrB;
-                        you = addrA;
-                    }
-
-                    dataLink.openWritingPipe(me);
-                    dataLink.openReadingPipe(1, you);
-                }
-            });
-            builder.show();
             return true;
         }
 
