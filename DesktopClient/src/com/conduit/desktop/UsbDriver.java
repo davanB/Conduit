@@ -45,6 +45,8 @@ public class UsbDriver implements UsbDriverInterface {
         public void serialEvent(SerialPortEvent event) {
             if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) return;
 
+            if (comPort.bytesAvailable() <= 0) return;
+
             byte[] newData = new byte[comPort.bytesAvailable()];
             int numRead = comPort.readBytes(newData, newData.length);
             System.out.println("[USBDRIVER] Read " + numRead + " bytes: " + Arrays.toString(newData) + " " + new String(newData));

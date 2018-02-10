@@ -79,29 +79,41 @@ void debugEcho() {
 }
 
 void openWritingPipe() {
-    byte* address = new byte[4];
-    Serial.readBytes(address, 4);
-    radio.stopListening();
-    radio.openWritingPipe((uint32_t)*address);
-
+    // // byte* address = new byte[4];
+    uint8_t address[4] = {inPacket->payload[3], inPacket->payload[2], inPacket->payload[1], inPacket->payload[0]};
+    // // Serial.readBytes(address, 4);
+    // radio.stopListening();
+    // addr_write = *((uint32_t *) inPacket->payload);
+    // addr_write = *((uint32_t *) address);
+    radio.openWritingPipe(address);
     SerialPacket packet = SerialPacket(COMMAND_OPEN_WRITING_PIPE, 1);
     packet.payload[0] = STATUS_SUCCESS;
+    sprintf(packet.payload+1, "WP 0x%lx\n", *((uint32_t *) address));
     packet.write();
 }
 
 void openReadingPipe() {
-    byte pipeNumber = waitForByte();
-    byte* address = new byte[4];
-    Serial.readBytes(address, 4);
-    radio.openReadingPipe(pipeNumber, (uint32_t)*address);
+    uint8_t pipeNumber = inPacket->payload[0];
+    // uint8_t *address = (inPacket->payload + 1); // increment pointer by 1 BYTE
+    // arduino needs LSB first (Java sends MSB first)
+    uint8_t address[4] = {inPacket->payload[4], inPacket->payload[3], inPacket->payload[2], inPacket->payload[1]};
+    radio.openReadingPipe(pipeNumber, address);
     radio.startListening();
+
+    // addr_read = *((uint32_t *) (address));
 
     SerialPacket packet = SerialPacket(COMMAND_OPEN_READING_PIPE, 1);
     packet.payload[0] = STATUS_SUCCESS;
+    sprintf(packet.payload+1, "RP 0x%lx\n", *((uint32_t *) address));
     packet.write();
 }
 
 void write() {
+
+    tx(32);
+
+    return;
+
     uint32_t i = 0;
     byte recvByte = 0;
     while(true) {
@@ -131,7 +143,7 @@ void tx(byte payloadSize) {
     radio.stopListening(); //TODO: Evaluate effect on dropped packets
     int ack_buffer[1] = {5};
     // Write buffer to radio
-    if (radio.write(buffer, payloadSize)) {
+    if (radio.write(inPacket->payload, PAYLOAD_SIZE)) {
         if (radio.isAckPayloadAvailable()) {
             radio.read(ack_buffer, sizeof(int));
             // Send ACK payload

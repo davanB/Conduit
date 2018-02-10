@@ -68,9 +68,10 @@ public class DataLink implements DataLinkInterface {
     }
 
     public void openReadingPipe(byte pipeNumber, int address) {
+        byte a[] = Utils.intToBytes(address);
         processingQueue.add(new SerialPacket(
                 COMMAND_OPEN_READING_PIPE,
-                Utils.intToBytes(address)
+                new byte[] {pipeNumber, a[0], a[1], a[2], a[3]}
         ));
     }
 
@@ -154,6 +155,7 @@ public class DataLink implements DataLinkInterface {
                 // We MUST capture all exceptions here - otherwise errors are bubbled up to the UsbDriver and
                 // silently squashed by the serial library
                 System.out.println("[DATALINK] Exception Occurred " + e.toString());
+                e.printStackTrace();
             }
         }
     };
