@@ -1,6 +1,7 @@
 package com.conduit.libdatalink;
 
 import com.conduit.libdatalink.internal.*;
+import com.conduit.libdatalink.stats.StatsCollector;
 
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -28,6 +29,7 @@ public class DataLink implements DataLinkInterface {
     private Thread consumerThread = new Thread(queueConsumer);
 
     private int groupAddress = -1;
+    public StatsCollector statsCollector = new StatsCollector();
 
     public DataLink(UsbDriverInterface usbDriver) {
         this.usbDriver = usbDriver;
@@ -59,6 +61,7 @@ public class DataLink implements DataLinkInterface {
         );
 
         System.out.println("[DATALINK] Enqueued " + packets.size() + " SerialPackets");
+        statsCollector.enqueuePackets(packets);
         processingQueue.addAll(packets);
     }
 
@@ -94,10 +97,14 @@ public class DataLink implements DataLinkInterface {
     }
 
     public void write(byte payloadType, byte[] payload) {
-        processingQueue.addAll(PacketGenerator.generateSerialPackets(
+        List<SerialPacket> packets = PacketGenerator.generateSerialPackets(
                 COMMAND_WRITE,
                 new NetworkPacket(payloadType, payload)
-        ));
+        );
+
+        System.out.println("[DATALINK] Enqueued " + packets.size() + " SerialPackets");
+        statsCollector.enqueuePackets(packets);
+        processingQueue.addAll(packets);
     }
 
     class QueueConsumer implements Runnable {
@@ -115,6 +122,7 @@ public class DataLink implements DataLinkInterface {
         }
 
         void consume(SerialPacket packet) {
+//            statsCollector.packetTx(packet);
             usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
         }
     }
@@ -131,12 +139,13 @@ public class DataLink implements DataLinkInterface {
 
                 if (serialPacketParser.isPacketReady()) {
 
-                    // Allow consumer to TX the next packet
-                    txOkSem.release();
-
                     SerialPacket serialPacket = serialPacketParser.getPacket();
                     byte[] payload = new byte[serialPacket.getPayloadSize()];
                     serialPacket.getPacketPayload(payload);
+//                    statsCollector.packetAck(packet);
+
+                    // Allow consumer to TX the next packet
+                    txOkSem.release();
 
                     System.out.println("[DataLink] SerialPacket Ready: " + Arrays.toString(payload));
                     System.out.println("[DataLink] SerialPacket Ready: " + new String(payload));
