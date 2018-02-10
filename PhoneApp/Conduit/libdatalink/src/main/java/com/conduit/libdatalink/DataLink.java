@@ -3,6 +3,7 @@ package com.conduit.libdatalink;
 import com.conduit.libdatalink.internal.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -11,7 +12,7 @@ import java.util.concurrent.Semaphore;
 
 import static com.conduit.libdatalink.internal.Constants.*;
 
-public class DataLink implements DataLinkInterface{
+public class DataLink implements DataLinkInterface {
 
     private static final int MAX_PACKETS_IN_FLIGHT = ARDUINO_SERIAL_RX_BUFFER_SIZE / SerialPacket.PACKET_SIZE;
 
@@ -73,7 +74,7 @@ public class DataLink implements DataLinkInterface{
         ));
     }
 
-    public void write(byte[] payload) {
+    public void write(byte payloadType, byte[] payload) {
         processingQueue.addAll(PacketGenerator.generateSerialPackets(
                 COMMAND_WRITE,
                 new NetworkPacket((byte) 1, payload)
@@ -135,14 +136,14 @@ public class DataLink implements DataLinkInterface{
                             byte[] networkPayload = new byte[networkPacket.getPayloadSize()];
                             networkPacket.getPacketPayload(networkPayload);
 
-                            // TODO: Update this to return generic byte[] data as well
-                            dataLinkListener.OnReceiveData(new String(networkPayload));
+                            // TODO: fix this call
+                            dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(networkPayload));
                         }
 
                     } else {
                         // This packet came from the Arduino
                         // TODO: Update this to return generic byte[] data as well
-                        dataLinkListener.OnReceiveData(new String(payload));
+                        dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
                     }
                 }
 
