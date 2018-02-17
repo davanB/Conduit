@@ -77,7 +77,7 @@ public class DataLink implements DataLinkInterface {
     public void write(byte payloadType, byte[] payload) {
         processingQueue.addAll(PacketGenerator.generateSerialPackets(
                 COMMAND_WRITE,
-                new NetworkPacket((byte) 1, payload)
+                new NetworkPacket(payloadType, payload)
         ));
     }
 
@@ -133,17 +133,20 @@ public class DataLink implements DataLinkInterface {
                             System.out.println("[DataLink] NetworkPacket ready");
 
                             NetworkPacket networkPacket = networkPacketParser.getPacket();
-                            byte[] networkPayload = new byte[networkPacket.getPayloadSize()];
-                            networkPacket.getPacketPayload(networkPayload);
 
-                            // TODO: fix this call
-                            dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(networkPayload));
+                            // TODO: fix this call (origin address)
+                            dataLinkListener.OnReceiveData(
+                                    0,
+                                    networkPacket.getPayloadType(),
+                                    networkPacket.getPacketPayload()
+                            );
                         }
 
                     } else {
                         // This packet came from the Arduino
+                        // TODO: Handle SerialPackets from Arduino
                         // TODO: Update this to return generic byte[] data as well
-                        dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
+                        // dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
                     }
                 }
 
