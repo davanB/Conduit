@@ -1,12 +1,16 @@
 package com.conduit.libdatalink.conduitabledata
 
+import com.conduit.libdatalink.internal.Constants
 import java.nio.ByteBuffer
+import kotlin.properties.Delegates
 
 
 class ConduitMessage() : ConduitableData() {
-    var message: String? = null
+    override val payloadType: ConduitableDataTypes = ConduitableDataTypes.MESSAGE
 
-    constructor(message: String?) : this(){
+    var message: String by Delegates.notNull()
+
+    constructor(message: String) : this(){
         this.message = message
     }
 
@@ -15,7 +19,7 @@ class ConduitMessage() : ConduitableData() {
         message = String(payloadBytes)
     }
 
-    override fun getPayload(): ByteBuffer? {
-        return ByteBuffer.wrap(message?.toByteArray())
+    override fun getPayload(): ByteBuffer {
+        return ByteBuffer.wrap(message.toByteArray())
     }
 }
