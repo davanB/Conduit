@@ -12,6 +12,8 @@ The master phone will need to keep track of all this before sending all the data
 */
 public class GroupData {
     private static final int START_ADDRESS = 0x00000000;
+
+    // TODO: account for the REAL number of max users, as should be set in the group creation screen!
     private static final int FINAL_ADDRESS = 0x00000005; // max 6 users
 
     private int mCurrentAddress;
@@ -26,6 +28,15 @@ public class GroupData {
         mHandShakeDataList = new ArrayList<>();
         this.mCurrentAddress = START_ADDRESS;
         this.mMasterAddress = START_ADDRESS;
+    }
+
+    public int getBaseAddress() {
+        return mMasterAddress;
+    }
+
+    public boolean isFinishedHandshakes() {
+        // rollover => done
+        return mCurrentAddress == FINAL_ADDRESS + 1;
     }
 
     //Simply increment a counter for now, this ensures every addr is unique.

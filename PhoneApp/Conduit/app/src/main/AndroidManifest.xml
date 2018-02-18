@@ -19,6 +19,14 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".GroupCreationActivity"
+            android:label="Create a group"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".qr.QRGenerationActivity"
+            android:label="Connect the other devices"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".ConduitConnectionActivity"
             android:label="@string/app_name"
             android:noHistory="true"

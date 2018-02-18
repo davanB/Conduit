@@ -36,7 +36,7 @@ public class ConduitConnectionActivity extends AppCompatActivity {
         //ConduitManager.initialize(this);
         ConduitManager.initializeMock();
         if(ConduitManager.getDriver().isConnected()) {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, GroupCreationActivity.class);
             startActivity(intent);
         }
 

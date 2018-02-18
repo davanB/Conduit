@@ -5,13 +5,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/generateButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Generate QR Code" />
-
     <ImageView
         android:id="@+id/QRView"
         android:layout_width="wrap_content"
