@@ -136,18 +136,20 @@ public class DataLink implements DataLinkInterface {
                             NetworkPacket networkPacket = networkPacketParser.getPacket();
 
                             // TODO: fix this call (origin address)
-                            dataLinkListener.OnReceiveData(
-                                    0,
-                                    networkPacket.getPayloadType(),
-                                    networkPacket.getPacketPayload()
-                            );
+                            if (dataLinkListener != null) {
+                                dataLinkListener.OnReceiveData(
+                                        0,
+                                        networkPacket.getPayloadType(),
+                                        networkPacket.getPacketPayload()
+                                );
+                            }
                         }
 
                     } else {
                         // This packet came from the Arduino
                         // TODO: Handle SerialPackets from Arduino
                         // TODO: Update this to return generic byte[] data as well
-                        // dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
+                        // if (dataLinkListener != null) dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
                     }
                 }
 
