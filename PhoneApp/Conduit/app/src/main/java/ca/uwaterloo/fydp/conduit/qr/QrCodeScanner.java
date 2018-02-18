@@ -1,4 +1,4 @@
-package ca.uwaterloo.fydp.conduit;
+package ca.uwaterloo.fydp.conduit.qr;
 
 import android.content.Intent;
 import android.os.Bundle;

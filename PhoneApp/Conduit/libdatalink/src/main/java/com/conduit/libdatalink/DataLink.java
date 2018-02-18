@@ -1,133 +1,161 @@
 package com.conduit.libdatalink;
 
+import com.conduit.libdatalink.internal.*;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 
-public class DataLink implements DataLinkInterface{
+import static com.conduit.libdatalink.internal.Constants.*;
 
-    public static final byte CONTROL_START_OF_HEADING = 1;
-    public static final byte CONTROL_START_OF_TEXT = 2;
-    public static final byte CONTROL_END_OF_TEXT = 3;
-    public static final byte CONTROL_END_OF_TRANSMISSION = 4;
+public class DataLink implements DataLinkInterface {
 
-    public static final byte COMMAND_DEBUG_LED_BLINK = 33;
-    public static final byte COMMAND_DEBUG_ECHO = 34;
-    public static final byte COMMAND_OPEN_WRITING_PIPE = 40;
-    public static final byte COMMAND_OPEN_READING_PIPE = 41;
-    public static final byte COMMAND_WRITE = 42;
-    public static final byte COMMAND_READ = 43;
-
-    public static final byte STATUS_SUCCESS = 100;
-    public static final byte STATUS_FAILURE = 101;
-
-    public static final byte ERROR_INVALID_COMMAND = 1;
-    public static final byte ERROR_TX_FAIL = 110;
-    public static final byte ERROR_ACK_MISS = 111;
+    private static final int MAX_PACKETS_IN_FLIGHT = ARDUINO_SERIAL_RX_BUFFER_SIZE / SerialPacket.PACKET_SIZE;
 
     private UsbDriverInterface usbDriver;
     private DataLinkListener dataLinkListener;
 
+    private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
+    private SerialPacketParser serialPacketParser = new SerialPacketParser();
+    private NetworkPacketParser networkPacketParser = new NetworkPacketParser();
+
+    final Semaphore txOkSem = new Semaphore(MAX_PACKETS_IN_FLIGHT);
+    private QueueConsumer queueConsumer = new QueueConsumer();
+    private Thread consumerThread = new Thread(queueConsumer);
+
     public DataLink(UsbDriverInterface usbDriver) {
         this.usbDriver = usbDriver;
         this.usbDriver.setReadListener(usbSerialListener);
+        this.consumerThread.start();
     }
 
     public void debugLEDBlink(byte numBlinks) {
-        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_DEBUG_LED_BLINK, numBlinks};
-        usbDriver.sendBuffer(buf);
+        processingQueue.add(new SerialPacket(
+                COMMAND_DEBUG_LED_BLINK,
+                new byte[] {numBlinks}
+        ));
     }
 
     public void debugEcho(byte value) {
-        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_DEBUG_ECHO, value};
-        usbDriver.sendBuffer(buf);
+        processingQueue.add(new SerialPacket(
+                COMMAND_DEBUG_ECHO,
+                new byte[] {value}
+        ));
+    }
+
+    public void debugEcho(byte[] payload) {
+        List<SerialPacket> packets = PacketGenerator.generateSerialPackets(
+                COMMAND_DEBUG_ECHO,
+                new NetworkPacket(
+                        (byte) 1,
+                        payload
+                )
+        );
+
+        System.out.println("[DATALINK] Enqueued " + packets.size() + " SerialPackets");
+        processingQueue.addAll(packets);
     }
 
     public void openWritingPipe(int address) {
-        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_OPEN_WRITING_PIPE};
-        byte addressBuf[] = intToBytes(address);
-        buf = concatBuffers(buf, addressBuf);
-        usbDriver.sendBuffer(buf);
+        processingQueue.add(new SerialPacket(
+                COMMAND_OPEN_WRITING_PIPE,
+                Utils.intToBytes(address)
+        ));
     }
 
     public void openReadingPipe(byte pipeNumber, int address) {
-        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_OPEN_READING_PIPE, pipeNumber};
-        byte addressBuf[] = intToBytes(address);
-        buf = concatBuffers(buf, addressBuf);
-        usbDriver.sendBuffer(buf);
+        processingQueue.add(new SerialPacket(
+                COMMAND_OPEN_READING_PIPE,
+                Utils.intToBytes(address)
+        ));
     }
 
-    public void write(byte[] payload) {
-        byte buf[] = {CONTROL_START_OF_HEADING, COMMAND_WRITE, CONTROL_START_OF_TEXT};
-        buf = concatBuffers(buf, payload);
-        buf = concatBuffers(buf, new byte[]{CONTROL_END_OF_TEXT});
-        usbDriver.sendBuffer(buf);
+    public void write(byte payloadType, byte[] payload) {
+        processingQueue.addAll(PacketGenerator.generateSerialPackets(
+                COMMAND_WRITE,
+                new NetworkPacket(payloadType, payload)
+        ));
+    }
+
+    class QueueConsumer implements Runnable {
+        public void run() {
+            System.out.println("Starting Datalink Queue Consumer");
+            try {
+                while (true) {
+                    // wait till safe to send, then send single packet
+                    txOkSem.acquire();
+                    consume(processingQueue.take());
+                }
+            } catch (InterruptedException ex) {
+                System.out.println(ex);
+            }
+        }
+
+        void consume(SerialPacket packet) {
+            usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
+        }
     }
 
     public void setReadListener(DataLinkListener listener) {
         dataLinkListener = listener;
     }
 
-
-    List<Byte> accumulator = new ArrayList<Byte>();
-
     private UsbSerialListener usbSerialListener = new UsbSerialListener() {
         @Override
         public void OnReceiveData(byte[] data) {
-            // Persist all bytes
-            for (int i = 0; i < data.length; i++) accumulator.add(data[i]);
+            try {
+                serialPacketParser.addBytes(data);
 
-            while (accumulator.contains(CONTROL_START_OF_HEADING) && accumulator.contains(CONTROL_END_OF_TRANSMISSION)) {
-                // Full packet(s); find and parse
-                CommandResultHolder result = parseCommand(accumulator);
-                System.out.println(result);
+                if (serialPacketParser.isPacketReady()) {
 
-                if (dataLinkListener != null) {
-                    if (result.COMMAND_ID == COMMAND_READ){
-                        dataLinkListener.OnReceiveData(new String(result.PAYLOAD));
+                    // Allow consumer to TX the next packet
+                    txOkSem.release();
+
+                    SerialPacket packet = serialPacketParser.getPacket();
+                    byte[] payload = new byte[packet.getPayloadSize()];
+                    packet.getPacketPayload(payload);
+
+                    System.out.println("[DataLink] SerialPacket Ready: " + Arrays.toString(payload));
+                    System.out.println("[DataLink] SerialPacket Ready: " + new String(payload));
+
+                    if (packet.getCommandId() == COMMAND_READ) {
+                        System.out.println("[DataLink] Packet Source: Radio");
+
+                        // TODO: Handle packets from multiple remote radios
+                        // This packet came from the radio
+                        networkPacketParser.addBytes(payload);
+
+                        if (networkPacketParser.isPacketReady()) {
+                            System.out.println("[DataLink] NetworkPacket ready");
+
+                            NetworkPacket networkPacket = networkPacketParser.getPacket();
+
+                            // TODO: fix this call (origin address)
+                            dataLinkListener.OnReceiveData(
+                                    0,
+                                    networkPacket.getPayloadType(),
+                                    networkPacket.getPacketPayload()
+                            );
+                        }
+
+                    } else {
+                        // This packet came from the Arduino
+                        // TODO: Handle SerialPackets from Arduino
+                        // TODO: Update this to return generic byte[] data as well
+                        // dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
                     }
                 }
-            }
 
+            } catch (Exception e) {
+                // We MUST capture all exceptions here - otherwise errors are bubbled up to the UsbDriver and
+                // silently squashed by the serial library
+                System.out.println("[DATALINK] Exception Occurred " + e.toString());
+            }
         }
     };
 
-    public static CommandResultHolder parseCommand(List<Byte> data) {
-        CommandResultHolder result = null;
-
-        int head_idx = -1;
-        int term_idx = -1;
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i) == CONTROL_START_OF_HEADING) head_idx = i;
-            if (data.get(i) == CONTROL_END_OF_TRANSMISSION) term_idx = i;
-
-            if (head_idx >= 0 && term_idx >= 0 && head_idx < term_idx) {
-
-                // Found a good packet, remove header and terminator
-                data.remove(term_idx);
-                data.remove(head_idx);
-
-                // Parse packet
-                result = new CommandResultHolder(data.subList(head_idx, term_idx - 1));
-            }
-        }
-
-        return result;
-    }
-
-    public byte[] intToBytes(int x) {
-        ByteBuffer buffer = ByteBuffer.allocate(4);
-        buffer.putInt(x);
-        return buffer.array();
-    }
-
-    private byte[] concatBuffers(byte[] first, byte[] second) {
-        int aLen = first.length;
-        int bLen = second.length;
-        byte[] c= new byte[aLen+bLen];
-        System.arraycopy(first, 0, c, 0, aLen);
-        System.arraycopy(second, 0, c, aLen, bLen);
-        return c;
-    }
 }

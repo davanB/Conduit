@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import ca.uwaterloo.fydp.conduit.qr.QRGenerationActivity;
+
 public class AppModeActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override

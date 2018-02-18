@@ -1,4 +1,4 @@
-package ca.uwaterloo.fydp.conduit;
+package ca.uwaterloo.fydp.conduit.qr;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -14,10 +14,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 
+import ca.uwaterloo.fydp.conduit.Contents;
 import ca.uwaterloo.fydp.conduit.GroupData;
+import ca.uwaterloo.fydp.conduit.R;
 
 
 /*

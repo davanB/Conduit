@@ -1,17 +1,12 @@
 package ca.uwaterloo.fydp.conduit;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Button;
 import android.text.Html;
@@ -23,22 +18,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.conduit.libdatalink.DataLink;
-import com.conduit.libdatalink.DataLinkListener;
+import com.conduit.libdatalink.ConduitGroup;
+import com.conduit.libdatalink.conduitabledata.ConduitMessage;
+import com.conduit.libdatalink.conduitabledata.ConduitableData;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;
 
+import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
+import ca.uwaterloo.fydp.conduit.qr.QRGenerationActivity;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
+
 public class MainActivity extends AppCompatActivity {
-
-    UsbManager manager;
-    DataLink dataLink;
-
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
     }
+    private ConduitGroup conduitGroup;
 
     private FloatingActionMenu mainMenu;
 
@@ -51,15 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private Button sendButton;
 
     private final int PICK_IMAGE = 100;
-
-    private final int PERMISSIONS_REQUEST_READ_STORAGE = 200; // write is also given
-    private final int PERMISSIONS_REQUEST_FINE_LOCATION = 201; // course is also given
-
-    private final int PERMISSIONS_READ_CAMERA_GPS = 401;
-
-    private final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA};
-
     private DataTransformation transformer;
 
 
@@ -76,41 +65,26 @@ public class MainActivity extends AppCompatActivity {
         setUpTextBoxes();
         setUpSendButton();
 
-        if (!requestUserPermissions(PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_CAMERA_GPS);
-        }
-
-        manager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        dataLink = new DataLink(new UsbDriver(manager));
-        dataLink.setReadListener(dataLinkListener);
-    }
-
-    DataLinkListener dataLinkListener  = new DataLinkListener() {
-        @Override
-        public void OnReceiveData(final String data) {
-            textView.post(new Runnable() {
-                @Override
-                public void run() {
-                    // TODO this needs to be built so that data can be decrypted and uncompressed
-                    String newText = String.format("<b>Friend> </b>%s<br>", data);
-                    String oldText = Html.toHtml(textView.getEditableText()).toString();
-                    textView.setText(Html.fromHtml(newText + oldText));
-
+        conduitGroup = ConduitManager.getConduitGroup(900, 2);
+        conduitGroup.addConduitableDataListener(ConduitGroup.Companion.getPAYLOAD_TYPE_MESSAGE(), new Function1<ConduitableData, Unit>() {
+            @Override
+            public Unit invoke(ConduitableData conduitableData) {
+                final ConduitMessage message = (ConduitMessage) conduitableData;
+                textView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO this needs to be built so that data can be decrypted and uncompressed
+                        String newText = String.format("<b>Friend> </b>%s<br>", message.getMessage());
+                        String oldText = Html.toHtml(textView.getEditableText()).toString();
+                        textView.setText(Html.fromHtml(newText + oldText));
 //                    byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(data);
 //                    String res = new String(decyeptedAndDecompressed);
 //                    textView.append(res);
-                }
-            });
-        }
-    };
-
-    private boolean requestUserPermissions(String[] Permissions) {
-        for (String permission : Permissions) {
-            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
+                    }
+                });
+                return null;
             }
-        }
-        return true;
+        });
     }
 
     private void setUpTextBoxes() {
@@ -149,7 +123,9 @@ public class MainActivity extends AppCompatActivity {
             String userInput = userText.getText().toString();
             if (!userInput.equals("")) {
 //                byte[] compressedAndEncryptedText = transformer.compressAndEncrypt(userInput);
-                dataLink.write(userInput.getBytes());
+                ConduitMessage message = new ConduitMessage();
+                message.setMessage(userInput);
+                conduitGroup.send(3, message);
                 String newText = String.format("<b>You> </b>%s<br>", userInput);
                 String oldText = Html.toHtml(textView.getEditableText()).toString();
                 textView.setText(Html.fromHtml(newText + oldText));
@@ -263,25 +239,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this,QRGenerationActivity.class);
             startActivity(intent);
         } else if(id == R.id.action_setup) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Pick a user");
-            builder.setItems(new CharSequence[] {"Friend #1", "Friend #2"}, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    int addrA = 0xCDABCD71;
-                    int addrB = 0xCDABCD69;
-                    int me = addrA;
-                    int you = addrB;
-                    if(which == 0){
-                        me = addrB;
-                        you = addrA;
-                    }
-
-                    dataLink.openWritingPipe(me);
-                    dataLink.openReadingPipe((byte)1, you);
-                }
-            });
-            builder.show();
             return true;
         }
 

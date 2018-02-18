@@ -9,6 +9,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import ca.uwaterloo.fydp.conduit.qr.QRGenerationActivity;
+
 // splash screen to enter group info and start master flow
 public class GroupCreationActivity extends AppCompatActivity {
 
