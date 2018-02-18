@@ -9,7 +9,7 @@ public interface DataLinkInterface {
 
     void openReadingPipe(byte pipeNumber, int address);
 
-    void write(byte payload[]);
+    void write(byte payloadType, byte payload[]);
 
     void setReadListener(DataLinkListener listener);
 }

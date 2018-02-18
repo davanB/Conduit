@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 
-import ca.uwaterloo.fydp.conduit.connectionutils.ConduitDataLink;
+import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
 
 public class ConduitConnectionActivity extends AppCompatActivity {
 
@@ -31,9 +31,9 @@ public class ConduitConnectionActivity extends AppCompatActivity {
         if (!requestUserPermissions(PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_AND_GPS);
         }
-        ConduitDataLink dataLink = new ConduitDataLink(this);
 
-        if(dataLink.getDriver().isConnected()) {
+        ConduitManager.initialize(this);
+        if(ConduitManager.getDriver().isConnected()) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
