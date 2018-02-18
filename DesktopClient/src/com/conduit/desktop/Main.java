@@ -59,7 +59,7 @@ public class Main {
             if (line.length() > 1) {
                 System.out.println("Transmitting: " + line);
 //                dataLink.openWritingPipe(remote);
-                dataLink.write(line.getBytes());
+                dataLink.write((byte)0, line.getBytes());
 //                dataLink.openReadingPipe((byte)1, remote);
             }
         }
