@@ -32,7 +32,9 @@ public class ConduitConnectionActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_AND_GPS);
         }
 
-        ConduitManager.initialize(this);
+        // TODO: switch this back otherwise we're not going to actually connect to the hardware!!!!
+        //ConduitManager.initialize(this);
+        ConduitManager.initializeMock();
         if(ConduitManager.getDriver().isConnected()) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);

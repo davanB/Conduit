@@ -1,8 +1,6 @@
 package ca.uwaterloo.fydp.conduit;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -29,6 +27,9 @@ import com.github.clans.fab.FloatingActionButton;
 import java.io.File;
 
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
+import ca.uwaterloo.fydp.conduit.puppets.PassiveAggressiveConversation;
+import ca.uwaterloo.fydp.conduit.puppets.PuppetMaster;
+import ca.uwaterloo.fydp.conduit.puppets.PuppetShow;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
@@ -88,6 +89,10 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
         });
+
+        PuppetMaster puppetMaster = new PuppetMaster();
+        PuppetShow puppetShow = new PassiveAggressiveConversation(conduitGroup);
+        puppetMaster.startShow(puppetShow);
     }
 
     private void setUpTextBoxes() {
