@@ -1,8 +1,7 @@
-package ca.uwaterloo.fydp.conduit.qr;
+package ca.uwaterloo.fydp.conduit.flow.master;
 
 import com.conduit.libdatalink.ConduitGroup;
 import com.conduit.libdatalink.conduitabledata.ConduitConnectionEvent;
-import com.conduit.libdatalink.conduitabledata.ConduitMessage;
 import com.conduit.libdatalink.conduitabledata.ConduitableData;
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes;
 import com.google.zxing.BarcodeFormat;
@@ -14,22 +13,20 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.Display;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 
+import ca.uwaterloo.fydp.conduit.AppConstants;
 import ca.uwaterloo.fydp.conduit.Contents;
-import ca.uwaterloo.fydp.conduit.GroupData;
 import ca.uwaterloo.fydp.conduit.MainActivity;
 import ca.uwaterloo.fydp.conduit.R;
+import ca.uwaterloo.fydp.conduit.connectionutils.ConduitLedger;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
 import ca.uwaterloo.fydp.conduit.puppets.BootstrappingConnectionEventsIncoming;
 import ca.uwaterloo.fydp.conduit.puppets.PuppetMaster;
 import ca.uwaterloo.fydp.conduit.puppets.PuppetShow;
+import ca.uwaterloo.fydp.conduit.qr.QRCodeEncoder;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
@@ -49,14 +46,16 @@ public class QRGenerationActivity extends Activity{
         setContentView(R.layout.activity_qrgeneration_avtivity);
 
         Intent intent = getIntent();
-        String groupName = intent.getStringExtra("GroupName");
-        String userName = intent.getStringExtra("UserName");
+        String groupName = intent.getStringExtra(AppConstants.GROUP_NAME_KEY);
+        String userName = intent.getStringExtra(AppConstants.USER_NAME_KEY);
 
         groupData = new GroupData(groupName, userName);
 
         // TODO: baseaddress needs to be the common lower 3 bytes of all addresses... might need to double check that this consistent with what Davan did in this class
         // clientId is 0 since we are the master
-        ConduitGroup conduitGroup = ConduitManager.getConduitGroup(groupData.getBaseAddress(), 0);
+        ConduitManager.setLedger(new ConduitLedger(groupData.getBaseAddress(), groupName, 6, 0, userName));
+
+        ConduitGroup conduitGroup = ConduitManager.getConduitGroup(ConduitManager.getLedger());
         conduitGroup.addConduitableDataListener(ConduitableDataTypes.CONNECTION_EVENT, new Function1<ConduitableData, Unit>() {
             @Override
             public Unit invoke(final ConduitableData conduitableData) {
@@ -64,9 +63,14 @@ public class QRGenerationActivity extends Activity{
                     @Override
                     public void run() {
                         ConduitConnectionEvent newUserConnectionEvent = (ConduitConnectionEvent) conduitableData;
-                        // TODO: we can perform verification here to make sure the right guy joined. Also, we should probably save this data in a global map
                         String newUserName = newUserConnectionEvent.getConnectedClientName();
                         int newUserId = newUserConnectionEvent.getConnectedClientId();
+
+                        if(groupData.getCurrentAddress() != newUserId) {
+                            throw new IllegalStateException("Conduit connection from wrong userId");
+                        }
+
+                        ConduitManager.getLedger().addGroupMember(newUserId, newUserName);
                         nextCode();
                     }
                 });
@@ -75,7 +79,7 @@ public class QRGenerationActivity extends Activity{
         });
 
         // TODO: The following code is being used for debug purposes
-        // Fire off the events using puppermaster to simulate users joining the room
+        // Fire off the events using puppetmaster to simulate users joining the room
         PuppetMaster puppetMaster = new PuppetMaster();
         PuppetShow simulateConduitConnectionEvents = new BootstrappingConnectionEventsIncoming(conduitGroup);
         puppetMaster.startShow(simulateConduitConnectionEvents);
@@ -88,7 +92,7 @@ public class QRGenerationActivity extends Activity{
         String qrInputText = groupData.generateHandShakeData().toString();
         if(groupData.isFinishedHandshakes()) {
             // if we're about to display the QR code for master, stop. We're done.
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, DistributeGroupDataActivity.class);
             startActivity(intent);
         }
 

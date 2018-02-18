@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    tools:context="ca.uwaterloo.fydp.conduit.ConduitConnectionActivity">
+    tools:context="ca.uwaterloo.fydp.conduit.flow.ConduitConnectionActivity">
 
     <ImageView
         android:id="@+id/conduit_connect_image"

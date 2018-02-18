@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="ca.uwaterloo.fydp.conduit.GroupCreationActivity">
+    tools:context="ca.uwaterloo.fydp.conduit.flow.master.GroupCreationActivity">
 
     <LinearLayout
         android:id="@+id/group_name_form"

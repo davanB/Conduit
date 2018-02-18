@@ -1,4 +1,4 @@
-package ca.uwaterloo.fydp.conduit;
+package ca.uwaterloo.fydp.conduit.flow;
 
 import android.Manifest;
 import android.content.Intent;
@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 
+import ca.uwaterloo.fydp.conduit.flow.master.GroupCreationActivity;
+import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
 
 public class ConduitConnectionActivity extends AppCompatActivity {
@@ -36,7 +38,7 @@ public class ConduitConnectionActivity extends AppCompatActivity {
         //ConduitManager.initialize(this);
         ConduitManager.initializeMock();
         if(ConduitManager.getDriver().isConnected()) {
-            Intent intent = new Intent(this, GroupCreationActivity.class);
+            Intent intent = new Intent(this, AppModeActivity.class);
             startActivity(intent);
         }
 

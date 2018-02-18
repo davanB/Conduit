@@ -30,7 +30,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
-import ca.uwaterloo.fydp.conduit.qr.QRGenerationActivity;
+import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity;
 import ca.uwaterloo.fydp.conduit.puppets.BootstrappingConnectionEventsIncoming;
 import ca.uwaterloo.fydp.conduit.puppets.PassiveAggressiveConversation;
 import ca.uwaterloo.fydp.conduit.puppets.PuppetMaster;
