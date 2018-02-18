@@ -5,14 +5,13 @@ import com.conduit.libdatalink.conduitabledata.ConduitConnectionEvent
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 
 class BootstrappingConnectionEventsIncoming(group: ConduitGroup) : PuppetShow(group) {
-    override fun getScript(): List<() -> Unit> {
+    override fun writeScript(){
         script.clear()
         addUser(1, "Bob")
         addUser(2, "Joe")
         addUser(3, "Smith")
         addUser(4, "Fred")
         addUser(5, "Menma")
-        return script
     }
 
     private fun addUser(clientId: Int, clientName: String) {
