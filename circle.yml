@@ -9,4 +9,4 @@ general:
 
 test:
   override:
-    - cd DesktopClient && gradle test -is
+    - cd DesktopClient && ./gradlew test -is
