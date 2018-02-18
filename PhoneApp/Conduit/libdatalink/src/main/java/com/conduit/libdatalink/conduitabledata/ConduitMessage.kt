@@ -3,8 +3,12 @@ package com.conduit.libdatalink.conduitabledata
 import java.nio.ByteBuffer
 
 
-class ConduitMessage : ConduitableData() {
+class ConduitMessage() : ConduitableData() {
     var message: String? = null
+
+    constructor(message: String?) : this(){
+        this.message = message
+    }
 
     override fun populateFromPayload(payload: ByteBuffer) {
         val payloadBytes = payload.array()

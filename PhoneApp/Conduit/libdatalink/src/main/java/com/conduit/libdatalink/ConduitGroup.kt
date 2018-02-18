@@ -13,7 +13,7 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
         val PAYLOAD_TYPE_GPS_COORDS: Byte = 0x02
     }
 
-    private val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
+    val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
 
     init {
         openInitialReadPipes(baseAddress, currentClientId)
