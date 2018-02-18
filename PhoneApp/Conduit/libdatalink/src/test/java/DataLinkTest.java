@@ -57,6 +57,7 @@ public class DataLinkTest {
 
         final String DATA = "Hello World";
 
+        dataLink.openReadingPipe((byte)0, 0xAABBCCDD);
         dataLink.write((byte) 0, DATA.getBytes());
 
         // Need to wait for callback to complete

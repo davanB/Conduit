@@ -20,7 +20,8 @@ public class DataLink implements DataLinkInterface {
 
     private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
-    private NetworkPacketParser networkPacketParser = new NetworkPacketParser();
+    private Map<Byte, NetworkPacketParser> networkPacketParsers = new HashMap<Byte, NetworkPacketParser>();
+
 
     final Semaphore txOkSem = new Semaphore(MAX_PACKETS_IN_FLIGHT);
     private QueueConsumer queueConsumer = new QueueConsumer();
@@ -81,6 +82,10 @@ public class DataLink implements DataLinkInterface {
             System.out.println("[DataLink] Registered Group Address " + String.format("0x%08X", groupAddress));
         }
 
+        // Create a new packetparser for this address
+        byte lsb = (byte)(address & 0x000000FF);
+        networkPacketParsers.put(lsb, new NetworkPacketParser());
+
         byte a[] = Utils.intToBytes(address);
         processingQueue.add(new SerialPacket(
                 COMMAND_OPEN_READING_PIPE,
@@ -139,8 +144,17 @@ public class DataLink implements DataLinkInterface {
                     if (serialPacket.getCommandId() == COMMAND_READ) {
                         System.out.println("[DataLink] Packet Source: Radio");
 
-                        // TODO: Handle packets from multiple remote radios
-                        // This packet came from the radio
+                        // This packet came from the radio - get the appropriate NetworkPacketParser
+                        NetworkPacketParser networkPacketParser = networkPacketParsers.get(serialPacket.getSource());
+
+                        if (networkPacketParser == null) {
+                            System.out.println("[DataLink] [Error] Received data from unexpected address " + String.format(
+                                    "0x%08X",
+                                    (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource())
+                            ));
+                            return;
+                        }
+
                         networkPacketParser.addBytes(payload);
 
                         if (networkPacketParser.isPacketReady()) {
