@@ -1,22 +1,25 @@
 package com.conduit.libdatalink.conduitabledata
 
+import com.conduit.libdatalink.internal.Constants
 import java.nio.ByteBuffer
+import kotlin.properties.Delegates
 
 
 class ConduitGpsLocation : ConduitableData() {
-    var latiutde: Long? = null
-    var longitude: Long? = null
+    override val payloadType: ConduitableDataTypes = ConduitableDataTypes.GPS_COORDS
+
+    var latitude: Double by Delegates.notNull()
+    var longitude: Double by Delegates.notNull()
 
     override fun populateFromPayload(payload: ByteBuffer) {
-        longitude = payload.long
-        latiutde = payload.long
+        latitude = payload.double
+        longitude = payload.double
     }
 
-    override fun getPayload(): ByteBuffer? {
-        // todo: replace the 8*2 with something... nicer?
+    override fun getPayload(): ByteBuffer {
         val payload = ByteBuffer.allocate(8*2)
-        latiutde?.let { payload.putLong(it) }
-        longitude?.let { payload.putLong(it) }
+        payload.putDouble(latitude)
+        payload.putDouble(longitude)
         return payload
     }
 }

@@ -19,15 +19,22 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.conduit.libdatalink.ConduitGroup;
+import com.conduit.libdatalink.conduitabledata.ConduitConnectionEvent;
 import com.conduit.libdatalink.conduitabledata.ConduitMessage;
 import com.conduit.libdatalink.conduitabledata.ConduitableData;
+import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
 import ca.uwaterloo.fydp.conduit.qr.QRGenerationActivity;
+import ca.uwaterloo.fydp.conduit.puppets.BootstrappingConnectionEventsIncoming;
+import ca.uwaterloo.fydp.conduit.puppets.PassiveAggressiveConversation;
+import ca.uwaterloo.fydp.conduit.puppets.PuppetMaster;
+import ca.uwaterloo.fydp.conduit.puppets.PuppetShow;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
@@ -66,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         setUpSendButton();
 
         conduitGroup = ConduitManager.getConduitGroup(900, 2);
-        conduitGroup.addConduitableDataListener(ConduitGroup.Companion.getPAYLOAD_TYPE_MESSAGE(), new Function1<ConduitableData, Unit>() {
+        conduitGroup.addConduitableDataListener(ConduitableDataTypes.MESSAGE, new Function1<ConduitableData, Unit>() {
             @Override
             public Unit invoke(ConduitableData conduitableData) {
                 final ConduitMessage message = (ConduitMessage) conduitableData;
@@ -85,6 +92,37 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
         });
+
+        conduitGroup.addConduitableDataListener(ConduitableDataTypes.CONNECTION_EVENT, new Function1<ConduitableData, Unit>() {
+            @Override
+            public Unit invoke(final ConduitableData conduitableData) {
+                textView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final ConduitConnectionEvent evt = (ConduitConnectionEvent) conduitableData;
+                        String oldText = Html.toHtml(textView.getEditableText()).toString();
+                        String newText = "\nNew user connected!: " + evt.getConnectedClientName() + "\n";
+                        textView.setText(Html.fromHtml(newText + oldText));
+                    }
+                });
+
+                return null;
+            }
+        });
+
+
+        ArrayList<PuppetShow> shows = new ArrayList<>();
+        PuppetShow connectionsPuppetShow = new BootstrappingConnectionEventsIncoming(conduitGroup);
+        shows.add(connectionsPuppetShow);
+        PuppetShow convoPuppetShow = new PassiveAggressiveConversation(conduitGroup);
+        shows.add(convoPuppetShow);
+
+        // Create multiple PuppetMaster if you need shows to run at the same time
+        // you can also do puppetMaster.startShow(show); to start a single show
+        PuppetMaster puppetMaster = new PuppetMaster();
+        // this will chain the two shows one after the other
+        puppetMaster.chainShows(shows);
+
     }
 
     private void setUpTextBoxes() {
