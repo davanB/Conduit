@@ -19,14 +19,17 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.conduit.libdatalink.ConduitGroup;
+import com.conduit.libdatalink.conduitabledata.ConduitConnectionEvent;
 import com.conduit.libdatalink.conduitabledata.ConduitMessage;
 import com.conduit.libdatalink.conduitabledata.ConduitableData;
+import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes;
 import com.github.clans.fab.FloatingActionMenu;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;
 
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
+import ca.uwaterloo.fydp.conduit.puppets.BootstrappingConnectionEventsIncoming;
 import ca.uwaterloo.fydp.conduit.puppets.PassiveAggressiveConversation;
 import ca.uwaterloo.fydp.conduit.puppets.PuppetMaster;
 import ca.uwaterloo.fydp.conduit.puppets.PuppetShow;
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         setUpSendButton();
 
         conduitGroup = ConduitManager.getConduitGroup(900, 2);
-        conduitGroup.addConduitableDataListener(ConduitGroup.Companion.getPAYLOAD_TYPE_MESSAGE(), new Function1<ConduitableData, Unit>() {
+        conduitGroup.addConduitableDataListener(ConduitableDataTypes.MESSAGE, new Function1<ConduitableData, Unit>() {
             @Override
             public Unit invoke(ConduitableData conduitableData) {
                 final ConduitMessage message = (ConduitMessage) conduitableData;
@@ -90,9 +93,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        conduitGroup.addConduitableDataListener(ConduitableDataTypes.CONNECTION_EVENT, new Function1<ConduitableData, Unit>() {
+            @Override
+            public Unit invoke(final ConduitableData conduitableData) {
+                textView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final ConduitConnectionEvent evt = (ConduitConnectionEvent) conduitableData;
+                        textView.append("\n");
+                        textView.append("New user connected!: " + evt.getConnectedClientName());
+                        textView.append("\n");
+                    }
+                });
+
+                return null;
+            }
+        });
+
         PuppetMaster puppetMaster = new PuppetMaster();
-        PuppetShow puppetShow = new PassiveAggressiveConversation(conduitGroup);
-        puppetMaster.startShow(puppetShow);
+        PuppetShow convoPuppetShow = new PassiveAggressiveConversation(conduitGroup);
+        PuppetShow connectionsPuppetShow = new BootstrappingConnectionEventsIncoming(conduitGroup);
+        puppetMaster.startShow(convoPuppetShow);
+        puppetMaster.startShow(connectionsPuppetShow);
     }
 
     private void setUpTextBoxes() {

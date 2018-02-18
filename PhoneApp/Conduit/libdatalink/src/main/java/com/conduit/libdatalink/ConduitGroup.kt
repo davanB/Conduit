@@ -1,18 +1,12 @@
 package com.conduit.libdatalink
 
-import com.conduit.libdatalink.conduitabledata.ConduitMessage
-import com.conduit.libdatalink.conduitabledata.ConduitableData
+import com.conduit.libdatalink.conduitabledata.*
+import com.conduit.libdatalink.internal.Constants
 import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class ConduitGroup internal constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, currentClientId: Int) {
-
-    companion object {
-        val PAYLOAD_TYPE_MESSAGE: Byte = 0x01
-        val PAYLOAD_TYPE_GPS_COORDS: Byte = 0x02
-    }
-
     val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
 
     init {
@@ -25,26 +19,31 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
     fun send(clientId: Int, data: ConduitableData) {
         val address: Int = getFullAddress(baseAddress, clientId)
         dataLink.openWritingPipe(address)
-        dataLink.write(PAYLOAD_TYPE_MESSAGE, data.payload.array())
+        dataLink.write(data.payloadType.flag, data.getPayload().array())
     }
 
-    fun addConduitableDataListener(payloadType: Byte, listener: ((ConduitableData) -> Unit)) {
-        conduitableListeners[payloadType] = listener
+    fun addConduitableDataListener(payloadType: ConduitableDataTypes, listener: ((ConduitableData) -> Unit)) {
+        conduitableListeners[payloadType.flag] = listener
     }
 
     // After Conduit calls us back with data
     // Figure out where the data should go, and what payloadType it should be casted to
     // then call the correct listener
-    private fun onDataReadListener(origin: Int, payloadType: Byte, payload : ByteBuffer) {
+    private fun onDataReadListener(origin: Int, payloadType: Byte, payload : ByteBuffer?) {
         val payloadObject = getClassForPayloadType(payloadType)
-        payloadObject.populateFromPayload(payload)
+        if (payload != null) {
+            payloadObject.populateFromPayload(payload)
+        }
         payloadObject.originAddress = origin
         conduitableListeners[payloadType]?.invoke(payloadObject)
     }
 
     private fun getClassForPayloadType(payloadType: Byte): ConduitableData = when(payloadType) {
-        PAYLOAD_TYPE_MESSAGE -> ConduitMessage()
+        ConduitableDataTypes.MESSAGE.flag -> ConduitMessage()
+        ConduitableDataTypes.GPS_COORDS.flag -> ConduitGpsLocation()
+        ConduitableDataTypes.CONNECTION_EVENT.flag -> ConduitConnectionEvent()
         else -> ConduitMessage()
+        // TODO: maybe throw an exception here for unrecognized data?
     }
 
     /**
