@@ -61,6 +61,10 @@ public class SerialPacket {
         return packetData.get(INDEX_COMMAND);
     }
 
+    public byte getSource() {
+        return packetData.get(INDEX_SOURCE);
+    }
+
     public int getPayloadSize() {
         return PAYLOAD_SIZE;
     }

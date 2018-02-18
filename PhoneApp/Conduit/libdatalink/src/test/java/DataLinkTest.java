@@ -1,10 +1,14 @@
 import com.conduit.libdatalink.DataLink;
 import com.conduit.libdatalink.DataLinkListener;
+import com.conduit.libdatalink.internal.NetworkPacket;
 import mock.EchoBackMockUsbDriver;
 import org.junit.Test;
 import mock.FiniteBufferMockUsbDriver;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -62,5 +66,54 @@ public class DataLinkTest {
         assertNotNull(receivedPayload[0]);
         assertEquals(DATA.length(), receivedPayload[0].length());
         assertEquals(DATA, receivedPayload[0]);
+    }
+
+    @Test
+    public void testPipeAddressValidation() throws InterruptedException {
+        // This test ensures DataLink correctly validates pipe addresses
+        EchoBackMockUsbDriver driver = new EchoBackMockUsbDriver();
+        DataLink dataLink = new DataLink(driver);
+
+        final byte DATATYPE = 1;
+        final byte[] PAYLOAD = "TEST".getBytes();
+
+        // Addresses must differ by the LSB only
+        final int[] ADDRESSES = new int[] {
+                0xAABBCC01,
+                0xAABBCC22,
+                0xAABBCC43,
+                0xAABBCC64,
+                0xAABBCC85,
+                0xAABBCC96
+        };
+
+        final CountDownLatch lock = new CountDownLatch(ADDRESSES.length);
+
+        // Accumulate output addresses
+        final List<Integer> outputAddresses = new ArrayList<Integer>();
+        dataLink.setReadListener(new DataLinkListener() {
+            @Override
+            public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
+                outputAddresses.add(originAddress);
+                lock.countDown();
+            }
+        });
+
+        // Open pipes and write data
+        for (byte b = 0; b < ADDRESSES.length; b++) {
+            dataLink.openReadingPipe(b, ADDRESSES[b]);
+            dataLink.write(DATATYPE, "TEST".getBytes());
+        }
+
+        // Need to wait for callback to complete
+        lock.await(2000, TimeUnit.MILLISECONDS);
+
+        assertEquals(ADDRESSES.length, outputAddresses.size());
+
+        for (int i = 0; i < ADDRESSES.length; i++) {
+            System.out.println(String.format("Checking 0x%08X ?= 0x%08X", ADDRESSES[i], outputAddresses.get(i)));
+            assertEquals(ADDRESSES[i], (int)outputAddresses.get(i));
+        }
+
     }
 }

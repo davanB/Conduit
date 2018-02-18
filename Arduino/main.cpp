@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "SerialPacket.h"
 
+#define NUM_READ_PIPES 5
 #define BUFFER_SIZE 32
 
 SerialPacket *inPacket;
@@ -12,6 +13,10 @@ byte commandId = 0;
 
 RF24 radio(9,10);
 byte* buffer = new byte[BUFFER_SIZE];
+
+// map pipe number to addresses
+uint8_t currentReadPipe = 0;
+uint32_t addresses[NUM_READ_PIPES];
 
 void setup() {
     Serial.begin(9600);
@@ -28,7 +33,7 @@ void setup() {
 }
 
 void loop() {
-    if (radio.available()) {
+    if (radio.available(&currentReadPipe)) {
         readRadio();
     } else if (Serial.available()) {
         // Clear inPacket and parse incoming data into it
@@ -97,10 +102,15 @@ void openReadingPipe() {
     // uint8_t *address = (inPacket->payload + 1); // increment pointer by 1 BYTE
     // arduino needs LSB first (Java sends MSB first)
     uint8_t address[4] = {inPacket->payload[4], inPacket->payload[3], inPacket->payload[2], inPacket->payload[1]};
+
+    if (pipeNumber > NUM_READ_PIPES) {
+        sendError(COMMAND_OPEN_READING_PIPE, ERROR_INVALID_ARGUMENT);
+        return;
+    }
+
+    addresses[pipeNumber] = *((uint32_t *)address);
     radio.openReadingPipe(pipeNumber, address);
     radio.startListening();
-
-    // addr_read = *((uint32_t *) (address));
 
     SerialPacket packet = SerialPacket(COMMAND_OPEN_READING_PIPE, 1);
     packet.payload[0] = STATUS_SUCCESS;
@@ -170,6 +180,7 @@ void readRadio() {
     byte payloadSize = radio.getPayloadSize();
 
     SerialPacket packet = SerialPacket(COMMAND_READ, payloadSize + 1);
+    packet->source = (uint8_t) addresses[currentReadPipe]; //ADD LSB
     packet.payload[0] = STATUS_SUCCESS;
     radio.read(packet.payload + 1, payloadSize);
     packet.write();
