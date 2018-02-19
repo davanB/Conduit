@@ -180,7 +180,7 @@ void readRadio() {
     byte payloadSize = radio.getPayloadSize();
 
     SerialPacket packet = SerialPacket(COMMAND_READ, payloadSize + 1);
-    packet->source = (uint8_t) addresses[currentReadPipe]; //ADD LSB
+    packet.source = (uint8_t) addresses[currentReadPipe]; //ADD LSB
     packet.payload[0] = STATUS_SUCCESS;
     radio.read(packet.payload + 1, payloadSize);
     packet.write();
