@@ -58,7 +58,7 @@ void processCommand() {
             openReadingPipe();
             break;
         case COMMAND_WRITE:
-            write();
+            writeRadio();
             break;
         default:
             sendError(COMMAND_READ, ERROR_INVALID_COMMAND);
@@ -84,12 +84,7 @@ void debugEcho() {
 }
 
 void openWritingPipe() {
-    // // byte* address = new byte[4];
     uint8_t address[4] = {inPacket->payload[3], inPacket->payload[2], inPacket->payload[1], inPacket->payload[0]};
-    // // Serial.readBytes(address, 4);
-    // radio.stopListening();
-    // addr_write = *((uint32_t *) inPacket->payload);
-    // addr_write = *((uint32_t *) address);
     radio.openWritingPipe(address);
     SerialPacket packet = SerialPacket(COMMAND_OPEN_WRITING_PIPE, 1);
     packet.payload[0] = STATUS_SUCCESS;
@@ -99,8 +94,6 @@ void openWritingPipe() {
 
 void openReadingPipe() {
     uint8_t pipeNumber = inPacket->payload[0];
-    // uint8_t *address = (inPacket->payload + 1); // increment pointer by 1 BYTE
-    // arduino needs LSB first (Java sends MSB first)
     uint8_t address[4] = {inPacket->payload[4], inPacket->payload[3], inPacket->payload[2], inPacket->payload[1]};
 
     if (pipeNumber > NUM_READ_PIPES) {
@@ -118,38 +111,7 @@ void openReadingPipe() {
     packet.write();
 }
 
-void write() {
-
-    tx(32);
-
-    return;
-
-    uint32_t i = 0;
-    byte recvByte = 0;
-    while(true) {
-        // Fill buffer
-        if (Serial.available()) {
-            recvByte = Serial.read();
-            buffer[i] = recvByte;
-            if(buffer[i] == CONTROL_END_OF_TEXT){
-                tx(i + 1); // Ensure we transmit the null terminator
-                break;
-            }
-            i++;
-        }
-
-        if (i >= BUFFER_SIZE) {
-            tx(BUFFER_SIZE);
-            i = 0;
-        }
-    }
-
-    SerialPacket packet = SerialPacket(COMMAND_WRITE, 1);
-    packet.payload[0] = STATUS_SUCCESS;
-    packet.write();
-}
-
-void tx(byte payloadSize) {
+void writeRadio() {
     radio.stopListening(); //TODO: Evaluate effect on dropped packets
     int ack_buffer[1] = {5};
     // Write buffer to radio
@@ -160,7 +122,7 @@ void tx(byte payloadSize) {
 
             SerialPacket packet = SerialPacket(COMMAND_WRITE, 1 + sizeof(int));
             packet.payload[0] = STATUS_SUCCESS;
-            // TODO: Figure out a better way to do this
+            // Put ACK payload in return buffer in Big-Endian order
             packet.payload[1] = ack_buffer[0] & 0xFF00;
             packet.payload[2] = ack_buffer[1] & 0x00FF;
             packet.write();
