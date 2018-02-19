@@ -5,6 +5,7 @@ import com.conduit.libdatalink.DataLinkListener;
 import com.fazecast.jSerialComm.SerialPort;
 
 import javax.xml.crypto.Data;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -41,6 +42,14 @@ public class Main {
         if (portNumber == -1) portNumber = in.nextInt();
 
         dataLink = new DataLink(new UsbDriver(serialPorts.get(portNumber)));
+        dataLink.setReadListener(new DataLinkListener() {
+            @Override
+            public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
+                byte[] buf = new byte[payload.remaining()];
+                payload.get(buf);
+                System.out.println(String.format("0x%08X %1s", originAddress, new String(buf)));
+            }
+        });
 
         connect();
         sendString();
@@ -99,7 +108,7 @@ public class Main {
             line = in.nextLine();
             if (line.length() < 1) continue;
             System.out.println("Transmitting: " + line);
-            dataLink.write(line.getBytes());
+            dataLink.write((byte) 1, line.getBytes());
         }
     }
 
