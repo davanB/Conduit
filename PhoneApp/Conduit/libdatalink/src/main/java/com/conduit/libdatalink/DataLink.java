@@ -1,7 +1,6 @@
 package com.conduit.libdatalink;
 
 import com.conduit.libdatalink.internal.*;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -21,11 +20,14 @@ public class DataLink implements DataLinkInterface {
 
     private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
-    private NetworkPacketParser networkPacketParser = new NetworkPacketParser();
+    private Map<Byte, NetworkPacketParser> networkPacketParsers = new HashMap<Byte, NetworkPacketParser>();
+
 
     final Semaphore txOkSem = new Semaphore(MAX_PACKETS_IN_FLIGHT);
     private QueueConsumer queueConsumer = new QueueConsumer();
     private Thread consumerThread = new Thread(queueConsumer);
+
+    private int groupAddress = -1;
 
     public DataLink(UsbDriverInterface usbDriver) {
         this.usbDriver = usbDriver;
@@ -68,9 +70,26 @@ public class DataLink implements DataLinkInterface {
     }
 
     public void openReadingPipe(byte pipeNumber, int address) {
+        // Validate address
+        if (groupAddress != -1) {
+            if (groupAddress != (address & 0xFFFFFF00)) {
+                //TODO: Surface this error correctly
+                System.out.println("[DataLink] [ERROR] Invalid Address");
+                return;
+            }
+        } else {
+            groupAddress = address & 0xFFFFFF00;
+            System.out.println("[DataLink] Registered Group Address " + String.format("0x%08X", groupAddress));
+        }
+
+        // Create a new packetparser for this address
+        byte lsb = (byte)(address & 0x000000FF);
+        networkPacketParsers.put(lsb, new NetworkPacketParser());
+
+        byte a[] = Utils.intToBytes(address);
         processingQueue.add(new SerialPacket(
                 COMMAND_OPEN_READING_PIPE,
-                Utils.intToBytes(address)
+                new byte[] {pipeNumber, a[0], a[1], a[2], a[3]}
         ));
     }
 
@@ -115,18 +134,27 @@ public class DataLink implements DataLinkInterface {
                     // Allow consumer to TX the next packet
                     txOkSem.release();
 
-                    SerialPacket packet = serialPacketParser.getPacket();
-                    byte[] payload = new byte[packet.getPayloadSize()];
-                    packet.getPacketPayload(payload);
+                    SerialPacket serialPacket = serialPacketParser.getPacket();
+                    byte[] payload = new byte[serialPacket.getPayloadSize()];
+                    serialPacket.getPacketPayload(payload);
 
                     System.out.println("[DataLink] SerialPacket Ready: " + Arrays.toString(payload));
                     System.out.println("[DataLink] SerialPacket Ready: " + new String(payload));
 
-                    if (packet.getCommandId() == COMMAND_READ) {
+                    if (serialPacket.getCommandId() == COMMAND_READ) {
                         System.out.println("[DataLink] Packet Source: Radio");
 
-                        // TODO: Handle packets from multiple remote radios
-                        // This packet came from the radio
+                        // This packet came from the radio - get the appropriate NetworkPacketParser
+                        NetworkPacketParser networkPacketParser = networkPacketParsers.get(serialPacket.getSource());
+
+                        if (networkPacketParser == null) {
+                            System.out.println("[DataLink] [Error] Received data from unexpected address " + String.format(
+                                    "0x%08X",
+                                    (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource())
+                            ));
+                            return;
+                        }
+
                         networkPacketParser.addBytes(payload);
 
                         if (networkPacketParser.isPacketReady()) {
@@ -134,19 +162,20 @@ public class DataLink implements DataLinkInterface {
 
                             NetworkPacket networkPacket = networkPacketParser.getPacket();
 
-                            // TODO: fix this call (origin address)
-                            dataLinkListener.OnReceiveData(
-                                    0,
-                                    networkPacket.getPayloadType(),
-                                    networkPacket.getPacketPayload()
-                            );
+                            if (dataLinkListener != null) {
+                                dataLinkListener.OnReceiveData(
+                                        (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource()), // Combine group and source to get address
+                                        networkPacket.getPayloadType(),
+                                        networkPacket.getPacketPayload()
+                                );
+                            }
                         }
 
                     } else {
                         // This packet came from the Arduino
                         // TODO: Handle SerialPackets from Arduino
                         // TODO: Update this to return generic byte[] data as well
-                        // dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
+                        // if (dataLinkListener != null) dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
                     }
                 }
 
@@ -154,6 +183,7 @@ public class DataLink implements DataLinkInterface {
                 // We MUST capture all exceptions here - otherwise errors are bubbled up to the UsbDriver and
                 // silently squashed by the serial library
                 System.out.println("[DATALINK] Exception Occurred " + e.toString());
+                e.printStackTrace();
             }
         }
     };

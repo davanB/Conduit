@@ -9,10 +9,11 @@ public class SerialPacketTest {
     public void testSimplePacketCreation() {
 
         final byte[] PAYLOAD = "Hello World!".getBytes();
-        SerialPacket packet = new SerialPacket(Constants.COMMAND_DEBUG_ECHO, PAYLOAD);
+        SerialPacket packet = new SerialPacket(Constants.COMMAND_DEBUG_ECHO, (byte) 12, PAYLOAD);
 
         assertEquals(SerialPacket.PAYLOAD_SIZE, packet.getPayloadSize());
         assertEquals(Constants.COMMAND_DEBUG_ECHO, packet.getCommandId());
+        assertEquals((byte) 12, packet.getSource());
         assertEquals(SerialPacket.HEADER_SIZE + SerialPacket.PAYLOAD_SIZE, packet.getPacketSize());
 
         byte[] payload = new byte[packet.getPayloadSize()];
