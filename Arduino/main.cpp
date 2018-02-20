@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "SerialPacket.h"
 
+#define NUM_READ_PIPES 5
 #define BUFFER_SIZE 32
 
 SerialPacket *inPacket;
@@ -12,6 +13,10 @@ byte commandId = 0;
 
 RF24 radio(9,10);
 byte* buffer = new byte[BUFFER_SIZE];
+
+// map pipe number to addresses
+uint8_t currentReadPipe = 0;
+uint32_t addresses[NUM_READ_PIPES];
 
 void setup() {
     Serial.begin(9600);
@@ -28,7 +33,7 @@ void setup() {
 }
 
 void loop() {
-    if (radio.available()) {
+    if (radio.available(&currentReadPipe)) {
         readRadio();
     } else if (Serial.available()) {
         // Clear inPacket and parse incoming data into it
@@ -53,7 +58,7 @@ void processCommand() {
             openReadingPipe();
             break;
         case COMMAND_WRITE:
-            write();
+            writeRadio();
             break;
         default:
             sendError(COMMAND_READ, ERROR_INVALID_COMMAND);
@@ -79,66 +84,45 @@ void debugEcho() {
 }
 
 void openWritingPipe() {
-    byte* address = new byte[4];
-    Serial.readBytes(address, 4);
-    radio.stopListening();
-    radio.openWritingPipe((uint32_t)*address);
-
+    uint8_t address[4] = {inPacket->payload[3], inPacket->payload[2], inPacket->payload[1], inPacket->payload[0]};
+    radio.openWritingPipe(address);
     SerialPacket packet = SerialPacket(COMMAND_OPEN_WRITING_PIPE, 1);
     packet.payload[0] = STATUS_SUCCESS;
+    sprintf(packet.payload+1, "WP 0x%lx\n", *((uint32_t *) address));
     packet.write();
 }
 
 void openReadingPipe() {
-    byte pipeNumber = waitForByte();
-    byte* address = new byte[4];
-    Serial.readBytes(address, 4);
-    radio.openReadingPipe(pipeNumber, (uint32_t)*address);
+    uint8_t pipeNumber = inPacket->payload[0];
+    uint8_t address[4] = {inPacket->payload[4], inPacket->payload[3], inPacket->payload[2], inPacket->payload[1]};
+
+    if (pipeNumber > NUM_READ_PIPES) {
+        sendError(COMMAND_OPEN_READING_PIPE, ERROR_INVALID_ARGUMENT);
+        return;
+    }
+
+    addresses[pipeNumber] = *((uint32_t *)address);
+    radio.openReadingPipe(pipeNumber, address);
     radio.startListening();
 
     SerialPacket packet = SerialPacket(COMMAND_OPEN_READING_PIPE, 1);
     packet.payload[0] = STATUS_SUCCESS;
+    sprintf(packet.payload+1, "RP 0x%lx\n", *((uint32_t *) address));
     packet.write();
 }
 
-void write() {
-    uint32_t i = 0;
-    byte recvByte = 0;
-    while(true) {
-        // Fill buffer
-        if (Serial.available()) {
-            recvByte = Serial.read();
-            buffer[i] = recvByte;
-            if(buffer[i] == CONTROL_END_OF_TEXT){
-                tx(i + 1); // Ensure we transmit the null terminator
-                break;
-            }
-            i++;
-        }
-
-        if (i >= BUFFER_SIZE) {
-            tx(BUFFER_SIZE);
-            i = 0;
-        }
-    }
-
-    SerialPacket packet = SerialPacket(COMMAND_WRITE, 1);
-    packet.payload[0] = STATUS_SUCCESS;
-    packet.write();
-}
-
-void tx(byte payloadSize) {
+void writeRadio() {
     radio.stopListening(); //TODO: Evaluate effect on dropped packets
     int ack_buffer[1] = {5};
     // Write buffer to radio
-    if (radio.write(buffer, payloadSize)) {
+    if (radio.write(inPacket->payload, PAYLOAD_SIZE)) {
         if (radio.isAckPayloadAvailable()) {
             radio.read(ack_buffer, sizeof(int));
             // Send ACK payload
 
             SerialPacket packet = SerialPacket(COMMAND_WRITE, 1 + sizeof(int));
             packet.payload[0] = STATUS_SUCCESS;
-            // TODO: Figure out a better way to do this
+            // Put ACK payload in return buffer in Big-Endian order
             packet.payload[1] = ack_buffer[0] & 0xFF00;
             packet.payload[2] = ack_buffer[1] & 0x00FF;
             packet.write();
@@ -158,6 +142,7 @@ void readRadio() {
     byte payloadSize = radio.getPayloadSize();
 
     SerialPacket packet = SerialPacket(COMMAND_READ, payloadSize + 1);
+    packet.source = (uint8_t) addresses[currentReadPipe]; //ADD LSB
     packet.payload[0] = STATUS_SUCCESS;
     radio.read(packet.payload + 1, payloadSize);
     packet.write();

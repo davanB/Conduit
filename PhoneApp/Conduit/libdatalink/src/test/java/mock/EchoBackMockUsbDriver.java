@@ -5,16 +5,24 @@ import com.conduit.libdatalink.UsbSerialListener;
 import com.conduit.libdatalink.internal.Constants;
 import com.conduit.libdatalink.internal.SerialPacket;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.conduit.libdatalink.internal.Constants.*;
 
 public class EchoBackMockUsbDriver implements UsbDriverInterface {
 
     private UsbSerialListener listener;
+    private List<Byte> pipes = new ArrayList<Byte>();
 
     @Override
     public void sendBuffer(byte[] buf) {
         // HACK: Rewrite the command id from WRITE -> READ - this mocks a round trip on the network
         if (buf[SerialPacket.INDEX_COMMAND] == COMMAND_WRITE) buf[SerialPacket.INDEX_COMMAND] = COMMAND_READ;
+
+        // HACK: Save opened pipe addresses and replay them to mock a round trip
+        if (buf[SerialPacket.INDEX_COMMAND] == COMMAND_OPEN_READING_PIPE) pipes.add(buf[SerialPacket.INDEX_PAYLOAD + 4]);
+        if (buf[SerialPacket.INDEX_COMMAND] == COMMAND_READ && pipes.size() > 0) buf[SerialPacket.INDEX_SOURCE] = pipes.remove(0);
         listener.OnReceiveData(buf);
     }
 
