@@ -38,17 +38,21 @@ public class DataLink implements DataLinkInterface {
     }
 
     public void debugLEDBlink(byte numBlinks) {
-        processingQueue.add(new SerialPacket(
+        SerialPacket packet = new SerialPacket(
                 COMMAND_DEBUG_LED_BLINK,
                 new byte[] {numBlinks}
-        ));
+        );
+        statsCollector.enqueueSerialPacket(packet);
+        processingQueue.add(packet);
     }
 
     public void debugEcho(byte value) {
-        processingQueue.add(new SerialPacket(
+        SerialPacket packet = new SerialPacket(
                 COMMAND_DEBUG_ECHO,
                 new byte[] {value}
-        ));
+        );
+        statsCollector.enqueueSerialPacket(packet);
+        processingQueue.add(packet);
     }
 
     public void debugEcho(byte[] payload) {
@@ -61,15 +65,17 @@ public class DataLink implements DataLinkInterface {
         );
 
         System.out.println("[DATALINK] Enqueued " + packets.size() + " SerialPackets");
-        statsCollector.enqueuePackets(packets);
+        statsCollector.enqueueSerialPackets(packets);
         processingQueue.addAll(packets);
     }
 
     public void openWritingPipe(int address) {
-        processingQueue.add(new SerialPacket(
+        SerialPacket packet = new SerialPacket(
                 COMMAND_OPEN_WRITING_PIPE,
                 Utils.intToBytes(address)
-        ));
+        );
+        statsCollector.enqueueSerialPacket(packet);
+        processingQueue.add(packet);
     }
 
     public void openReadingPipe(byte pipeNumber, int address) {
@@ -90,10 +96,13 @@ public class DataLink implements DataLinkInterface {
         networkPacketParsers.put(lsb, new NetworkPacketParser());
 
         byte a[] = Utils.intToBytes(address);
-        processingQueue.add(new SerialPacket(
+        SerialPacket packet = new SerialPacket(
                 COMMAND_OPEN_READING_PIPE,
                 new byte[] {pipeNumber, a[0], a[1], a[2], a[3]}
-        ));
+        );
+
+        statsCollector.enqueueSerialPacket(packet);
+        processingQueue.add(packet);
     }
 
     public void write(byte payloadType, byte[] payload) {
@@ -103,7 +112,7 @@ public class DataLink implements DataLinkInterface {
         );
 
         System.out.println("[DATALINK] Enqueued " + packets.size() + " SerialPackets");
-        statsCollector.enqueuePackets(packets);
+        statsCollector.enqueueSerialPackets(packets);
         processingQueue.addAll(packets);
     }
 
@@ -122,7 +131,7 @@ public class DataLink implements DataLinkInterface {
         }
 
         void consume(SerialPacket packet) {
-//            statsCollector.packetTx(packet);
+            statsCollector.serialPacketTx(packet);
             usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
         }
     }
@@ -142,7 +151,7 @@ public class DataLink implements DataLinkInterface {
                     SerialPacket serialPacket = serialPacketParser.getPacket();
                     byte[] payload = new byte[serialPacket.getPayloadSize()];
                     serialPacket.getPacketPayload(payload);
-//                    statsCollector.packetAck(packet);
+                    statsCollector.serialPacketAck(serialPacket);
 
                     // Allow consumer to TX the next packet
                     txOkSem.release();
@@ -182,6 +191,14 @@ public class DataLink implements DataLinkInterface {
 
                     } else {
                         // This packet came from the Arduino
+                        switch (serialPacket.getCommandId()) {
+                            case COMMAND_WRITE:
+                                ByteBuffer serialPacketPayload = serialPacket.getPacketPayload();
+                                serialPacketPayload.get(); //TODO: Fix. Read out status byte
+                                statsCollector.networkTxComplete(serialPacketPayload.getInt());
+                                break;
+                        }
+
                         // TODO: Handle SerialPackets from Arduino
                         // TODO: Update this to return generic byte[] data as well
                         // if (dataLinkListener != null) dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));

@@ -24,25 +24,28 @@ public class StatsCollector {
     byte currentPacketCommand = 0;
     long currentPacketTxStart = -1;
 
-    public void enqueuePacket(SerialPacket packet) {
+    public void enqueueSerialPacket(SerialPacket packet) {
         queueTime.put(packet, System.currentTimeMillis());
     }
 
-    public void enqueuePackets(Collection<SerialPacket> c) {
-        for (SerialPacket packet : c) enqueuePacket(packet);
+    public void enqueueSerialPackets(Collection<SerialPacket> c) {
+        for (SerialPacket packet : c) enqueueSerialPacket(packet);
     }
 
-    public void packetTx(SerialPacket packet) {
+    public void serialPacketTx(SerialPacket packet) {
         currentPacketTxStart = System.currentTimeMillis();
         currentPacketCommand = packet.getCommandId();
 
-        if (!queueTime.contains(packet)) System.out.println("Not in Queue :(");
+        if (!queueTime.containsKey(packet)){
+            System.out.println("[StatsCollector] Packet not found on queue. CommandId: " + packet.getCommandId());
+            return;
+        }
 
         long enqueued = queueTime.remove(packet);
         statsQueueWait.addMeasure(currentPacketTxStart - enqueued);
     }
 
-    public void packetAck(SerialPacket packet) {
+    public void serialPacketAck(SerialPacket packet) {
         long now = System.currentTimeMillis();
 
         float delta = now - currentPacketTxStart;
