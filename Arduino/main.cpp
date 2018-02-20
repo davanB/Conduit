@@ -111,17 +111,25 @@ void openReadingPipe() {
 
 void writeRadio() {
     radio.stopListening(); //TODO: Evaluate effect on dropped packets
-    int ack_buffer[1] = {5};
+    uint32_t start = micros();
+    uint32_t delta = 0;
+    uint16_t ack_buffer = 0;
+
     // Write buffer to radio
     if (radio.write(inPacket->payload, PAYLOAD_SIZE)) {
         if (radio.isAckPayloadAvailable()) {
-            radio.read(ack_buffer, sizeof(int));
-            // Send ACK payload
+            // Get ACK payload and stop timing
+            radio.read(&ack_buffer, sizeof(uint16_t));
             delta = micros() - start;
+
+            // Send ACK response and timing delta in response (Big Endian Formatted)
             SerialPacket packet = SerialPacket(COMMAND_WRITE, STATUS_SUCCESS);
-            // Put ACK payload in return buffer in Big-Endian order
-            packet.payload[1] = ack_buffer[0] & 0xFF00;
-            packet.payload[2] = ack_buffer[1] & 0x00FF;
+            packet.payload[0] = (uint8_t) ((ack_buffer >> 8) & 0xFF);
+            packet.payload[1] = (uint8_t) ((ack_buffer >> 0) & 0xFF);
+            packet.payload[2] = (uint8_t) ((delta >> 24) & 0xFF);
+            packet.payload[3] = (uint8_t) ((delta >> 16) & 0xFF);
+            packet.payload[4] = (uint8_t) ((delta >> 8)  & 0xFF);
+            packet.payload[5] = (uint8_t) ((delta >> 0)  & 0xFF);
             packet.write();
 
         } else {
@@ -134,8 +142,8 @@ void writeRadio() {
 }
 
 void readRadio() {
-    int ack_buffer[1] = {5};
-    radio.writeAckPayload(1, ack_buffer, sizeof(int));
+    uint16_t ack_buffer = 5;
+    radio.writeAckPayload(currentReadPipe, &ack_buffer, sizeof(uint16_t));
     byte payloadSize = radio.getPayloadSize();
 
     SerialPacket packet = SerialPacket(COMMAND_READ, STATUS_SUCCESS);

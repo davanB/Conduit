@@ -23,10 +23,13 @@ class SerialPacket {
         void reset();
         void readIncomingPacket();
         void write();
+
         uint8_t commandId;
         uint8_t status;
         uint8_t source;
         uint8_t payload[PAYLOAD_SIZE];
+        uint8_t payloadPos;
+
         static void test(HardwareSerial serial, SerialPacket packet);
 
     private:
