@@ -1,14 +1,16 @@
 package ca.uwaterloo.fydp.conduit.qr;
 
+import java.io.Serializable;
+
 /**
  * Created by davanb on 2017-07-20.
  */
 
 // should simply hold data that is transfered via QR
-public class HandShakeData {
-    private int mMasterAddress;
-    private int mFriendAddress;
-    private String mGroupName;
+public class HandShakeData implements Serializable {
+    public int mMasterAddress;
+    public int mFriendAddress;
+    public String mGroupName;
 
     public HandShakeData(int masterAddress, int friendAddress, String groupName) {
         this.mMasterAddress = masterAddress;

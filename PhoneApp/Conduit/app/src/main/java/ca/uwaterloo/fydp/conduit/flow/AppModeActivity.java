@@ -8,7 +8,7 @@ import android.widget.Button;
 
 import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.flow.master.GroupCreationActivity;
-import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity;
+import ca.uwaterloo.fydp.conduit.flow.slave.GroupJoinActivity;
 
 public class AppModeActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -30,7 +30,7 @@ public class AppModeActivity extends AppCompatActivity implements View.OnClickLi
 
     private void startSlaveFlow() {
         // TODO: Change the activity that is started here
-        Intent myIntent = new Intent(this, QRGenerationActivity.class);
+        Intent myIntent = new Intent(this, GroupJoinActivity.class);
         startActivity(myIntent);
     }
 

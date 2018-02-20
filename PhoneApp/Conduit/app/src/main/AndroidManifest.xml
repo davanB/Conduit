@@ -27,6 +27,10 @@
             android:label="Create a group"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".flow.slave.QrCodeScanner"
+            android:label="Create a group"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".flow.master.QRGenerationActivity"
             android:label="Connect the other devices"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -48,7 +52,8 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-        <activity android:name=".flow.master.DistributeGroupDataActivity"></activity>
+        <activity android:name=".flow.master.DistributeGroupDataActivity" />
+        <activity android:name=".flow.slave.GroupJoinActivity"></activity>
     </application>
 
 </manifest>

@@ -56,6 +56,11 @@ public class QRGenerationActivity extends Activity{
         ConduitManager.setLedger(new ConduitLedger(groupData.getBaseAddress(), groupName, 6, 0, userName));
 
         ConduitGroup conduitGroup = ConduitManager.getConduitGroup(ConduitManager.getLedger());
+
+        // Add self to ledger
+        ConduitManager.getLedger().addGroupMember(0, userName);
+
+        // As new users join, build up the ledger
         conduitGroup.addConduitableDataListener(ConduitableDataTypes.CONNECTION_EVENT, new Function1<ConduitableData, Unit>() {
             @Override
             public Unit invoke(final ConduitableData conduitableData) {

@@ -18,7 +18,7 @@ class ConduitLedger(val groupAddress: Int, val groupName: String, val groupSize:
 
     fun getGroupMemberNamesList(): List<String> {
         val res: ArrayList<String> = ArrayList()
-        for (i in 0..groupSize) {
+        for (i in 0..groupMembers.size) {
             groupMembers[i]?.let { res.add(it) }
         }
         return res

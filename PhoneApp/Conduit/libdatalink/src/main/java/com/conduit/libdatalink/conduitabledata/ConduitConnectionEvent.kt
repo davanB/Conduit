@@ -5,11 +5,16 @@ import java.nio.ByteBuffer
 import java.util.*
 import kotlin.properties.Delegates
 
-class ConduitConnectionEvent : ConduitableData() {
+class ConduitConnectionEvent() : ConduitableData() {
     override val payloadType: ConduitableDataTypes = ConduitableDataTypes.CONNECTION_EVENT
 
     var connectedClientId: Int by Delegates.notNull()
     var connectedClientName: String by Delegates.notNull()
+
+    constructor(clientId: Int, clientName: String): this() {
+        connectedClientId = clientId
+        connectedClientName = clientName
+    }
 
     override fun populateFromPayload(payload: ByteBuffer) {
         connectedClientId = payload.int
