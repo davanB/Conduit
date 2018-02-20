@@ -2,6 +2,8 @@ import com.conduit.libdatalink.internal.Constants;
 import com.conduit.libdatalink.internal.SerialPacket;
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
+
 import static org.junit.Assert.*;
 
 public class SerialPacketTest {
@@ -16,6 +18,9 @@ public class SerialPacketTest {
         assertEquals((byte) 12, packet.getSource());
         assertEquals(SerialPacket.HEADER_SIZE + SerialPacket.PAYLOAD_SIZE, packet.getPacketSize());
 
+        // Test payload via ByteBuffer
+        ByteBuffer payloadBuffer = packet.getPacketPayload();
+
         byte[] payload = new byte[packet.getPayloadSize()];
         packet.getPacketPayload(payload);
 
@@ -23,6 +28,7 @@ public class SerialPacketTest {
         for (int i = 0; i < payload.length; i++) {
             if (i < PAYLOAD.length) {
                 assertEquals(PAYLOAD[i], payload[i]);
+                assertEquals(PAYLOAD[i], payloadBuffer.get());
             } else {
                 assertEquals((byte) 0, payload[i]);
             }

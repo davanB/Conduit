@@ -84,6 +84,21 @@ public class SerialPacket {
         tmp.get(buffer);
     }
 
+
+    /**
+     * Get a ByteBuffer containing the packet payload.
+     *
+     * WARNING: ByteBuffer.array() DOES NOT honor the ByteBuffer position!
+     * @return
+     */
+    public ByteBuffer getPacketPayload() {
+        ByteBuffer payload = packetData.duplicate();
+        payload.rewind()
+                .position(INDEX_PAYLOAD)
+                .limit(getPacketSize());
+        return payload;
+    }
+
     public ByteBuffer getPacketByteBuffer() {
         return packetData;
     }
