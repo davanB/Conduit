@@ -28,7 +28,6 @@ class SerialPacket {
         uint8_t status;
         uint8_t source;
         uint8_t payload[PAYLOAD_SIZE];
-        uint8_t payloadPos;
 
         static void test(HardwareSerial serial, SerialPacket packet);
 

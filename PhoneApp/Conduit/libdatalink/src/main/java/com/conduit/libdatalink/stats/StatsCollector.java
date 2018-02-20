@@ -46,19 +46,11 @@ public class StatsCollector {
     }
 
     public void serialPacketAck(SerialPacket packet) {
-        long now = System.currentTimeMillis();
+        float delta = System.currentTimeMillis() - currentPacketTxStart;
 
-        float delta = now - currentPacketTxStart;
-
-        if (currentPacketCommand == COMMAND_WRITE) {
-            // Sent over the air
-            statsNetworkRoundTripLatency.addMeasure(delta);
-            statsNetworkBandwidth.addMeasure((float)SerialPacket.PAYLOAD_SIZE * 1000.0f / delta); //TODO: Send Tx time from Arduino (in packet payload)
-        } else {
-            // Sent to Arduino only
-            statsSerialRoundTripLatency.addMeasure(delta);
-            statsSerialBandwidth.addMeasure((float)SerialPacket.PACKET_SIZE * 2.0f * 1000.0f / delta);
-        }
+        // Sent to Arduino only
+        statsSerialRoundTripLatency.addMeasure(delta);
+        statsSerialBandwidth.addMeasure((float)SerialPacket.PACKET_SIZE * 2.0f * 1000.0f / delta);
     }
 
     public void networkTxComplete(float us) {

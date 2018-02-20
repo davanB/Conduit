@@ -6,20 +6,18 @@
 #include "SerialPacket.h"
 
 #define NUM_READ_PIPES 5
-#define BUFFER_SIZE 32
 
 SerialPacket *inPacket;
 byte commandId = 0;
 
 RF24 radio(9,10);
-byte* buffer = new byte[BUFFER_SIZE];
 
 // map pipe number to addresses
 uint8_t currentReadPipe = 0;
 uint32_t addresses[NUM_READ_PIPES];
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(57600);
     inPacket = new SerialPacket();
 
     radio.begin();
@@ -113,23 +111,23 @@ void writeRadio() {
     radio.stopListening(); //TODO: Evaluate effect on dropped packets
     uint32_t start = micros();
     uint32_t delta = 0;
-    uint16_t ack_buffer = 0;
+    uint8_t ack_buffer = 0;
 
     // Write buffer to radio
     if (radio.write(inPacket->payload, PAYLOAD_SIZE)) {
         if (radio.isAckPayloadAvailable()) {
             // Get ACK payload and stop timing
-            radio.read(&ack_buffer, sizeof(uint16_t));
+            radio.read(&ack_buffer, sizeof(uint8_t));
             delta = micros() - start;
 
             // Send ACK response and timing delta in response (Big Endian Formatted)
             SerialPacket packet = SerialPacket(COMMAND_WRITE, STATUS_SUCCESS);
-            packet.payload[0] = (uint8_t) ((ack_buffer >> 8) & 0xFF);
-            packet.payload[1] = (uint8_t) ((ack_buffer >> 0) & 0xFF);
-            packet.payload[2] = (uint8_t) ((delta >> 24) & 0xFF);
-            packet.payload[3] = (uint8_t) ((delta >> 16) & 0xFF);
-            packet.payload[4] = (uint8_t) ((delta >> 8)  & 0xFF);
-            packet.payload[5] = (uint8_t) ((delta >> 0)  & 0xFF);
+            packet.payload[0] = (uint8_t) ((delta >> 24) & 0xFF);
+            packet.payload[1] = (uint8_t) ((delta >> 16) & 0xFF);
+            packet.payload[2] = (uint8_t) ((delta >> 8)  & 0xFF);
+            packet.payload[3] = (uint8_t) ((delta >> 0)  & 0xFF);
+            packet.payload[4] = (uint8_t) ((ack_buffer >> 8) & 0xFF);
+            packet.payload[5] = (uint8_t) ((ack_buffer >> 0) & 0xFF);
             packet.write();
 
         } else {
@@ -142,8 +140,8 @@ void writeRadio() {
 }
 
 void readRadio() {
-    uint16_t ack_buffer = 5;
-    radio.writeAckPayload(currentReadPipe, &ack_buffer, sizeof(uint16_t));
+    uint8_t ack_buffer = 5;
+    radio.writeAckPayload(currentReadPipe, &ack_buffer, sizeof(uint8_t));
     byte payloadSize = radio.getPayloadSize();
 
     SerialPacket packet = SerialPacket(COMMAND_READ, STATUS_SUCCESS);

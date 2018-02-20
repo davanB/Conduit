@@ -194,8 +194,8 @@ public class DataLink implements DataLinkInterface {
                         switch (serialPacket.getCommandId()) {
                             case COMMAND_WRITE:
                                 ByteBuffer serialPacketPayload = serialPacket.getPacketPayload();
-                                serialPacketPayload.getShort(); // ACK value from remote
                                 statsCollector.networkTxComplete(serialPacketPayload.getInt());
+                                serialPacketPayload.getShort(); // ACK value from remote
                                 break;
                         }
 

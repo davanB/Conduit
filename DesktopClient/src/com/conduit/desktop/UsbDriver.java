@@ -21,7 +21,7 @@ public class UsbDriver implements UsbDriverInterface {
             comPort = SerialPort.getCommPort(port);
         }
 
-        comPort.setBaudRate(9600);
+        comPort.setBaudRate(57600);
 
         System.out.println(comPort.getSystemPortName());
 

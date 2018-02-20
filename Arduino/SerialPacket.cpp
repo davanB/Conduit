@@ -7,7 +7,6 @@ SerialPacket::SerialPacket() {
 }
 
 SerialPacket::SerialPacket(uint8_t command, uint8_t status) {
-    // this->reset();
     this->commandId = command;
     this->status = status;
 }
@@ -20,7 +19,6 @@ void SerialPacket::reset() {
     this->status = 0;
     this->source = 0;
     memset(this->payload, 0, PAYLOAD_SIZE);
-    this->payloadPos = 0;
 }
 
 void SerialPacket::readIncomingPacket() {
