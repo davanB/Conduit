@@ -1,4 +1,4 @@
-package ca.uwaterloo.fydp.conduit;
+package ca.uwaterloo.fydp.conduit.qr;
 
 /**
  * Created by davanb on 2017-07-20.

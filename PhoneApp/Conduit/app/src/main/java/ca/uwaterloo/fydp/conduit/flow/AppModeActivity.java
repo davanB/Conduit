@@ -1,4 +1,4 @@
-package ca.uwaterloo.fydp.conduit;
+package ca.uwaterloo.fydp.conduit.flow;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import ca.uwaterloo.fydp.conduit.qr.QRGenerationActivity;
+import ca.uwaterloo.fydp.conduit.R;
+import ca.uwaterloo.fydp.conduit.flow.master.GroupCreationActivity;
+import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity;
 
 public class AppModeActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -22,7 +24,7 @@ public class AppModeActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void startMasterFlow() {
-        Intent myIntent = new Intent(this, QRGenerationActivity.class);
+        Intent myIntent = new Intent(this, GroupCreationActivity.class);
         startActivity(myIntent);
     }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ca.uwaterloo.fydp.conduit" >
+    package="ca.uwaterloo.fydp.conduit">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -13,24 +13,28 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".GroupCreationActivity"
+            android:name=".flow.AppModeActivity"
+            android:label="App Mode"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".flow.master.GroupCreationActivity"
             android:label="Create a group"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".qr.QRGenerationActivity"
+            android:name=".flow.master.QRGenerationActivity"
             android:label="Connect the other devices"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ConduitConnectionActivity"
+            android:name=".flow.ConduitConnectionActivity"
             android:label="@string/app_name"
             android:noHistory="true"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,10 +43,12 @@
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
+
             <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
+        <activity android:name=".flow.master.DistributeGroupDataActivity"></activity>
     </application>
 
 </manifest>

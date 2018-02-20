@@ -1,4 +1,4 @@
-package ca.uwaterloo.fydp.conduit;
+package ca.uwaterloo.fydp.conduit.flow.master;
 
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +9,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-import ca.uwaterloo.fydp.conduit.qr.QRGenerationActivity;
+import ca.uwaterloo.fydp.conduit.AppConstants;
+import ca.uwaterloo.fydp.conduit.R;
+import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity;
 
 // splash screen to enter group info and start master flow
 public class GroupCreationActivity extends AppCompatActivity {

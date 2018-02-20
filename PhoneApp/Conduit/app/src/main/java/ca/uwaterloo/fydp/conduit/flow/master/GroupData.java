@@ -1,6 +1,6 @@
-package ca.uwaterloo.fydp.conduit;
+package ca.uwaterloo.fydp.conduit.flow.master;
 import java.util.ArrayList;
-import ca.uwaterloo.fydp.conduit.HandShakeData;
+import ca.uwaterloo.fydp.conduit.qr.HandShakeData;
 
 /**
  * Created by davanb on 2018-02-07.
@@ -33,6 +33,8 @@ public class GroupData {
     public int getBaseAddress() {
         return mMasterAddress;
     }
+
+    public int getCurrentAddress() { return mCurrentAddress; }
 
     public boolean isFinishedHandshakes() {
         // rollover => done
