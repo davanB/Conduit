@@ -14,6 +14,7 @@ import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes;
 import com.google.zxing.Result;
 
 import ca.uwaterloo.fydp.conduit.AppConstants;
+import ca.uwaterloo.fydp.conduit.DataTransformation;
 import ca.uwaterloo.fydp.conduit.MainActivity;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitLedger;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
@@ -73,12 +74,18 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
         int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(this, rawResult.getText(), duration);
         toast.show();
-//        Intent intent = new Intent(); // TODO: parse raw result and launch intent to make conduit connection
-//        intent.putExtra(AppConstants.QR_RESULT_DATA_KEY, rawResult.getText());
+
+        String result = rawResult.getText();
+        String[] values = result.split(",");
+        // values[0] = master address
+        // values[1] = friend address
+        // values[2] = group name
+        // values[3] = password
+
         mScannerView.stopCamera();
 
-        // todo: populate HandshakeData from rawResult after parsing
-        HandShakeData parsedHandshakeData = new HandShakeData(0,3, "CoolGuys");
+        HandShakeData parsedHandshakeData = new HandShakeData(Integer.parseInt(values[0]),Integer.parseInt(values[1]), values[2], values[3]);
+        DataTransformation.setSecretKey(values[3]);
 
         performConduitEvents(parsedHandshakeData);
     }

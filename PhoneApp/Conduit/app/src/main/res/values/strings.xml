@@ -10,6 +10,7 @@
     <!-- Strings related to Group Creation -->
     <string name="prompt_group_name">Group name</string>
     <string name="prompt_user_name">Your first name</string>
+    <string name="prompt_password">The group password</string>
     <string name="action_enter_group_name">Enter Group Name</string>
     <string name="action_start_group">Start Group Creation</string>
     <string name="error_invalid_group_name">This group name is invalid</string>

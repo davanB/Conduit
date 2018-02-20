@@ -19,6 +19,7 @@ public class GroupCreationActivity extends AppCompatActivity {
     // UI references.
     private TextInputEditText mGroupName;
     private TextInputEditText mUserName;
+    private TextInputEditText mPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +27,8 @@ public class GroupCreationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group_creation);
         // Set up the group form.
         mGroupName = (TextInputEditText) findViewById(R.id.group_name);
-        mUserName = (TextInputEditText) findViewById((R.id.user_name));
+        mUserName = (TextInputEditText) findViewById(R.id.user_name);
+        mPassword = (TextInputEditText) findViewById(R.id.password);
 
         Button mGroupNameButton = (Button) findViewById(R.id.group_creation_start_button);
         mGroupNameButton.setOnClickListener(new OnClickListener() {
@@ -34,9 +36,10 @@ public class GroupCreationActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), QRGenerationActivity.class);
                 if (isGroupNameValid(mGroupName.toString()) &&
-                        isUserNameValid(mUserName.toString())) {
+                        isInputValid(mUserName.toString()) && isInputValid(mPassword.toString())) {
                     intent.putExtra(AppConstants.GROUP_NAME_KEY, mGroupName.toString());
                     intent.putExtra(AppConstants.USER_NAME_KEY, mUserName.toString());
+                    intent.putExtra(AppConstants.PASSWORD_KEY, mPassword.toString());
                     startActivity(intent);
                 }
                 else {
@@ -52,7 +55,7 @@ public class GroupCreationActivity extends AppCompatActivity {
     private boolean isGroupNameValid(String groupName) {
         return groupName.length() > 4;
     }
-    private boolean isUserNameValid(String userName) { return userName.length() > 0; }
+    private boolean isInputValid(String input) { return input.length() > 0; }
 
 }
 

@@ -66,8 +66,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        transformer = new DataTransformation(this);
-
         setupFloatingActionsButtons();
         setUpTextBoxes();
         setUpSendButton();

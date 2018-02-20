@@ -19,12 +19,13 @@ public class GroupData {
     private int mCurrentAddress;
     private int mMasterAddress;
     private String mGroupName;
-    private String mUserName;
+    private String mPassword;
 
     private ArrayList<HandShakeData> mHandShakeDataList;
 
-    public GroupData(String groupName, String userName) {
+    public GroupData(String groupName, String password) {
         this.mGroupName = groupName;
+        this.mPassword = password;
         mHandShakeDataList = new ArrayList<>();
         this.mCurrentAddress = START_ADDRESS;
         this.mMasterAddress = START_ADDRESS;
@@ -52,7 +53,7 @@ public class GroupData {
 
     public HandShakeData generateHandShakeData() {
         int friendAddr = generateAddress();
-        HandShakeData friendData = new HandShakeData(this.mMasterAddress, friendAddr, this.mGroupName);
+        HandShakeData friendData = new HandShakeData(this.mMasterAddress, friendAddr, this.mGroupName, this.mPassword);
         mHandShakeDataList.add(friendData);
         return friendData;
     }

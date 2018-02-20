@@ -18,7 +18,7 @@ Java_ca_uwaterloo_fydp_conduit_DataTransformation_compressSmallString(
     jbyteArray compressedString = env->NewByteArray(result);
     env->SetByteArrayRegion(compressedString,0,result, (jbyte*)output);
 
-    delete output;                                           // deallocate memory
+    delete[] output;                                        // deallocate memory
     return compressedString;                                // return populated Byte[]
 }
 

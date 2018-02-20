@@ -48,8 +48,9 @@ public class QRGenerationActivity extends Activity{
         Intent intent = getIntent();
         String groupName = intent.getStringExtra(AppConstants.GROUP_NAME_KEY);
         String userName = intent.getStringExtra(AppConstants.USER_NAME_KEY);
+        String password = intent.getStringExtra(AppConstants.PASSWORD_KEY);
 
-        groupData = new GroupData(groupName, userName);
+        groupData = new GroupData(groupName, password);
 
         // TODO: baseaddress needs to be the common lower 3 bytes of all addresses... might need to double check that this consistent with what Davan did in this class
         // clientId is 0 since we are the master

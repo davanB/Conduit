@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 
 import org.encryptor4j.Encryptor;
-import org.encryptor4j.factory.KeyFactory;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -15,7 +14,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import id.zelory.compressor.Compressor;
@@ -34,43 +32,40 @@ import id.zelory.compressor.Compressor;
  */
 public class DataTransformation {
 
-    // context of activity instantiating this class
-    private Context context;
-
     // key used for encrypting messages
-    private Key secretKey;
+    private static Key mSecretKey;
+    private static boolean mSecretKeySet = false;
 
-    public DataTransformation(Context context){
-        this.context = context;
-        char[] password = "123VConduit!".toCharArray();
-//        this.secretKey = KeyFactory.DES.keyFromPassword(password);
-
+    public static void setSecretKey(String password) {
         try {
-            byte[] key = ("123VConduit").getBytes("UTF8");
+            byte[] key = (password).getBytes("UTF8");
             MessageDigest sha = MessageDigest.getInstance("SHA-1");
             key = sha.digest(key);
-            key = Arrays.copyOf(key, 16); // use only first 128 bit
+            key = Arrays.copyOf(key, 16); // use only first 128 bits
 
-            this.secretKey = new SecretKeySpec(key, "AES");
+            mSecretKey = new SecretKeySpec(key, "AES");
         } catch (UnsupportedEncodingException e){
             System.out.println("ohshit");
         } catch (NoSuchAlgorithmException e) {
             System.out.println("wheres the algo");
         }
+        mSecretKeySet = true;
     }
+
+    private static boolean isKeySet() { return mSecretKeySet; }
 
     /*
         Methods to for small string compression/decompression (Shoco)
         Implementations defined in native-lib.cpp
      */
-    private native byte[] compressSmallString(String uncompressedString);
-    private native byte[] decompressCompressedString(byte[] compressedString);
+    private static native byte[] compressSmallString(String uncompressedString);
+    private static native byte[] decompressCompressedString(byte[] compressedString);
 
     /*
         Compressor image compression library methods
         Decompression is not needed, it simply reduces the size of the image
      */
-    private Bitmap compressImage(File imageFile, int maxWidth, int maxHeight, int quality) {
+    private static Bitmap compressImage(Context context, File imageFile, int maxWidth, int maxHeight, int quality) {
         Bitmap compressor = null;
         try {
             compressor = new Compressor(context)
@@ -94,20 +89,20 @@ public class DataTransformation {
         Will output data in a format consumable by Conduit device
         (this output format needs to be decided, the interface will need to be developed with Conduit group)
      */
-    public byte[] compressData(String uncompressedData) {
+    public static byte[] compressData(String uncompressedData) {
         byte[] compressedString = compressSmallString(uncompressedData);
         return compressedString;
     }
 
     // TODO the paramater might have to change depending on how data is retrieved from Conduit
-    public byte[] decompressData(byte[] compressedString) {
+    public static byte[] decompressData(byte[] compressedString) {
         byte[] uncompressedString = decompressCompressedString(compressedString);
         return uncompressedString;
     }
 
     // TODO tune these parameters or make them configurable?
-    public Bitmap compressData(File imageToCompress) {
-        Bitmap compressedBitmap = compressImage(imageToCompress,640,640,75);
+    public static Bitmap compressData(Context context, File imageToCompress) {
+        Bitmap compressedBitmap = compressImage(context, imageToCompress,640,640,75);
         return compressedBitmap;
     }
 
@@ -117,9 +112,12 @@ public class DataTransformation {
         PKCS5Padding is for 8byte block ciphers (3DES) not 16byte ciphers like AES
      */
     //TODO possibly convert byte[] to string?
-    public byte[] encryptMessage(byte[] message) {
+    public static byte[] encryptMessage(byte[] message) {
+        if (!isKeySet()) {
+            System.out.println("ohshit trying to encrypt wit no key");
+        }
         try {
-            Encryptor encryptor = new Encryptor(secretKey, "AES/CBC/PKCS5Padding", 16);
+            Encryptor encryptor = new Encryptor(mSecretKey, "AES/CBC/PKCS5Padding", 16);
             byte[] encrypted = encryptor.encrypt(message);
             return encrypted;
         } catch (GeneralSecurityException e) {
@@ -129,9 +127,12 @@ public class DataTransformation {
         return null;
     }
 
-    public byte[] decryptMessage(byte[] encryptedData) {
+    public static byte[] decryptMessage(byte[] encryptedData) {
+        if (!isKeySet()) {
+            System.out.println("ohshit trying to decrypt wit no key");
+        }
         try {
-            Encryptor encryptor = new Encryptor(secretKey, "AES/CBC/PKCS5Padding", 16);
+            Encryptor encryptor = new Encryptor(mSecretKey, "AES/CBC/PKCS5Padding", 16);
             byte[] decrypted = encryptor.decrypt(encryptedData);
             return decrypted;
         } catch (GeneralSecurityException e) {
@@ -140,13 +141,13 @@ public class DataTransformation {
         return null;
     }
 
-    public byte[] compressAndEncrypt(String uncompressed) {
+    public static byte[] compressAndEncrypt(String uncompressed) {
         byte[] compressed = compressData(uncompressed);
         byte[] encrypted = encryptMessage(compressed);
         return encrypted;
     }
 
-    public byte[] decompressAndDecrypt(byte[] encryped) {
+    public static byte[] decompressAndDecrypt(byte[] encryped) {
         byte[] decrypted = decryptMessage(encryped);
         byte[] uncompressed = decompressData(decrypted);
         return uncompressed;
