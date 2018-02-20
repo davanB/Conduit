@@ -59,7 +59,11 @@ public class StatsCollector {
             statsSerialRoundTripLatency.addMeasure(delta);
             statsSerialBandwidth.addMeasure((float)SerialPacket.PACKET_SIZE * 2.0f * 1000.0f / delta);
         }
+    }
 
+    public void networkTxComplete(float us) {
+        statsNetworkBandwidth.addMeasure((float)SerialPacket.PAYLOAD_SIZE * 1e6f / us);
+        statsNetworkRoundTripLatency.addMeasure(us / 1000f);
     }
 
     public void printStats() {
@@ -71,5 +75,11 @@ public class StatsCollector {
 
         System.out.println("Serial Round Trip Bandwidth");
         statsSerialBandwidth.printStats();
+
+        System.out.println("Network Round Trip Latency");
+        statsNetworkRoundTripLatency.printStats();
+
+        System.out.println("Network Round Trip Bandwidth");
+        statsNetworkBandwidth.printStats();
     }
 }
