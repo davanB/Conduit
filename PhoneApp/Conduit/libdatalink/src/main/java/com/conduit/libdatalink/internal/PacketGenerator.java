@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.conduit.libdatalink.internal.SerialPacket.*;
+
 public class PacketGenerator {
     public static List<SerialPacket> generateSerialPackets(byte serialCommand, NetworkPacket packet) {
         List<SerialPacket> serialPackets = new LinkedList<SerialPacket>();
@@ -29,7 +31,7 @@ public class PacketGenerator {
             txPayload.limit(end);
 
             // Copy the buffer and add to list
-            SerialPacket serialPacket = new SerialPacket(serialCommand, (byte) 0);
+            SerialPacket serialPacket = new SerialPacket(serialCommand, STATUS_DONT_CARE, (byte) 0);
             serialPacket.getPacketByteBuffer().put(txPayload);
             serialPackets.add(serialPacket);
 

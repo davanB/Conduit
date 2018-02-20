@@ -6,9 +6,9 @@ SerialPacket::SerialPacket() {
     this->reset();
 }
 
-SerialPacket::SerialPacket(uint8_t command, uint8_t source) {
+SerialPacket::SerialPacket(uint8_t command, uint8_t status) {
     this->commandId = command;
-    this->source = source;
+    this->status = status;
 }
 
 SerialPacket::~SerialPacket() {
@@ -16,12 +16,14 @@ SerialPacket::~SerialPacket() {
 
 void SerialPacket::reset() {
     this->commandId = 0;
+    this->status = 0;
     this->source = 0;
     memset(this->payload, 0, PAYLOAD_SIZE);
 }
 
 void SerialPacket::readIncomingPacket() {
     this->commandId = SerialPacket::waitForByte();
+    this->status = SerialPacket::waitForByte();
     this->source = SerialPacket::waitForByte();
     for (uint8_t i = 0; i < PAYLOAD_SIZE; i++) {
         this->payload[i] = SerialPacket::waitForByte();
@@ -30,6 +32,7 @@ void SerialPacket::readIncomingPacket() {
 
 void SerialPacket::write() {
     Serial.write(this->commandId);
+    Serial.write(this->status);
     Serial.write(this->source);
     Serial.write(this->payload, PAYLOAD_SIZE);
     Serial.flush();

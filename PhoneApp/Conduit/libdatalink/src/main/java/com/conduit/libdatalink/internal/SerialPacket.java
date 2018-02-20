@@ -4,11 +4,17 @@ import java.nio.ByteBuffer;
 
 public class SerialPacket {
 
-    public static final int HEADER_SIZE = 1 + 1; // COMMAND_ID, SOURCE
+    public static final byte STATUS_DONT_CARE = 0;
+    public static final byte STATUS_SUCCESS = 100;
+    public static final byte STATUS_FAILURE = 101;
+
+
+    public static final int HEADER_SIZE = 1 + 1 + 1; // COMMAND_ID, STATUS, SOURCE
 
     public static final int INDEX_HEADER = 0;
     public static final int INDEX_COMMAND = INDEX_HEADER;
-    public static final int INDEX_SOURCE = INDEX_COMMAND + 1;
+    public static final int INDEX_STATUS = INDEX_COMMAND + 1;
+    public static final int INDEX_SOURCE = INDEX_STATUS + 1;
     public static final int INDEX_PAYLOAD = INDEX_SOURCE + 1;
 
     public static final int PAYLOAD_SIZE = 32;
@@ -26,11 +32,12 @@ public class SerialPacket {
     /**
      * Initialize a new SerialPacket; intended for incrementally building a packet
      */
-    protected SerialPacket(byte commandId, byte source) {
+    protected SerialPacket(byte commandId, byte status, byte source) {
         // Call incremental constructor then append the payload
         this();
 
         packetData.put(commandId)
+                .put(status)
                 .put(source);
     }
 
@@ -40,11 +47,12 @@ public class SerialPacket {
      * @param source
      * @param payload
      */
-    public SerialPacket(byte commandId, byte source, byte[] payload) {
+    public SerialPacket(byte commandId, byte status, byte source, byte[] payload) {
         // Call incremental constructor then append the payload
         this();
 
         packetData.put(commandId)
+                .put(status)
                 .put(source)
                 .put(payload);
     }
@@ -54,11 +62,15 @@ public class SerialPacket {
      */
     public SerialPacket(byte commandId, byte[] payload) {
         // Call incremental constructor then append the payload
-        this(commandId, (byte) 0, payload);
+        this(commandId, STATUS_DONT_CARE, (byte) 0, payload);
     }
 
     public byte getCommandId() {
         return packetData.get(INDEX_COMMAND);
+    }
+
+    public byte getStatus() {
+        return packetData.get(INDEX_STATUS);
     }
 
     public byte getSource() {

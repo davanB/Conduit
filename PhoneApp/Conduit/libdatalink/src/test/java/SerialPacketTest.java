@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
+import static com.conduit.libdatalink.internal.SerialPacket.*;
 import static org.junit.Assert.*;
 
 public class SerialPacketTest {
@@ -11,10 +12,11 @@ public class SerialPacketTest {
     public void testSimplePacketCreation() {
 
         final byte[] PAYLOAD = "Hello World!".getBytes();
-        SerialPacket packet = new SerialPacket(Constants.COMMAND_DEBUG_ECHO, (byte) 12, PAYLOAD);
+        SerialPacket packet = new SerialPacket(Constants.COMMAND_DEBUG_ECHO, STATUS_SUCCESS, (byte) 12, PAYLOAD);
 
         assertEquals(SerialPacket.PAYLOAD_SIZE, packet.getPayloadSize());
         assertEquals(Constants.COMMAND_DEBUG_ECHO, packet.getCommandId());
+        assertEquals(STATUS_SUCCESS, packet.getStatus());
         assertEquals((byte) 12, packet.getSource());
         assertEquals(SerialPacket.HEADER_SIZE + SerialPacket.PAYLOAD_SIZE, packet.getPacketSize());
 
