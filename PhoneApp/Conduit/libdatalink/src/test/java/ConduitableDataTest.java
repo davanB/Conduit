@@ -1,10 +1,12 @@
 import com.conduit.libdatalink.conduitabledata.ConduitConnectionEvent;
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation;
+import com.conduit.libdatalink.conduitabledata.ConduitGroupData;
 import com.conduit.libdatalink.conduitabledata.ConduitMessage;
 
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
@@ -62,5 +64,28 @@ public class ConduitableDataTest {
 
         assertEquals(clientId, messageIn.getConnectedClientId());
         assertEquals(name, messageIn.getConnectedClientName());
+    }
+    @Test
+    public void testConduitGroupData() {
+        String groupName = "Cool Friends";
+        ArrayList<String> names = new ArrayList<String>();
+        names.add("Bob1");
+        names.add("Bob2");
+        names.add("Bob3");
+        names.add("Bobbby");
+        names.add("Jim Halpert");
+
+        ConduitGroupData messageOut = new ConduitGroupData();
+        messageOut.setNumClients(5);
+        messageOut.setClientNames(names);
+        messageOut.setGroupName(groupName);
+
+        ByteBuffer payloadRecv = simulateTransfer(messageOut.getPayload());
+
+        ConduitGroupData messageIn = new ConduitGroupData();
+        messageIn.populateFromPayload(payloadRecv);
+
+        assertEquals(5, messageIn.getNumClients());
+        assertEquals(names, messageIn.getClientNames());
     }
 }

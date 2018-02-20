@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
+import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity;
 import ca.uwaterloo.fydp.conduit.puppets.BootstrappingConnectionEventsIncoming;
 import ca.uwaterloo.fydp.conduit.puppets.PassiveAggressiveConversation;
 import ca.uwaterloo.fydp.conduit.puppets.PuppetMaster;
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     private Button sendButton;
 
     private final int PICK_IMAGE = 100;
-
     private DataTransformation transformer;
 
 
@@ -84,8 +84,7 @@ public class MainActivity extends AppCompatActivity {
                         String newText = String.format("<b>Friend> </b>%s<br>", message.getMessage());
                         String oldText = Html.toHtml(textView.getEditableText()).toString();
                         textView.setText(Html.fromHtml(newText + oldText));
-
-//                    byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(compressedAndEncryptedText);
+//                    byte[] decyeptedAndDecompressed = transformer.decompressAndDecrypt(data);
 //                    String res = new String(decyeptedAndDecompressed);
 //                    textView.append(res);
                     }
@@ -273,6 +272,10 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_QRsetup) {
+            // launch new intent for QR
+            Intent intent = new Intent(this,QRGenerationActivity.class);
+            startActivity(intent);
         } else if(id == R.id.action_setup) {
             return true;
         }

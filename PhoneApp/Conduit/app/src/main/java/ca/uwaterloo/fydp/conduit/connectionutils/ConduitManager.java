@@ -7,6 +7,8 @@ import com.conduit.libdatalink.ConduitGroup;
 import com.conduit.libdatalink.DataLink;
 import com.conduit.libdatalink.UsbDriverInterface;
 
+import java.util.HashMap;
+
 import ca.uwaterloo.fydp.conduit.UsbDriver;
 
 public class ConduitManager {
@@ -14,6 +16,7 @@ public class ConduitManager {
 
     }
 
+    private static ConduitLedger ledger;
     private static UsbDriverInterface driver;
 
     public static UsbDriverInterface getDriver() {
@@ -35,5 +38,17 @@ public class ConduitManager {
         }
         DataLink dataLink = new DataLink(driver);
         return new ConduitGroup(dataLink, baseAddress, clientId);
+    }
+
+    public static ConduitGroup getConduitGroup(ConduitLedger ledger) {
+        return getConduitGroup(ledger.getGroupAddress(), ledger.getCurrentUserId());
+    }
+
+    public static ConduitLedger getLedger() {
+        return ledger;
+    }
+
+    public static void setLedger(ConduitLedger newLedger){
+        ledger = newLedger;
     }
 }
