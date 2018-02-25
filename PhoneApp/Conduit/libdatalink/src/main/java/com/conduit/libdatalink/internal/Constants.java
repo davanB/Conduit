@@ -13,9 +13,7 @@ public class Constants {
     public static final byte COMMAND_OPEN_READING_PIPE = 41;
     public static final byte COMMAND_WRITE = 42;
     public static final byte COMMAND_READ = 43;
-//
-//    public static final byte STATUS_SUCCESS = 100;
-//    public static final byte STATUS_FAILURE = 101;
+
 //
 //    public static final byte ERROR_INVALID_COMMAND = 1;
 //    public static final byte ERROR_TX_FAIL = 110;
