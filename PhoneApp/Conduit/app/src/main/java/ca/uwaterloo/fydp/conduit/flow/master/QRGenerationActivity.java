@@ -49,12 +49,13 @@ public class QRGenerationActivity extends Activity{
         String groupName = intent.getStringExtra(AppConstants.GROUP_NAME_KEY);
         String userName = intent.getStringExtra(AppConstants.USER_NAME_KEY);
         String password = intent.getStringExtra(AppConstants.PASSWORD_KEY);
+        Integer groupSize = intent.getIntExtra(AppConstants.GROUP_SIZE, 6);
 
-        groupData = new GroupData(groupName, password);
+        groupData = new GroupData(groupName, password, groupSize);
 
         // TODO: baseaddress needs to be the common lower 3 bytes of all addresses... might need to double check that this consistent with what Davan did in this class
         // clientId is 0 since we are the master
-        ConduitManager.setLedger(new ConduitLedger(groupData.getBaseAddress(), groupName, 6, 0, userName));
+        ConduitManager.setLedger(new ConduitLedger(groupData.getBaseAddress(), groupName, groupSize, 0, userName));
 
         ConduitGroup conduitGroup = ConduitManager.getConduitGroup(ConduitManager.getLedger());
 
