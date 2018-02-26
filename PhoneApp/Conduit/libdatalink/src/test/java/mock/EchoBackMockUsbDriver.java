@@ -8,7 +8,7 @@ import com.conduit.libdatalink.internal.SerialPacket;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.conduit.libdatalink.internal.Constants.*;
+import static com.conduit.libdatalink.internal.SerialPacket.*;
 
 public class EchoBackMockUsbDriver implements UsbDriverInterface {
 

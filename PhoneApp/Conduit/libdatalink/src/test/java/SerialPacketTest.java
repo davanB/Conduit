@@ -12,10 +12,10 @@ public class SerialPacketTest {
     public void testSimplePacketCreation() {
 
         final byte[] PAYLOAD = "Hello World!".getBytes();
-        SerialPacket packet = new SerialPacket(Constants.COMMAND_DEBUG_ECHO, STATUS_SUCCESS, (byte) 12, PAYLOAD);
+        SerialPacket packet = new SerialPacket(COMMAND_DEBUG_ECHO, STATUS_SUCCESS, (byte) 12, PAYLOAD);
 
         assertEquals(SerialPacket.PAYLOAD_SIZE, packet.getPayloadSize());
-        assertEquals(Constants.COMMAND_DEBUG_ECHO, packet.getCommandId());
+        assertEquals(COMMAND_DEBUG_ECHO, packet.getCommandId());
         assertEquals(STATUS_SUCCESS, packet.getStatus());
         assertEquals((byte) 12, packet.getSource());
         assertEquals(SerialPacket.HEADER_SIZE + SerialPacket.PAYLOAD_SIZE, packet.getPacketSize());
@@ -41,7 +41,7 @@ public class SerialPacketTest {
     public void testImmutablePosition() {
         // Ensure the underlying ByteBuffer position does not change with packet operations
         final byte[] PAYLOAD = "Hello World!".getBytes();
-        SerialPacket packet = new SerialPacket(Constants.COMMAND_DEBUG_ECHO, PAYLOAD);
+        SerialPacket packet = new SerialPacket(COMMAND_DEBUG_ECHO, PAYLOAD);
 
         int oldPos = packet.getPacketByteBuffer().position();
 

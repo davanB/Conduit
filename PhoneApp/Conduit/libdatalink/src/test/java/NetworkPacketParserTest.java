@@ -4,6 +4,7 @@ import com.conduit.libdatalink.internal.Utils;
 import org.junit.Test;
 
 import static com.conduit.libdatalink.internal.Constants.*;
+import static com.conduit.libdatalink.internal.SerialPacket.*;
 import static org.junit.Assert.*;
 
 public class NetworkPacketParserTest {

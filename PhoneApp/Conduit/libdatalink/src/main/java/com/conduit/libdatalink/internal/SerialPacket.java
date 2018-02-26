@@ -1,6 +1,7 @@
 package com.conduit.libdatalink.internal;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class SerialPacket {
 
@@ -8,6 +9,12 @@ public class SerialPacket {
     public static final byte STATUS_SUCCESS = 100;
     public static final byte STATUS_FAILURE = 101;
 
+    public static final byte COMMAND_DEBUG_LED_BLINK = 33;
+    public static final byte COMMAND_DEBUG_ECHO = 34;
+    public static final byte COMMAND_OPEN_WRITING_PIPE = 40;
+    public static final byte COMMAND_OPEN_READING_PIPE = 41;
+    public static final byte COMMAND_WRITE = 42;
+    public static final byte COMMAND_READ = 43;
 
     public static final int HEADER_SIZE = 1 + 1 + 1; // COMMAND_ID, STATUS, SOURCE
 
@@ -113,5 +120,67 @@ public class SerialPacket {
 
     public ByteBuffer getPacketByteBuffer() {
         return packetData;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("\tCommand: ");
+        switch (getCommandId()) {
+            case COMMAND_DEBUG_LED_BLINK:
+                sb.append("DEBUG_LED_BLINK");
+                break;
+            case COMMAND_DEBUG_ECHO:
+                sb.append("DEBUG_ECHO");
+                break;
+            case COMMAND_OPEN_WRITING_PIPE:
+                sb.append("OPEN_WRITING_PIPE");
+                break;
+            case COMMAND_OPEN_READING_PIPE:
+                sb.append("OPEN_READING_PIPE");
+                break;
+            case COMMAND_WRITE:
+                sb.append("WRITE");
+                break;
+            case COMMAND_READ:
+                sb.append("READ");
+                break;
+        }
+        sb.append(String.format(" (%d)", (int)(getCommandId() & 0xFF)));
+        sb.append("\n");
+
+        sb.append("\tStatus:  ");
+        switch (getStatus()) {
+            case STATUS_SUCCESS:
+                sb.append("SUCCESS");
+                break;
+            case STATUS_FAILURE:
+                sb.append("FAILURE");
+                break;
+            case STATUS_DONT_CARE:
+                sb.append("DON'T CARE");
+                break;
+            default:
+                sb.append("UNKNOWN");
+                break;
+        }
+        sb.append(String.format(" (%d)", (int)(getStatus() & 0xFF)));
+        sb.append("\n");
+
+        sb.append("\tSource: ");
+        sb.append(String.format(" %02x", (int)(getSource() & 0xFF)));
+        sb.append("\n");
+
+        byte[] payload = new byte[getPayloadSize()];
+        getPacketPayload(payload);
+        sb.append("\tPayload: ");
+        sb.append(new String(payload));
+        sb.append("\n");
+        sb.append("\tPayload: ");
+        sb.append(Arrays.toString(payload));
+        sb.append("\n");
+
+        return sb.toString();
     }
 }

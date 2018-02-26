@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import static com.conduit.libdatalink.internal.Constants.*;
+import static com.conduit.libdatalink.internal.SerialPacket.*;
 
 public class DataLink implements DataLinkInterface {
 
@@ -156,8 +157,7 @@ public class DataLink implements DataLinkInterface {
                     // Allow consumer to TX the next packet
                     txOkSem.release();
 
-                    System.out.println("[DataLink] SerialPacket Ready: " + Arrays.toString(payload));
-                    System.out.println("[DataLink] SerialPacket Ready: " + new String(payload));
+                    System.out.println("[DataLink] SerialPacket Ready: \n" + serialPacket.toString());
 
                     if (serialPacket.getCommandId() == COMMAND_READ) {
                         System.out.println("[DataLink] Packet Source: Radio");

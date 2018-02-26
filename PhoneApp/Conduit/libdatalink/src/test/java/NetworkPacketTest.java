@@ -3,7 +3,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import static com.conduit.libdatalink.internal.Constants.*;
+import static com.conduit.libdatalink.internal.SerialPacket.*;
 import static org.junit.Assert.*;
 
 public class NetworkPacketTest {
