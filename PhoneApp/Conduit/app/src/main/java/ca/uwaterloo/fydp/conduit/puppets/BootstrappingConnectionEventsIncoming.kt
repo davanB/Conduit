@@ -15,7 +15,7 @@ class BootstrappingConnectionEventsIncoming(group: ConduitGroup) : PuppetShow(gr
     }
 
     private fun addUser(clientId: Int, clientName: String) {
-        delay(5000)
+        delay(2000)
         val event = ConduitConnectionEvent()
         event.connectedClientId = clientId
         event.connectedClientName = clientName

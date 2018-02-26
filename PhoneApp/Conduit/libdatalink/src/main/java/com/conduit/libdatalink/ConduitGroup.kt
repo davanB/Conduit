@@ -1,5 +1,6 @@
 package com.conduit.libdatalink
 
+import com.conduit.libdatalink.ConduitGroupHelper.getFullAddress
 import com.conduit.libdatalink.conduitabledata.*
 import com.conduit.libdatalink.internal.Constants
 import java.nio.ByteBuffer
@@ -17,8 +18,10 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
     }
 
     fun send(clientId: Int, data: ConduitableData) {
-        val address: Int = getFullAddress(baseAddress, clientId)
+        val address: Int = ConduitGroupHelper.getFullAddress(baseAddress, clientId)
         dataLink.openWritingPipe(address)
+        System.out.println("YEET opening write pipe: " + ConduitGroupHelper.getFullAddress(baseAddress, clientId))
+
         dataLink.write(data.payloadType.flag, data.getPayload().array())
     }
 
@@ -63,11 +66,13 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
 
         // pipes should be numbered from 1 to 5
         (1..5).zip(clientIdsToReadFrom).forEach{
-            (pipeNumber, clientId) -> dataLink.openReadingPipe(pipeNumber.toByte(), getFullAddress(baseAddress, clientId))
+            (pipeNumber, clientId) ->
+            run {
+                dataLink.openReadingPipe(pipeNumber.toByte(), ConduitGroupHelper.getFullAddress(baseAddress, clientId))
+                System.out.println("YEET opening read pipe: " + ConduitGroupHelper.getFullAddress(baseAddress, clientId))
+            }
         }
     }
 
-    // should result in 4 bytes: [clientId, baseAddress] where clientId is 1 byte, and baseAddress is 3
-    private fun getFullAddress(baseAddress: Int, clientId: Int) = ((0xFF and clientId) shl 3) and baseAddress
 
 }

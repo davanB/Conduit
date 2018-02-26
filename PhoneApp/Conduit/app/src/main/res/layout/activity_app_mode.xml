@@ -28,5 +28,11 @@
             android:text="@string/action_start_slave_mode"
             android:layout_gravity="center_horizontal" />
 
+        <Button
+            android:id="@+id/dumplogbutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dump Logs"/>
+
     </LinearLayout>
 </RelativeLayout>

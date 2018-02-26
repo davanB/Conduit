@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import ca.uwaterloo.fydp.conduit.LogDumpActivity;
 import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.flow.master.GroupCreationActivity;
 import ca.uwaterloo.fydp.conduit.flow.slave.GroupJoinActivity;
@@ -21,6 +22,14 @@ public class AppModeActivity extends AppCompatActivity implements View.OnClickLi
         master.setOnClickListener(this);
         Button slave = (Button) findViewById(R.id.startSlaveButton);
         slave.setOnClickListener(this);
+
+        findViewById(R.id.dumplogbutton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(AppModeActivity.this, LogDumpActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     private void startMasterFlow() {

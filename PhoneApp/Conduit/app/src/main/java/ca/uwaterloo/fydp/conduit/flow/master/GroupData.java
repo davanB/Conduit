@@ -11,7 +11,7 @@ Holds all the group data. Each HandShakeData holds the data that is sent to each
 The master phone will need to keep track of all this before sending all the data to everyone else.
 */
 public class GroupData {
-    private static final int START_ADDRESS = 0x00000000;
+    public static final int START_ADDRESS = 0xCDABCD00;
 
     private int mCurrentAddress;
     private int mMasterAddress;

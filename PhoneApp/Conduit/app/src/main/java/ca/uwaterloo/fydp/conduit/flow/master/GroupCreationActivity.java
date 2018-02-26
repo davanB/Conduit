@@ -54,11 +54,11 @@ public class GroupCreationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), QRGenerationActivity.class);
-                if (isGroupNameValid(mGroupName.toString()) &&
-                        isInputValid(mUserName.toString()) && isInputValid(mPassword.toString())) {
-                    intent.putExtra(AppConstants.GROUP_NAME_KEY, mGroupName.toString());
-                    intent.putExtra(AppConstants.USER_NAME_KEY, mUserName.toString());
-                    intent.putExtra(AppConstants.PASSWORD_KEY, mPassword.toString());
+                if (isGroupNameValid(mGroupName.getText().toString()) &&
+                        isInputValid(mUserName.getText().toString()) && isInputValid(mPassword.getText().toString())) {
+                    intent.putExtra(AppConstants.GROUP_NAME_KEY, mGroupName.getText().toString());
+                    intent.putExtra(AppConstants.USER_NAME_KEY, mUserName.getText().toString());
+                    intent.putExtra(AppConstants.PASSWORD_KEY, mPassword.getText().toString());
                     intent.putExtra(AppConstants.GROUP_SIZE, Integer.parseInt(groupSizeSpinner.getSelectedItem().toString()));
                     startActivity(intent);
                 }

@@ -51,6 +51,9 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
         PuppetMaster puppetMaster = new PuppetMaster();
         PuppetShow simulateQrScan = new BootstrappingQRCodeScanned(this, ConduitManager.getConduitGroup(0,0));
         puppetMaster.startShow(simulateQrScan);
+
+
+        mScannerView.startCamera();
     }
 
     @Override
@@ -91,7 +94,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
     }
 
     private void performConduitEvents(HandShakeData parsedHandshakeData) {
-        Toast.makeText(this, "Handshake data recv'd! " + parsedHandshakeData, Toast.LENGTH_LONG).show();
+        Log.v("YEET", "Handshake data recv'd! " + parsedHandshakeData);
         final int assignedUserId = parsedHandshakeData.mFriendAddress;
         final int masterAddress = parsedHandshakeData.mMasterAddress;
         final String groupName = parsedHandshakeData.mGroupName;
