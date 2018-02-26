@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 
+import static com.conduit.libdatalink.internal.SerialPacket.*;
 import static org.junit.Assert.*;
 
 public class PacketGeneratorTest {
@@ -15,11 +16,11 @@ public class PacketGeneratorTest {
         byte[] PAYLOAD = new byte[64];
         new Random().nextBytes(PAYLOAD);
 
-        NetworkPacket networkPacket = new NetworkPacket(Constants.COMMAND_READ, PAYLOAD);
+        NetworkPacket networkPacket = new NetworkPacket(COMMAND_READ, PAYLOAD);
         ByteBuffer networkPacketBuff = networkPacket.getPacketByteBuffer().duplicate();
         networkPacketBuff.rewind();
 
-        List<SerialPacket> serialPackets = PacketGenerator.generateSerialPackets(Constants.COMMAND_WRITE, networkPacket);
+        List<SerialPacket> serialPackets = PacketGenerator.generateSerialPackets(COMMAND_WRITE, networkPacket);
 
         // Ensure we have generated the correct number of SerialPackets
         int expectedPackets = (int) Math.ceil((double) networkPacket.getPacketSize() / (double) SerialPacket.PAYLOAD_SIZE);
@@ -58,10 +59,10 @@ public class PacketGeneratorTest {
         byte[] PAYLOAD = new byte[2048];
         new Random().nextBytes(PAYLOAD);
 
-        NetworkPacket packet = new NetworkPacket(Constants.COMMAND_READ, PAYLOAD);
+        NetworkPacket packet = new NetworkPacket(COMMAND_READ, PAYLOAD);
         int oldPos = packet.getPacketByteBuffer().position();
 
-        List<SerialPacket> serialPackets = PacketGenerator.generateSerialPackets(Constants.COMMAND_WRITE, packet);
+        List<SerialPacket> serialPackets = PacketGenerator.generateSerialPackets(COMMAND_WRITE, packet);
         int newPos = packet.getPacketByteBuffer().position();
 
         assertEquals(oldPos, newPos);
@@ -73,8 +74,8 @@ public class PacketGeneratorTest {
 
         byte[] PAYLOAD = "Hello World".getBytes();
 
-        NetworkPacket in = new NetworkPacket(Constants.COMMAND_READ, PAYLOAD);
-        List<SerialPacket> serialPackets = PacketGenerator.generateSerialPackets(Constants.COMMAND_WRITE, in);
+        NetworkPacket in = new NetworkPacket(COMMAND_READ, PAYLOAD);
+        List<SerialPacket> serialPackets = PacketGenerator.generateSerialPackets(COMMAND_WRITE, in);
 
         NetworkPacketParser networkPacketParser = new NetworkPacketParser();
 

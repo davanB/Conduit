@@ -1,9 +1,6 @@
 package com.conduit.libdatalink.internal;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 import static com.conduit.libdatalink.internal.Constants.*;
 
@@ -42,7 +39,15 @@ public class NetworkPacketParser {
             if (start == -1) return;
             if (accumulator.size() < start + NetworkPacket.HEADER_SIZE) return;
 
-            if (start != 0) System.out.println("WARNING: Accumulator had residual data!!");
+            if (start != 0) {
+                // TODO: Evalulate this fix
+                byte residual = 0;
+                for (int i = 0; i < start; i++) {
+                    residual |= accumulator.remove(0);
+                }
+                start = 0;
+                if (residual != (byte) 0) System.out.println("WARNING: Accumulator had residual data!!");
+            }
 
             // Consume header and partially build incoming packet
             accumulator.remove(start);

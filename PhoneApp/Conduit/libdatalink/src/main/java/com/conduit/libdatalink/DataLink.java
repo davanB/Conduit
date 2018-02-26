@@ -1,6 +1,7 @@
 package com.conduit.libdatalink;
 
 import com.conduit.libdatalink.internal.*;
+import com.conduit.libdatalink.stats.StatsCollector;
 
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -10,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import static com.conduit.libdatalink.internal.Constants.*;
+import static com.conduit.libdatalink.internal.SerialPacket.*;
 
 public class DataLink implements DataLinkInterface {
 
@@ -28,6 +30,7 @@ public class DataLink implements DataLinkInterface {
     private Thread consumerThread = new Thread(queueConsumer);
 
     private int groupAddress = -1;
+    public StatsCollector statsCollector = new StatsCollector();
 
     public DataLink(UsbDriverInterface usbDriver) {
         this.usbDriver = usbDriver;
@@ -36,17 +39,21 @@ public class DataLink implements DataLinkInterface {
     }
 
     public void debugLEDBlink(byte numBlinks) {
-        processingQueue.add(new SerialPacket(
+        SerialPacket packet = new SerialPacket(
                 COMMAND_DEBUG_LED_BLINK,
                 new byte[] {numBlinks}
-        ));
+        );
+        statsCollector.enqueueSerialPacket(packet);
+        processingQueue.add(packet);
     }
 
     public void debugEcho(byte value) {
-        processingQueue.add(new SerialPacket(
+        SerialPacket packet = new SerialPacket(
                 COMMAND_DEBUG_ECHO,
                 new byte[] {value}
-        ));
+        );
+        statsCollector.enqueueSerialPacket(packet);
+        processingQueue.add(packet);
     }
 
     public void debugEcho(byte[] payload) {
@@ -59,14 +66,17 @@ public class DataLink implements DataLinkInterface {
         );
 
         System.out.println("[DATALINK] Enqueued " + packets.size() + " SerialPackets");
+        statsCollector.enqueueSerialPackets(packets);
         processingQueue.addAll(packets);
     }
 
     public void openWritingPipe(int address) {
-        processingQueue.add(new SerialPacket(
+        SerialPacket packet = new SerialPacket(
                 COMMAND_OPEN_WRITING_PIPE,
                 Utils.intToBytes(address)
-        ));
+        );
+        statsCollector.enqueueSerialPacket(packet);
+        processingQueue.add(packet);
     }
 
     public void openReadingPipe(byte pipeNumber, int address) {
@@ -87,17 +97,24 @@ public class DataLink implements DataLinkInterface {
         networkPacketParsers.put(lsb, new NetworkPacketParser());
 
         byte a[] = Utils.intToBytes(address);
-        processingQueue.add(new SerialPacket(
+        SerialPacket packet = new SerialPacket(
                 COMMAND_OPEN_READING_PIPE,
                 new byte[] {pipeNumber, a[0], a[1], a[2], a[3]}
-        ));
+        );
+
+        statsCollector.enqueueSerialPacket(packet);
+        processingQueue.add(packet);
     }
 
     public void write(byte payloadType, byte[] payload) {
-        processingQueue.addAll(PacketGenerator.generateSerialPackets(
+        List<SerialPacket> packets = PacketGenerator.generateSerialPackets(
                 COMMAND_WRITE,
                 new NetworkPacket(payloadType, payload)
-        ));
+        );
+
+        System.out.println("[DATALINK] Enqueued " + packets.size() + " SerialPackets");
+        statsCollector.enqueueSerialPackets(packets);
+        processingQueue.addAll(packets);
     }
 
     class QueueConsumer implements Runnable {
@@ -115,6 +132,7 @@ public class DataLink implements DataLinkInterface {
         }
 
         void consume(SerialPacket packet) {
+            statsCollector.serialPacketTx(packet);
             usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
         }
     }
@@ -131,15 +149,15 @@ public class DataLink implements DataLinkInterface {
 
                 if (serialPacketParser.isPacketReady()) {
 
-                    // Allow consumer to TX the next packet
-                    txOkSem.release();
-
                     SerialPacket serialPacket = serialPacketParser.getPacket();
                     byte[] payload = new byte[serialPacket.getPayloadSize()];
                     serialPacket.getPacketPayload(payload);
+                    statsCollector.serialPacketAck(serialPacket);
 
-                    System.out.println("[DataLink] SerialPacket Ready: " + Arrays.toString(payload));
-                    System.out.println("[DataLink] SerialPacket Ready: " + new String(payload));
+                    // Allow consumer to TX the next packet
+                    txOkSem.release();
+
+                    System.out.println("[DataLink] SerialPacket Ready: \n" + serialPacket.toString());
 
                     if (serialPacket.getCommandId() == COMMAND_READ) {
                         System.out.println("[DataLink] Packet Source: Radio");
@@ -173,6 +191,14 @@ public class DataLink implements DataLinkInterface {
 
                     } else {
                         // This packet came from the Arduino
+                        switch (serialPacket.getCommandId()) {
+                            case COMMAND_WRITE:
+                                ByteBuffer serialPacketPayload = serialPacket.getPacketPayload();
+                                statsCollector.networkTxComplete(serialPacketPayload.getInt());
+                                serialPacketPayload.getShort(); // ACK value from remote
+                                break;
+                        }
+
                         // TODO: Handle SerialPackets from Arduino
                         // TODO: Update this to return generic byte[] data as well
                         // if (dataLinkListener != null) dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));

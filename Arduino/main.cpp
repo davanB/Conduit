@@ -6,20 +6,18 @@
 #include "SerialPacket.h"
 
 #define NUM_READ_PIPES 5
-#define BUFFER_SIZE 32
 
 SerialPacket *inPacket;
 byte commandId = 0;
 
 RF24 radio(9,10);
-byte* buffer = new byte[BUFFER_SIZE];
 
 // map pipe number to addresses
 uint8_t currentReadPipe = 0;
 uint32_t addresses[NUM_READ_PIPES];
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(57600);
     inPacket = new SerialPacket();
 
     radio.begin();
@@ -78,7 +76,7 @@ void debugLEDBlink() {
 }
 
 void debugEcho() {
-    SerialPacket resp = SerialPacket(COMMAND_DEBUG_ECHO, 0);
+    SerialPacket resp = SerialPacket(COMMAND_DEBUG_ECHO, STATUS_SUCCESS);
     memcpy(resp.payload, inPacket->payload, PACKET_SIZE);
     resp.write();
 }
@@ -86,9 +84,8 @@ void debugEcho() {
 void openWritingPipe() {
     uint8_t address[4] = {inPacket->payload[3], inPacket->payload[2], inPacket->payload[1], inPacket->payload[0]};
     radio.openWritingPipe(address);
-    SerialPacket packet = SerialPacket(COMMAND_OPEN_WRITING_PIPE, 1);
-    packet.payload[0] = STATUS_SUCCESS;
-    sprintf(packet.payload+1, "WP 0x%lx\n", *((uint32_t *) address));
+    SerialPacket packet = SerialPacket(COMMAND_OPEN_WRITING_PIPE, STATUS_SUCCESS);
+    sprintf(packet.payload, "WP 0x%lx\n", *((uint32_t *) address));
     packet.write();
 }
 
@@ -105,26 +102,32 @@ void openReadingPipe() {
     radio.openReadingPipe(pipeNumber, address);
     radio.startListening();
 
-    SerialPacket packet = SerialPacket(COMMAND_OPEN_READING_PIPE, 1);
-    packet.payload[0] = STATUS_SUCCESS;
-    sprintf(packet.payload+1, "RP 0x%lx\n", *((uint32_t *) address));
+    SerialPacket packet = SerialPacket(COMMAND_OPEN_READING_PIPE, STATUS_SUCCESS);
+    sprintf(packet.payload, "RP 0x%lx\n", *((uint32_t *) address));
     packet.write();
 }
 
 void writeRadio() {
     radio.stopListening(); //TODO: Evaluate effect on dropped packets
-    int ack_buffer[1] = {5};
+    uint32_t start = micros();
+    uint32_t delta = 0;
+    uint8_t ack_buffer = 0;
+
     // Write buffer to radio
     if (radio.write(inPacket->payload, PAYLOAD_SIZE)) {
         if (radio.isAckPayloadAvailable()) {
-            radio.read(ack_buffer, sizeof(int));
-            // Send ACK payload
+            // Get ACK payload and stop timing
+            radio.read(&ack_buffer, sizeof(uint8_t));
+            delta = micros() - start;
 
-            SerialPacket packet = SerialPacket(COMMAND_WRITE, 1 + sizeof(int));
-            packet.payload[0] = STATUS_SUCCESS;
-            // Put ACK payload in return buffer in Big-Endian order
-            packet.payload[1] = ack_buffer[0] & 0xFF00;
-            packet.payload[2] = ack_buffer[1] & 0x00FF;
+            // Send ACK response and timing delta in response (Big Endian Formatted)
+            SerialPacket packet = SerialPacket(COMMAND_WRITE, STATUS_SUCCESS);
+            packet.payload[0] = (uint8_t) ((delta >> 24) & 0xFF);
+            packet.payload[1] = (uint8_t) ((delta >> 16) & 0xFF);
+            packet.payload[2] = (uint8_t) ((delta >> 8)  & 0xFF);
+            packet.payload[3] = (uint8_t) ((delta >> 0)  & 0xFF);
+            packet.payload[4] = (uint8_t) ((ack_buffer >> 8) & 0xFF);
+            packet.payload[5] = (uint8_t) ((ack_buffer >> 0) & 0xFF);
             packet.write();
 
         } else {
@@ -137,14 +140,13 @@ void writeRadio() {
 }
 
 void readRadio() {
-    int ack_buffer[1] = {5};
-    radio.writeAckPayload(1, ack_buffer, sizeof(int));
+    uint8_t ack_buffer = 5;
+    radio.writeAckPayload(currentReadPipe, &ack_buffer, sizeof(uint8_t));
     byte payloadSize = radio.getPayloadSize();
 
-    SerialPacket packet = SerialPacket(COMMAND_READ, payloadSize + 1);
+    SerialPacket packet = SerialPacket(COMMAND_READ, STATUS_SUCCESS);
     packet.source = (uint8_t) addresses[currentReadPipe]; //ADD LSB
-    packet.payload[0] = STATUS_SUCCESS;
-    radio.read(packet.payload + 1, payloadSize);
+    radio.read(packet.payload, payloadSize);
     packet.write();
 }
 
@@ -153,9 +155,8 @@ byte waitForByte() {
     return Serial.read();
 }
 
-void sendError(byte commandId, byte errorCode) {
-    SerialPacket packet = SerialPacket(commandId, 2);
-    packet.payload[0] = STATUS_FAILURE;
-    packet.payload[1] = errorCode;
+void sendError(uint8_t commandId, uint8_t errorCode) {
+    SerialPacket packet = SerialPacket(commandId, STATUS_FAILURE);
+    packet.payload[0] = errorCode;
     packet.write();
 }

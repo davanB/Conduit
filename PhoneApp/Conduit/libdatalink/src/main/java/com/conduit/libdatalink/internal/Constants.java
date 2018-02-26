@@ -7,15 +7,6 @@ public class Constants {
     public static final byte CONTROL_START_OF_PACKET = 1;
     public static final byte CONTROL_END_OF_PACKET = 4;
 
-    public static final byte COMMAND_DEBUG_LED_BLINK = 33;
-    public static final byte COMMAND_DEBUG_ECHO = 34;
-    public static final byte COMMAND_OPEN_WRITING_PIPE = 40;
-    public static final byte COMMAND_OPEN_READING_PIPE = 41;
-    public static final byte COMMAND_WRITE = 42;
-    public static final byte COMMAND_READ = 43;
-//
-//    public static final byte STATUS_SUCCESS = 100;
-//    public static final byte STATUS_FAILURE = 101;
 //
 //    public static final byte ERROR_INVALID_COMMAND = 1;
 //    public static final byte ERROR_TX_FAIL = 110;
