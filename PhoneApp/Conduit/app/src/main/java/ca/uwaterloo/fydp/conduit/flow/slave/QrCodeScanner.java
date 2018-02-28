@@ -95,7 +95,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
 
     private void performConduitEvents(HandShakeData parsedHandshakeData) {
         Log.v("YEET", "Handshake data recv'd! " + parsedHandshakeData);
-        final int assignedUserId = parsedHandshakeData.mFriendAddress;
+        final int assignedUserId = parsedHandshakeData.mFriendAddress & 0x000000FF ;
         final int masterAddress = parsedHandshakeData.mMasterAddress;
         final String groupName = parsedHandshakeData.mGroupName;
 

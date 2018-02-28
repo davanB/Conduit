@@ -23,7 +23,7 @@ public class UsbDriver implements UsbDriverInterface {
     private static final byte ERROR_INVALID_COMMAND = 1;
 
     private static final int TIMEOUT_DEFAULT = 4000;
-    private static final int BAUD_RATE = 9600;
+    private static final int BAUD_RATE = 57600;
 
     private static final String TAG = "YEET";
 
