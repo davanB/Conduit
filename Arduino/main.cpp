@@ -14,7 +14,7 @@ RF24 radio(9,10);
 
 // map pipe number to addresses
 uint8_t currentReadPipe = 0;
-uint32_t addresses[NUM_READ_PIPES];
+uint8_t addresses[NUM_READ_PIPES];
 
 void setup() {
     Serial.begin(57600);
@@ -82,28 +82,28 @@ void debugEcho() {
 }
 
 void openWritingPipe() {
-    uint8_t address[4] = {inPacket->payload[3], inPacket->payload[2], inPacket->payload[1], inPacket->payload[0]};
+    uint8_t address[4] = {inPacket->payload[0], inPacket->payload[2], inPacket->payload[1], inPacket->payload[3]};
     radio.openWritingPipe(address);
     SerialPacket packet = SerialPacket(COMMAND_OPEN_WRITING_PIPE, STATUS_SUCCESS);
-    sprintf(packet.payload, "WP 0x%lx\n", *((uint32_t *) address));
+    sprintf(packet.payload, "WP 0x%08lx\n", *((uint32_t *) address));
     packet.write();
 }
 
 void openReadingPipe() {
     uint8_t pipeNumber = inPacket->payload[0];
-    uint8_t address[4] = {inPacket->payload[4], inPacket->payload[3], inPacket->payload[2], inPacket->payload[1]};
+    uint8_t address[4] = {inPacket->payload[1], inPacket->payload[3], inPacket->payload[2], inPacket->payload[4]};
 
     if (pipeNumber > NUM_READ_PIPES) {
         sendError(COMMAND_OPEN_READING_PIPE, ERROR_INVALID_ARGUMENT);
         return;
     }
 
-    addresses[pipeNumber] = *((uint32_t *)address);
+    addresses[pipeNumber] = inPacket->payload[4];
     radio.openReadingPipe(pipeNumber, address);
     radio.startListening();
 
     SerialPacket packet = SerialPacket(COMMAND_OPEN_READING_PIPE, STATUS_SUCCESS);
-    sprintf(packet.payload, "RP 0x%lx\n", *((uint32_t *) address));
+    sprintf(packet.payload, "RP 0x%08lx\n", *((uint32_t *) address));
     packet.write();
 }
 
@@ -145,7 +145,7 @@ void readRadio() {
     byte payloadSize = radio.getPayloadSize();
 
     SerialPacket packet = SerialPacket(COMMAND_READ, STATUS_SUCCESS);
-    packet.source = (uint8_t) addresses[currentReadPipe]; //ADD LSB
+    packet.source = addresses[currentReadPipe]; //ADD Client ID
     radio.read(packet.payload, payloadSize);
     packet.write();
 }
