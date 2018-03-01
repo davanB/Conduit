@@ -11,5 +11,7 @@ public interface DataLinkInterface {
 
     void write(byte payloadType, byte payload[]);
 
-    void setReadListener(DataLinkListener listener);
+    void addReadListener(DataLinkListener listener);
+
+    void removeReadListener(DataLinkListener listener);
 }

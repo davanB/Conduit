@@ -1,13 +1,12 @@
 import com.conduit.libdatalink.DataLink;
 import com.conduit.libdatalink.DataLinkListener;
-import com.conduit.libdatalink.internal.NetworkPacket;
+
 import mock.EchoBackMockUsbDriver;
 import org.junit.Test;
 import mock.FiniteBufferMockUsbDriver;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +41,7 @@ public class DataLinkTest {
         final String[] receivedPayload = new String[1];
         final byte[] receivedPayloadType = new byte[1];
 
-        dataLink.setReadListener(new DataLinkListener() {
+        DataLinkListener listener = new DataLinkListener() {
             @Override
             public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
                 receivedPayloadType[0] = payloadType;
@@ -53,7 +52,8 @@ public class DataLinkTest {
                 receivedPayload[0] = new String(networkPayload);
                 lock.countDown();
             }
-        });
+        };
+        dataLink.addReadListener(listener);
 
         final String DATA = "Hello World";
 
@@ -67,6 +67,8 @@ public class DataLinkTest {
         assertNotNull(receivedPayload[0]);
         assertEquals(DATA.length(), receivedPayload[0].length());
         assertEquals(DATA, receivedPayload[0]);
+
+        dataLink.removeReadListener(listener);
     }
 
     @Test
@@ -92,13 +94,15 @@ public class DataLinkTest {
 
         // Accumulate output addresses
         final List<Integer> outputAddresses = new ArrayList<Integer>();
-        dataLink.setReadListener(new DataLinkListener() {
+
+        DataLinkListener listener = new DataLinkListener() {
             @Override
             public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
                 outputAddresses.add(originAddress);
                 lock.countDown();
             }
-        });
+        };
+        dataLink.addReadListener(listener);
 
         // Open pipes and write data
         for (byte b = 0; b < ADDRESSES.length; b++) {
@@ -116,5 +120,6 @@ public class DataLinkTest {
             assertEquals(ADDRESSES[i], (int)outputAddresses.get(i));
         }
 
+        dataLink.removeReadListener(listener);
     }
 }

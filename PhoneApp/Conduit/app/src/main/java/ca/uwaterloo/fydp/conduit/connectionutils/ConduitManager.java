@@ -5,6 +5,7 @@ import android.hardware.usb.UsbManager;
 
 import com.conduit.libdatalink.ConduitGroup;
 import com.conduit.libdatalink.DataLink;
+import com.conduit.libdatalink.DataLinkInterface;
 import com.conduit.libdatalink.UsbDriverInterface;
 
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class ConduitManager {
 
     private static ConduitLedger ledger;
     private static UsbDriverInterface driver;
+    private static DataLinkInterface dataLink;
 
     public static UsbDriverInterface getDriver() {
         return driver;
@@ -26,6 +28,7 @@ public class ConduitManager {
     public static void initialize(Context context) {
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         driver = new UsbDriver(manager);
+        dataLink = new DataLink(driver);
     }
 
     public static void initializeMock() {
@@ -33,10 +36,9 @@ public class ConduitManager {
     }
 
     public static ConduitGroup getConduitGroup(int baseAddress, int clientId) {
-        if (driver == null) {
+        if (driver == null || dataLink == null) {
             throw new IllegalStateException("Driver not initialized");
         }
-        DataLink dataLink = new DataLink(driver);
         return new ConduitGroup(dataLink, baseAddress, clientId);
     }
 

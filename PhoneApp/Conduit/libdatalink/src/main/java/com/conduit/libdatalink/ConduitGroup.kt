@@ -1,8 +1,6 @@
 package com.conduit.libdatalink
 
-import com.conduit.libdatalink.ConduitGroupHelper.getFullAddress
 import com.conduit.libdatalink.conduitabledata.*
-import com.conduit.libdatalink.internal.Constants
 import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -12,7 +10,7 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
 
     init {
         openInitialReadPipes(baseAddress, currentClientId)
-        dataLink.setReadListener{
+        dataLink.addReadListener {
             originAddress, payloadType, payload ->  onDataReadListener(originAddress, payloadType, payload)
         }
     }

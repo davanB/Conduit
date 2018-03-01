@@ -18,7 +18,7 @@ public class DataLink implements DataLinkInterface {
     private static final int MAX_PACKETS_IN_FLIGHT = ARDUINO_SERIAL_RX_BUFFER_SIZE / SerialPacket.PACKET_SIZE;
 
     private UsbDriverInterface usbDriver;
-    private DataLinkListener dataLinkListener;
+    private List<DataLinkListener> dataLinkObservers = new ArrayList<DataLinkListener>();
 
     private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
@@ -137,8 +137,26 @@ public class DataLink implements DataLinkInterface {
         }
     }
 
-    public void setReadListener(DataLinkListener listener) {
-        dataLinkListener = listener;
+    @Override
+    public void addReadListener(DataLinkListener listener) {
+        if(!dataLinkObservers.contains(listener)){
+            dataLinkObservers.add(listener);
+        }
+    }
+
+    @Override
+    public void removeReadListener(DataLinkListener listener) {
+        if(dataLinkObservers.contains(listener)){
+            dataLinkObservers.remove(listener);
+        }
+    }
+
+    private void notifyDataLinkObservers(int originAddress, byte payloadType, ByteBuffer payload) {
+        for(DataLinkListener observer: dataLinkObservers) {
+            if(observer != null ) {
+                observer.OnReceiveData(originAddress, payloadType, payload);
+            }
+        }
     }
 
     private UsbSerialListener usbSerialListener = new UsbSerialListener() {
@@ -179,14 +197,11 @@ public class DataLink implements DataLinkInterface {
                             System.out.println("[DataLink] NetworkPacket ready");
 
                             NetworkPacket networkPacket = networkPacketParser.getPacket();
-
-                            if (dataLinkListener != null) {
-                                dataLinkListener.OnReceiveData(
-                                        (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource()), // Combine group and source to get address
-                                        networkPacket.getPayloadType(),
-                                        networkPacket.getPacketPayload()
-                                );
-                            }
+                            notifyDataLinkObservers(
+                                    (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource()), // Combine group and source to get address
+                                    networkPacket.getPayloadType(),
+                                    networkPacket.getPacketPayload()
+                            );
                         }
 
                     } else {
