@@ -52,7 +52,7 @@ public class Main {
         if (portNumber == -1) portNumber = in.nextInt();
 
         dataLink = new DataLink(new UsbDriver(serialPorts.get(portNumber)));
-        dataLink.setReadListener(new DataLinkListener() {
+        dataLink.addReadListener(new DataLinkListener() {
             @Override
             public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
                 byte[] buf = new byte[payload.remaining()];
