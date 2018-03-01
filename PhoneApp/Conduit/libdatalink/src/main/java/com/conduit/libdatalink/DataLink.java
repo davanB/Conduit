@@ -172,9 +172,6 @@ public class DataLink implements DataLinkInterface {
                     serialPacket.getPacketPayload(payload);
                     statsCollector.serialPacketAck(serialPacket);
 
-                    // Allow consumer to TX the next packet
-                    txOkSem.release();
-
                     System.out.println("[DataLink] SerialPacket Ready: \n" + serialPacket.toString());
 
                     if (serialPacket.getCommandId() == COMMAND_READ) {
@@ -206,6 +203,10 @@ public class DataLink implements DataLinkInterface {
 
                     } else {
                         // This packet came from the Arduino
+
+                        // This is an ACK SerialPacket for some command - OK to send next command
+                        txOkSem.release();
+
                         switch (serialPacket.getCommandId()) {
                             case COMMAND_WRITE:
                                 ByteBuffer serialPacketPayload = serialPacket.getPacketPayload();
