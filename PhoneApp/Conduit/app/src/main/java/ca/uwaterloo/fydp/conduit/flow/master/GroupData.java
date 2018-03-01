@@ -11,7 +11,7 @@ Holds all the group data. Each HandShakeData holds the data that is sent to each
 The master phone will need to keep track of all this before sending all the data to everyone else.
 */
 public class GroupData {
-    public static final int START_ADDRESS = 0xCDABCD00;
+    public static final int START_ADDRESS = 0xABCDEF00;
 
     private int mCurrentAddress;
     private int mMasterAddress;
@@ -38,7 +38,7 @@ public class GroupData {
 
     public boolean isFinishedHandshakes() {
         // rollover => done
-        return mCurrentAddress == mGroupSize;
+        return (0x000000FF & mCurrentAddress) == mGroupSize;
     }
 
     //Simply increment a counter for now, this ensures every addr is unique.

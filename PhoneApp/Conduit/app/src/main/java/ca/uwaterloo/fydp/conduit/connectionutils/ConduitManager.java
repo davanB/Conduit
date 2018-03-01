@@ -35,11 +35,17 @@ public class ConduitManager {
         driver = new MockUsbDriver();
     }
 
+    public static ConduitGroup conduitGroup;
+
     public static ConduitGroup getConduitGroup(int baseAddress, int clientId) {
         if (driver == null || dataLink == null) {
             throw new IllegalStateException("Driver not initialized");
         }
-        return new ConduitGroup(dataLink, baseAddress, clientId);
+
+        if(conduitGroup == null ){
+            conduitGroup = new ConduitGroup(dataLink, baseAddress, clientId);
+        }
+        return conduitGroup;
     }
 
     public static ConduitGroup getConduitGroup(ConduitLedger ledger) {

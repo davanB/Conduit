@@ -73,7 +73,7 @@ public class QRGenerationActivity extends Activity{
                         String newUserName = newUserConnectionEvent.getConnectedClientName();
                         int newUserId = newUserConnectionEvent.getConnectedClientId();
 
-                        if(groupData.getCurrentAddress() != newUserId) {
+                        if((0x000000FF & groupData.getCurrentAddress()) != newUserId) {
                             throw new IllegalStateException("Conduit connection from wrong userId");
                         }
 
