@@ -14,7 +14,7 @@ RF24 radio(9,10);
 
 // map pipe number to addresses
 uint8_t currentReadPipe = 0;
-uint8_t addresses[NUM_READ_PIPES];
+uint8_t addresses[NUM_READ_PIPES + 1];
 
 void setup() {
     Serial.begin(57600);
@@ -82,11 +82,13 @@ void debugEcho() {
 }
 
 void openWritingPipe() {
+    radio.stopListening();
     uint8_t address[4] = {inPacket->payload[0], inPacket->payload[2], inPacket->payload[1], inPacket->payload[3]};
     radio.openWritingPipe(address);
     SerialPacket packet = SerialPacket(COMMAND_OPEN_WRITING_PIPE, STATUS_SUCCESS);
     sprintf(packet.payload, "WP 0x%08lx\n", *((uint32_t *) address));
     packet.write();
+    radio.startListening();
 }
 
 void openReadingPipe() {
