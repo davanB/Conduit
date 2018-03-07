@@ -16,6 +16,7 @@ import com.google.zxing.Result;
 import ca.uwaterloo.fydp.conduit.AppConstants;
 import ca.uwaterloo.fydp.conduit.DataTransformation;
 import ca.uwaterloo.fydp.conduit.MainActivity;
+import ca.uwaterloo.fydp.conduit.conduitview.ConduitActivity;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitLedger;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
 import ca.uwaterloo.fydp.conduit.puppets.BootstrappingGroupDataIncoming;
@@ -131,7 +132,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
                         Log.v("NavTest", ledger.getGroupMemberNamesList().toString());
 
                         // Off to main activity now
-                        Intent intent = new Intent(QrCodeScanner.this, MainActivity.class);
+                        Intent intent = new Intent(QrCodeScanner.this, ConduitActivity.class);
                         startActivity(intent);
                     }
                 });

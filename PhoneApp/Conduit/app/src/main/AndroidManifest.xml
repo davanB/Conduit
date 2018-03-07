@@ -55,7 +55,8 @@
         </activity>
         <activity android:name=".flow.master.DistributeGroupDataActivity" />
         <activity android:name=".flow.slave.GroupJoinActivity" />
-        <activity android:name=".LogDumpActivity"></activity>
+        <activity android:name=".LogDumpActivity" />
+        <activity android:name=".conduitview.ConduitActivity"></activity>
     </application>
 
 </manifest>

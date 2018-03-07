@@ -36,7 +36,7 @@ public class ConduitManager {
         dataLink = new DataLink(driver);
     }
 
-    public static ConduitGroup conduitGroup;
+    private static ConduitGroup conduitGroup;
 
     public static ConduitGroup getConduitGroup(int baseAddress, int clientId) {
         if (driver == null || dataLink == null) {

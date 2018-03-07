@@ -25,6 +25,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import ca.uwaterloo.fydp.conduit.conduitview.ConduitActivity
 import kotlin.properties.Delegates
 
 
@@ -80,7 +81,7 @@ class DistributeGroupDataActivity : AppCompatActivity() {
     }
 
     private fun nextScreen() {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, ConduitActivity::class.java)
         startActivity(intent)
     }
 
