@@ -14,7 +14,7 @@ RF24 radio(9,10);
 
 // map pipe number to addresses
 uint8_t currentReadPipe = 0;
-uint8_t addresses[NUM_READ_PIPES];
+uint8_t addresses[NUM_READ_PIPES + 1];
 
 void setup() {
     Serial.begin(57600);
