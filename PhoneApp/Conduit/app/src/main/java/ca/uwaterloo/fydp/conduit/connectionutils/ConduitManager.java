@@ -33,6 +33,7 @@ public class ConduitManager {
 
     public static void initializeMock() {
         driver = new MockUsbDriver();
+        dataLink = new DataLink(driver);
     }
 
     public static ConduitGroup conduitGroup;
