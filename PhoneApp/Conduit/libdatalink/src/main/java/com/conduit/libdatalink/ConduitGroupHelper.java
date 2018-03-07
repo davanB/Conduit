@@ -6,8 +6,8 @@ package com.conduit.libdatalink;
 
 public class ConduitGroupHelper {
 
-    public static int getFullAddress(int baseAddress, int clientId) {
-        return (0xFFFFFF00 & baseAddress) | (0x000000FF & clientId);
+    public static int getFullAddress(int baseAddress, int majorClientID, int minorClientID) {
+        return (0xFFFFFF00 & baseAddress) | ((0x0000000F & majorClientID) << 4) | (0x0000000F & minorClientID);
     }
 
 }

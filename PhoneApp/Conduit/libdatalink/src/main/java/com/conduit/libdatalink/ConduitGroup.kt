@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class ConduitGroup internal constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, currentClientId: Int) {
+class ConduitGroup internal constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int) {
     val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
 
     init {
@@ -16,9 +16,9 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
     }
 
     fun send(clientId: Int, data: ConduitableData) {
-        val address: Int = ConduitGroupHelper.getFullAddress(baseAddress, clientId)
+        val address: Int = ConduitGroupHelper.getFullAddress(baseAddress, clientId, currentClientId)
         dataLink.openWritingPipe(address)
-        System.out.println("YEET opening write pipe: " + ConduitGroupHelper.getFullAddress(baseAddress, clientId))
+//        System.out.println("YEET opening write pipe: " + ConduitGroupHelper.getFullAddress(baseAddress, clientId))
 
         dataLink.write(data.payloadType.flag, data.getPayload().array())
     }
@@ -66,8 +66,8 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
         (1..5).zip(clientIdsToReadFrom).forEach{
             (pipeNumber, clientId) ->
             run {
-                dataLink.openReadingPipe(pipeNumber.toByte(), ConduitGroupHelper.getFullAddress(baseAddress, clientId))
-                System.out.println("YEET opening read pipe: " + ConduitGroupHelper.getFullAddress(baseAddress, clientId))
+                dataLink.openReadingPipe(pipeNumber.toByte(), ConduitGroupHelper.getFullAddress(baseAddress, currentClientId, clientId))
+//                System.out.println("YEET opening read pipe: " + ConduitGroupHelper.getFullAddress(baseAddress, clientId))
             }
         }
     }
