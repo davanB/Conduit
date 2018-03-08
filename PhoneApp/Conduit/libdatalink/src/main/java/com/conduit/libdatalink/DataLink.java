@@ -21,6 +21,8 @@ public class DataLink implements DataLinkInterface {
     private List<DataLinkListener> dataLinkObservers = new ArrayList<DataLinkListener>();
 
     private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
+    private BlockingQueue<SerialPacket> inFlightQueue = new LinkedBlockingQueue<SerialPacket>();
+    private BlockingQueue<SerialPacket> retryQueue = new LinkedBlockingQueue<SerialPacket>();
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
     private Map<Byte, NetworkPacketParser> networkPacketParsers = new HashMap<Byte, NetworkPacketParser>();
 
@@ -124,7 +126,11 @@ public class DataLink implements DataLinkInterface {
                 while (true) {
                     // wait till safe to send, then send single packet
                     txOkSem.acquire();
-                    consume(processingQueue.take());
+                    if (!retryQueue.isEmpty()) {
+                        consume(retryQueue.take());
+                    } else {
+                        consume(processingQueue.take());
+                    }
                 }
             } catch (InterruptedException ex) {
                 System.out.println(ex);
@@ -133,6 +139,7 @@ public class DataLink implements DataLinkInterface {
 
         void consume(SerialPacket packet) {
             statsCollector.serialPacketTx(packet);
+            inFlightQueue.add(packet);
             usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
         }
     }
@@ -227,8 +234,9 @@ public class DataLink implements DataLinkInterface {
 
                             switch (serialPacket.getCommandId()) {
                                 case COMMAND_WRITE:
-                                    // Apply network packet retry policy
-
+                                    // Apply serial packet retry policy
+                                    // TODO: This only works with MAX_PACKETS_IN_FLIGHT == 1
+                                    retryQueue.put(inFlightQueue.take());
                                     break;
                             }
 
