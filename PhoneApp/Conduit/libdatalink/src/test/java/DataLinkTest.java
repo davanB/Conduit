@@ -52,6 +52,10 @@ public class DataLinkTest {
                 receivedPayload[0] = new String(networkPayload);
                 lock.countDown();
             }
+
+            @Override
+            public void OnSerialError(byte commandId, byte[] payload) {
+            }
         };
         dataLink.addReadListener(listener);
 
@@ -100,6 +104,10 @@ public class DataLinkTest {
             public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
                 outputAddresses.add(originAddress);
                 lock.countDown();
+            }
+
+            @Override
+            public void OnSerialError(byte commandId, byte[] payload) {
             }
         };
         dataLink.addReadListener(listener);
