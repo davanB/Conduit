@@ -15,6 +15,15 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
         }
     }
 
+    fun sendAll(data: ConduitableData) {
+        val allClientIds:ArrayList<Int> = ArrayList()
+        allClientIds += 0..5
+        val clientIdsToSendto = allClientIds.filter{ it != currentClientId }
+        clientIdsToSendto.forEach{
+            send(it, data)
+        }
+    }
+
     fun send(clientId: Int, data: ConduitableData) {
         val address: Int = ConduitGroupHelper.getFullAddress(baseAddress, clientId, currentClientId)
         dataLink.openWritingPipe(address)
@@ -43,6 +52,7 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
         ConduitableDataTypes.MESSAGE.flag -> ConduitMessage()
         ConduitableDataTypes.GPS_COORDS.flag -> ConduitGpsLocation()
         ConduitableDataTypes.CONNECTION_EVENT.flag -> ConduitConnectionEvent()
+        ConduitableDataTypes.GROUP_DATA.flag -> ConduitGroupData()
         else -> ConduitMessage()
         // TODO: maybe throw an exception here for unrecognized data?
     }

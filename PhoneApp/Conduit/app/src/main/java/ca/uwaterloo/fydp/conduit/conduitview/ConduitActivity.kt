@@ -71,9 +71,8 @@ class ConduitActivity : AppCompatActivity() {
     }
 
     private fun conduitSend(data: ConduitableData) {
-        conduitGroup.send(0, data)
+        conduitGroup.sendAll(data)
         onConduitDataReceived(data)
     }
-
 
 }

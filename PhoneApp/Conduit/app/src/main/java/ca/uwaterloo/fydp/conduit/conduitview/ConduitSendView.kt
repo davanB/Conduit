@@ -3,9 +3,7 @@ package ca.uwaterloo.fydp.conduit.conduitview
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import ca.uwaterloo.fydp.conduit.R
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
 import com.conduit.libdatalink.conduitabledata.ConduitMessage
@@ -26,6 +24,12 @@ class ConduitSendView @JvmOverloads constructor(
 
     init{
         inflate(getContext(), R.layout.conduit_send_view, this)
+        findViewById<Button>(R.id.send_view_button).setOnClickListener {
+            val editText = findViewById<EditText>(R.id.send_view_text)
+            val textToSend = editText.text.toString()
+            sendDelegate?.invoke(ConduitMessage(textToSend))
+        }
+
     }
 
 }
