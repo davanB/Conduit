@@ -22,7 +22,7 @@ public class ConduitConnectionActivity extends AppCompatActivity {
     private AnimationDrawable connectionAnimation;
 
     private final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_FINE_LOCATION};
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

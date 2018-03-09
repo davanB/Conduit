@@ -16,8 +16,20 @@ import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 import kotlin.properties.Delegates
 import android.content.Context.LAYOUT_INFLATER_SERVICE
+import android.content.Intent
+import android.support.v4.app.ActivityCompat
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
+import android.R.attr.bitmap
+import android.app.Activity
+import android.app.Activity.RESULT_OK
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.io.FileNotFoundException
+import java.io.IOException
+import android.R.attr.bitmap
+
+
 
 
 class ConduitActivity : AppCompatActivity() {
@@ -45,6 +57,7 @@ class ConduitActivity : AppCompatActivity() {
 
         conduitSendView = findViewById<ConduitSendView>(R.id.conduit_send_view)
         conduitSendView.sendDelegate = {conduitSend(it)}
+        conduitSendView.requestImageDelegate = {requestImage()}
 
         viewPager = findViewById(R.id.view_pager)
         val viewPagerAdapter = ViewPagerAdapter()
@@ -74,6 +87,28 @@ class ConduitActivity : AppCompatActivity() {
     private fun conduitSend(data: ConduitableData) {
         conduitGroup.sendAll(data)
         onConduitDataReceived(data)
+    }
+
+
+    val image_request_code = 1
+    fun requestImage() {
+        val intent = Intent()
+        intent.setType("image/*")
+        intent.setAction(Intent.ACTION_GET_CONTENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        startActivityForResult(intent, image_request_code)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent) {
+        if (requestCode == image_request_code && resultCode == Activity.RESULT_OK) {
+            val stream = contentResolver.openInputStream(
+                    intentData.data)
+            val bitmap = BitmapFactory.decodeStream(stream)
+            stream!!.close()
+            conduitSendView.imageSelected(bitmap)
+        }
+
+        super.onActivityResult(requestCode, resultCode, intentData)
     }
 
 }
