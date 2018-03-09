@@ -27,6 +27,7 @@ class ConduitImage() : ConduitableData() {
 
     override fun getPayload(): ByteBuffer {
         val stream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.PNG, 100, stream);
         val byteArray = stream.toByteArray()
         return ByteBuffer.wrap(byteArray)
     }
