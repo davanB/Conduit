@@ -15,7 +15,8 @@ class ConduitMessage() : ConduitableData() {
     }
 
     override fun populateFromPayload(payload: ByteBuffer) {
-        val payloadBytes = payload.array()
+        val payloadBytes = ByteArray(payload.remaining())
+        payload.get(payloadBytes)
         message = String(payloadBytes)
     }
 
