@@ -1,7 +1,6 @@
 package com.conduit.libdatalink
 
 import com.conduit.libdatalink.conduitabledata.*
-import org.omg.CORBA.Object
 import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -17,7 +16,6 @@ open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val
             }
 
             override fun OnSerialError(commandId: Byte, payload: ByteArray?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
         })
     }
