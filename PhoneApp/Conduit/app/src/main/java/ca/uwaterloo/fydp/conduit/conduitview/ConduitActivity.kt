@@ -36,8 +36,8 @@ class ConduitActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conduit)
 
-        conduitListView = ConduitListView(this)
-        conduitListView.data = conduitDataReceived
+        conduitListView = ConduitListView(this, conduitDataReceived)
+//        conduitListView.data = conduitDataReceived
 
         conduitStatusView = ConduitStatusView(this)
         conduitStatusView.data = conduitDataReceived
