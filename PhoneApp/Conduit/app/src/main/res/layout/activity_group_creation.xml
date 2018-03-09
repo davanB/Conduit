@@ -20,7 +20,7 @@
             android:id="@+id/group_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_group_name"
+            android:text="@string/prompt_group_name"
             android:inputType="textAutoComplete"
             android:maxLines="1" />
 
@@ -28,7 +28,7 @@
             android:id="@+id/user_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_user_name"
+            android:text="@string/prompt_user_name"
             android:inputType="textPersonName"
             android:maxLines="1" />
 
@@ -36,7 +36,7 @@
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_password"
+            android:text="@string/prompt_password"
             android:inputType="textPassword"
             android:maxLines="1" />
 

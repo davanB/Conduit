@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 
+import ca.uwaterloo.fydp.conduit.AppConstants;
 import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
 
@@ -34,8 +35,12 @@ public class ConduitConnectionActivity extends AppCompatActivity {
         }
 
         // TODO: switch this back otherwise we're not going to actually connect to the hardware!!!!
-        //ConduitManager.initialize(this);
-        ConduitManager.initializeMock();
+
+        if (AppConstants.USE_REAL_HARDWARE) {
+            ConduitManager.initialize(this);
+        } else {
+            ConduitManager.initializeMock();
+        }
         if(ConduitManager.getDriver().isConnected()) {
             Intent intent = new Intent(this, AppModeActivity.class);
             startActivity(intent);
