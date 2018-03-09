@@ -7,9 +7,14 @@ import com.conduit.libdatalink.ConduitGroup;
 import com.conduit.libdatalink.DataLink;
 import com.conduit.libdatalink.DataLinkInterface;
 import com.conduit.libdatalink.UsbDriverInterface;
+import com.conduit.libdatalink.conduitabledata.ConduitableData;
+import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
+import ca.uwaterloo.fydp.conduit.ConduitImage;
 import ca.uwaterloo.fydp.conduit.UsbDriver;
 
 public class ConduitManager {
@@ -43,8 +48,8 @@ public class ConduitManager {
             throw new IllegalStateException("Driver not initialized");
         }
 
-        if(conduitGroup == null ){
-            conduitGroup = new ConduitGroup(dataLink, baseAddress, clientId);
+        if(conduitGroup == null ) {
+            conduitGroup = new AndroidConduitGroup(dataLink, baseAddress, clientId);
         }
         return conduitGroup;
     }

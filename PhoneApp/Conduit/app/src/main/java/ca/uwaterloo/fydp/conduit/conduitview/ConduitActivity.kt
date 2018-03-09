@@ -58,7 +58,7 @@ class ConduitActivity : AppCompatActivity() {
         }
 
         val puppetMaster = PuppetMaster()
-        val show = WhereYouAtConversation(conduitGroup)
+        val show = WhereYouAtConversation(this, conduitGroup)
         puppetMaster.startShow(show)
     }
 

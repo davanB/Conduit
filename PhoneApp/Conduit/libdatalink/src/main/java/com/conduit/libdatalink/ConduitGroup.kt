@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class ConduitGroup internal constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int) {
+open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int) {
     val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
 
     init {
@@ -48,7 +48,7 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
         conduitableListeners[payloadType]?.invoke(payloadObject)
     }
 
-    private fun getClassForPayloadType(payloadType: Byte): ConduitableData = when(payloadType) {
+    open fun getClassForPayloadType(payloadType: Byte): ConduitableData = when(payloadType) {
         ConduitableDataTypes.MESSAGE.flag -> ConduitMessage()
         ConduitableDataTypes.GPS_COORDS.flag -> ConduitGpsLocation()
         ConduitableDataTypes.CONNECTION_EVENT.flag -> ConduitConnectionEvent()
