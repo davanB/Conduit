@@ -1,18 +1,25 @@
 package com.conduit.libdatalink
 
 import com.conduit.libdatalink.conduitabledata.*
+import org.omg.CORBA.Object
 import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class ConduitGroup internal constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int) {
+open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int) {
     val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
 
     init {
         openInitialReadPipes(baseAddress, currentClientId)
-        dataLink.addReadListener {
-            originAddress, payloadType, payload ->  onDataReadListener(originAddress, payloadType, payload)
-        }
+        dataLink.addReadListener(object:DataLinkListener {
+            override fun OnReceiveData(originAddress: Int, payloadType: Byte, payload: ByteBuffer?) {
+                onDataReadListener(originAddress, payloadType, payload)
+            }
+
+            override fun OnSerialError(commandId: Byte, payload: ByteArray?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+        })
     }
 
     fun sendAll(data: ConduitableData) {
@@ -48,7 +55,7 @@ class ConduitGroup internal constructor(private val dataLink: DataLinkInterface,
         conduitableListeners[payloadType]?.invoke(payloadObject)
     }
 
-    private fun getClassForPayloadType(payloadType: Byte): ConduitableData = when(payloadType) {
+    open fun getClassForPayloadType(payloadType: Byte): ConduitableData = when(payloadType) {
         ConduitableDataTypes.MESSAGE.flag -> ConduitMessage()
         ConduitableDataTypes.GPS_COORDS.flag -> ConduitGpsLocation()
         ConduitableDataTypes.CONNECTION_EVENT.flag -> ConduitConnectionEvent()

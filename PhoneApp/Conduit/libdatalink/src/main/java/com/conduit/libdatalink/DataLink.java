@@ -21,6 +21,8 @@ public class DataLink implements DataLinkInterface {
     private List<DataLinkListener> dataLinkObservers = new ArrayList<DataLinkListener>();
 
     private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
+    private BlockingQueue<SerialPacket> inFlightQueue = new LinkedBlockingQueue<SerialPacket>();
+    private BlockingQueue<SerialPacket> retryQueue = new LinkedBlockingQueue<SerialPacket>();
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
     private Map<Byte, NetworkPacketParser> networkPacketParsers = new HashMap<Byte, NetworkPacketParser>();
 
@@ -124,7 +126,11 @@ public class DataLink implements DataLinkInterface {
                 while (true) {
                     // wait till safe to send, then send single packet
                     txOkSem.acquire();
-                    consume(processingQueue.take());
+                    if (!retryQueue.isEmpty()) {
+                        consume(retryQueue.take());
+                    } else {
+                        consume(processingQueue.take());
+                    }
                 }
             } catch (InterruptedException ex) {
                 System.out.println(ex);
@@ -133,6 +139,7 @@ public class DataLink implements DataLinkInterface {
 
         void consume(SerialPacket packet) {
             statsCollector.serialPacketTx(packet);
+            inFlightQueue.add(packet);
             usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
         }
     }
@@ -155,6 +162,14 @@ public class DataLink implements DataLinkInterface {
         for(DataLinkListener observer: dataLinkObservers) {
             if(observer != null ) {
                 observer.OnReceiveData(originAddress, payloadType, payload);
+            }
+        }
+    }
+
+    private void notifyDataLinkObservers(byte commandId, byte[] payload) {
+        for(DataLinkListener observer: dataLinkObservers) {
+            if(observer != null ) {
+                observer.OnSerialError(commandId, payload);
             }
         }
     }
@@ -204,20 +219,34 @@ public class DataLink implements DataLinkInterface {
                     } else {
                         // This packet came from the Arduino
 
+                        // Action on packet status
+                        if (serialPacket.getStatus() == STATUS_SUCCESS) {
+
+                            switch (serialPacket.getCommandId()) {
+                                case COMMAND_WRITE:
+                                    ByteBuffer serialPacketPayload = serialPacket.getPacketPayload();
+                                    statsCollector.networkTxComplete(serialPacketPayload.getInt());
+                                    serialPacketPayload.getShort(); // ACK value from remote
+                                    break;
+                            }
+
+                        } else if (serialPacket.getStatus() == STATUS_FAILURE) {
+
+                            switch (serialPacket.getCommandId()) {
+                                case COMMAND_WRITE:
+                                    // Apply serial packet retry policy
+                                    // TODO: This only works with MAX_PACKETS_IN_FLIGHT == 1
+                                    retryQueue.put(inFlightQueue.take());
+                                    break;
+                            }
+
+                            // We only notify on failed operations - success have too much noise
+                            notifyDataLinkObservers(serialPacket.getCommandId(), payload);
+                        }
+
                         // This is an ACK SerialPacket for some command - OK to send next command
                         txOkSem.release();
 
-                        switch (serialPacket.getCommandId()) {
-                            case COMMAND_WRITE:
-                                ByteBuffer serialPacketPayload = serialPacket.getPacketPayload();
-                                statsCollector.networkTxComplete(serialPacketPayload.getInt());
-                                serialPacketPayload.getShort(); // ACK value from remote
-                                break;
-                        }
-
-                        // TODO: Handle SerialPackets from Arduino
-                        // TODO: Update this to return generic byte[] data as well
-                        // if (dataLinkListener != null) dataLinkListener.OnReceiveData(0, (byte)0, ByteBuffer.wrap(payload));
                     }
                 }
 
