@@ -29,7 +29,8 @@ class ConduitActivity : AppCompatActivity() {
     private var viewPager: ViewPager by Delegates.notNull()
     private val subscribedDataTypes = listOf(
             ConduitableDataTypes.MESSAGE,
-            ConduitableDataTypes.GPS_COORDS
+            ConduitableDataTypes.GPS_COORDS,
+            ConduitableDataTypes.IMAGE
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
