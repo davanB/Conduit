@@ -15,14 +15,15 @@ import static com.conduit.libdatalink.internal.SerialPacket.*;
 
 public class DataLink implements DataLinkInterface {
 
-    private static final int MAX_PACKETS_IN_FLIGHT = ARDUINO_SERIAL_RX_BUFFER_SIZE / SerialPacket.PACKET_SIZE;
+//    private static final int MAX_PACKETS_IN_FLIGHT = ARDUINO_SERIAL_RX_BUFFER_SIZE / SerialPacket.PACKET_SIZE;
+    private static final int MAX_PACKETS_IN_FLIGHT = 1;
 
     private UsbDriverInterface usbDriver;
     private List<DataLinkListener> dataLinkObservers = new ArrayList<DataLinkListener>();
 
     private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
-    private BlockingQueue<SerialPacket> inFlightQueue = new LinkedBlockingQueue<SerialPacket>();
-    private BlockingQueue<SerialPacket> retryQueue = new LinkedBlockingQueue<SerialPacket>();
+    private SerialPacket inFlightPacket = null;
+    private SerialPacket retryPacket = null;
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
     private Map<Byte, NetworkPacketParser> networkPacketParsers = new HashMap<Byte, NetworkPacketParser>();
 
@@ -126,8 +127,10 @@ public class DataLink implements DataLinkInterface {
                 while (true) {
                     // wait till safe to send, then send single packet
                     txOkSem.acquire();
-                    if (!retryQueue.isEmpty()) {
-                        consume(retryQueue.take());
+                    if (retryPacket != null) {
+                        System.out.println("Retrying SerialPacket!");
+                        consume(retryPacket);
+                        retryPacket = null;
                     } else {
                         consume(processingQueue.take());
                     }
@@ -139,7 +142,7 @@ public class DataLink implements DataLinkInterface {
 
         void consume(SerialPacket packet) {
             statsCollector.serialPacketTx(packet);
-            inFlightQueue.add(packet);
+            inFlightPacket = packet;
             usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
         }
     }
@@ -236,7 +239,8 @@ public class DataLink implements DataLinkInterface {
                                 case COMMAND_WRITE:
                                     // Apply serial packet retry policy
                                     // TODO: This only works with MAX_PACKETS_IN_FLIGHT == 1
-                                    retryQueue.put(inFlightQueue.take());
+                                    retryPacket = inFlightPacket;
+                                    inFlightPacket = null;
                                     break;
                             }
 
