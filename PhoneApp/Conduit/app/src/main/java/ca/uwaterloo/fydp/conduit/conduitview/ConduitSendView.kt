@@ -1,6 +1,7 @@
 package ca.uwaterloo.fydp.conduit.conduitview
 
 import android.content.Context
+import android.content.Intent
 import android.util.AttributeSet
 import android.view.View
 import android.widget.*
@@ -11,6 +12,12 @@ import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 import java.security.AccessController.getContext
 import kotlin.properties.Delegates
+import android.support.v4.app.ActivityCompat.startActivityForResult
+import android.content.Intent.CATEGORY_OPENABLE
+import android.content.Intent.ACTION_GET_CONTENT
+import android.graphics.Bitmap
+import ca.uwaterloo.fydp.conduit.ConduitImage
+
 
 class ConduitSendView @JvmOverloads constructor(
         context: Context,
@@ -21,6 +28,7 @@ class ConduitSendView @JvmOverloads constructor(
 
     // trigger this when the user hits send
     var sendDelegate: ((ConduitableData)->Unit)? = null
+    var requestImageDelegate: (() -> Unit)? = null
 
     init{
         inflate(getContext(), R.layout.conduit_send_view, this)
@@ -30,6 +38,15 @@ class ConduitSendView @JvmOverloads constructor(
             sendDelegate?.invoke(ConduitMessage(textToSend))
         }
 
+        findViewById<Button>(R.id.send_image_button).setOnClickListener {
+            requestImageDelegate?.invoke()
+        }
+
     }
+
+    fun imageSelected(bitmap: Bitmap) {
+        sendDelegate?.invoke(ConduitImage(bitmap))
+    }
+
 
 }
