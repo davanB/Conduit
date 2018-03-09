@@ -41,15 +41,16 @@ class ConduitActivity : AppCompatActivity() {
     private var viewPager: ViewPager by Delegates.notNull()
     private val subscribedDataTypes = listOf(
             ConduitableDataTypes.MESSAGE,
-            ConduitableDataTypes.GPS_COORDS
+            ConduitableDataTypes.GPS_COORDS,
+            ConduitableDataTypes.IMAGE
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conduit)
 
-        conduitListView = ConduitListView(this)
-        conduitListView.data = conduitDataReceived
+        conduitListView = ConduitListView(this, conduitDataReceived)
+//        conduitListView.data = conduitDataReceived
 
         conduitStatusView = ConduitStatusView(this)
         conduitStatusView.data = conduitDataReceived
