@@ -7,4 +7,5 @@ This listener can be implemented in any class which needs high-level data. Contr
 */
 public interface DataLinkListener {
     void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload);
+    void OnSerialError(byte commandId, byte[] payload);
 }
