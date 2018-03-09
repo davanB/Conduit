@@ -61,28 +61,6 @@ public class Main {
         if (portNumber == -1) portNumber = in.nextInt();
 
         dataLink = new DataLink(new UsbDriver(serialPorts.get(portNumber)));
-//        dataLink.addReadListener(new DataLinkListener() {
-//            @Override
-//            public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
-//                byte[] buf = new byte[payload.remaining()];
-//                payload.get(buf);
-//
-//                switch (payloadType) {
-//                    case PACKET_TYPE_DEBUG_IMAGE:
-//                        File fi = new File("tmp/" + System.currentTimeMillis() + ".jpg");
-//                        fi.getParentFile().mkdirs();
-//                        try {
-//                            Files.write(fi.toPath(), buf);
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                        break;
-//                    default:
-//                        System.out.println(String.format("0x%08X %1s", originAddress, new String(buf)));
-//                        break;
-//                }
-//            }
-//        });
 
 //        connect();
 //        sendString();
@@ -159,11 +137,12 @@ public class Main {
             remote = addrA;
         }
 //        System.out.println("This is radio A");
-//        dataLink.openWritingPipe(0xABCDEF0D);
-//        dataLink.openReadingPipe((byte)1, 0xABCDEF04);
+//        dataLink.openWritingPipe(0xABCDEF01);
+//        dataLink.openReadingPipe((byte)1, 0xABCDEF10);
 //        remote = addrA;
 
         System.out.println("Ready to Tx/Rx");
+        addDataLinkListener();
     }
 
     private static void sendString() {
@@ -280,5 +259,35 @@ public class Main {
             }
         }
         return ports;
+    }
+
+    private static void addDataLinkListener() {
+        dataLink.addReadListener(new DataLinkListener() {
+            @Override
+            public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
+                byte[] buf = new byte[payload.remaining()];
+                payload.get(buf);
+
+                switch (payloadType) {
+                    case PACKET_TYPE_DEBUG_IMAGE:
+                        File fi = new File("tmp/" + System.currentTimeMillis() + ".jpg");
+                        fi.getParentFile().mkdirs();
+                        try {
+                            Files.write(fi.toPath(), buf);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    default:
+                        System.out.println(String.format("0x%08X %1s", originAddress, new String(buf)));
+                        break;
+                }
+            }
+
+            @Override
+            public void OnSerialError(byte commandId, byte[] payload) {
+                System.out.println("[Main] Serial Packet Error");
+            }
+        });
     }
 }
