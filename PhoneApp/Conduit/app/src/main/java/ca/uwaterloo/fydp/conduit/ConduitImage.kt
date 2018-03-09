@@ -20,14 +20,15 @@ class ConduitImage() : ConduitableData() {
     }
 
     override fun populateFromPayload(payload: ByteBuffer) {
-        val payloadBytes = payload.array()
+        val payloadBytes = ByteArray(payload.remaining())
+        payload.get(payloadBytes)
         image = BitmapFactory.decodeByteArray(payloadBytes, 0, payloadBytes.size)
     }
 
 
     override fun getPayload(): ByteBuffer {
         val stream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        image.compress(Bitmap.CompressFormat.PNG, 100, stream)
         val byteArray = stream.toByteArray()
         return ByteBuffer.wrap(byteArray)
     }
