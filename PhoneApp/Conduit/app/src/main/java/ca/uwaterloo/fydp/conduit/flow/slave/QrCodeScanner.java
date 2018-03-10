@@ -52,7 +52,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
 
         if(AppConstants.PUPPET_MASTER_ENABLED) {
             PuppetMaster puppetMaster = new PuppetMaster();
-            PuppetShow simulateQrScan = new BootstrappingQRCodeScanned(this, ConduitManager.getConduitGroup(0,0));
+            PuppetShow simulateQrScan = new BootstrappingQRCodeScanned(this, ConduitManager.getConduitGroup(0,0,6));
             puppetMaster.startShow(simulateQrScan);
             return;
         }
@@ -102,9 +102,10 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
         Log.v("YEET", "Handshake data recv'd! " + parsedHandshakeData);
         final int assignedUserId = parsedHandshakeData.mFriendAddress & 0x000000FF ;
         final int masterAddress = parsedHandshakeData.mMasterAddress;
+        final int groupSize = parsedHandshakeData.mGroupSize;
         final String groupName = parsedHandshakeData.mGroupName;
 
-        final ConduitGroup group = ConduitManager.getConduitGroup(masterAddress, assignedUserId);
+        final ConduitGroup group = ConduitManager.getConduitGroup(masterAddress, assignedUserId, groupSize);
 
         // Inform the master of our info
         group.send(0, new ConduitConnectionEvent(assignedUserId, currentUserName));

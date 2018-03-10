@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         setUpTextBoxes();
         setUpSendButton();
 
-        conduitGroup = ConduitManager.getConduitGroup(900, 2);
+        conduitGroup = ConduitManager.getConduitGroup(900, 2, 6);
         conduitGroup.addConduitableDataListener(ConduitableDataTypes.MESSAGE, new Function1<ConduitableData, Unit>() {
             @Override
             public Unit invoke(ConduitableData conduitableData) {
