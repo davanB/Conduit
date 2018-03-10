@@ -43,19 +43,19 @@ public class ConduitManager {
 
     private static ConduitGroup conduitGroup;
 
-    public static ConduitGroup getConduitGroup(int baseAddress, int clientId) {
+    public static ConduitGroup getConduitGroup(int baseAddress, int clientId, int groupSize) {
         if (driver == null || dataLink == null) {
             throw new IllegalStateException("Driver not initialized");
         }
 
         if(conduitGroup == null ) {
-            conduitGroup = new AndroidConduitGroup(dataLink, baseAddress, clientId);
+            conduitGroup = new AndroidConduitGroup(dataLink, baseAddress, clientId, groupSize);
         }
         return conduitGroup;
     }
 
     public static ConduitGroup getConduitGroup(ConduitLedger ledger) {
-        return getConduitGroup(ledger.getGroupAddress(), ledger.getCurrentUserId());
+        return getConduitGroup(ledger.getGroupAddress(), ledger.getCurrentUserId(), ledger.getGroupSize());
     }
 
     public static ConduitLedger getLedger() {

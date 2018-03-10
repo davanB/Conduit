@@ -7,7 +7,7 @@ import com.conduit.libdatalink.conduitabledata.ConduitGroupData
 import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 
-class AndroidConduitGroup(dataLink: DataLinkInterface, baseAddress: Int, currentClientId: Int) : ConduitGroup(dataLink, baseAddress, currentClientId) {
+class AndroidConduitGroup(dataLink: DataLinkInterface, baseAddress: Int, currentClientId: Int, groupSize: Int) : ConduitGroup(dataLink, baseAddress, currentClientId, groupSize) {
     override fun getClassForPayloadType(payloadType: Byte): ConduitableData {
         if (payloadType == ConduitableDataTypes.IMAGE.flag) {
             return ConduitImage()

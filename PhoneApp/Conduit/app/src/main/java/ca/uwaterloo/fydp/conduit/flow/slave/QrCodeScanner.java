@@ -50,7 +50,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
 
         // Use this to simulate reading a QR code (it will trigger the onResult event for you with data)
 
-        if(!AppConstants.PUPPET_MASTER_ENABLED) {
+        if(AppConstants.PUPPET_MASTER_ENABLED) {
             PuppetMaster puppetMaster = new PuppetMaster();
             PuppetShow simulateQrScan = new BootstrappingQRCodeScanned(this, ConduitManager.getConduitGroup(0,0));
             puppetMaster.startShow(simulateQrScan);

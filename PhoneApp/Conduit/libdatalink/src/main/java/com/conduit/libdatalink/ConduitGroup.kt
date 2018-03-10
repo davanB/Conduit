@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int) {
+open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int, val groupSize: Int) {
     val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
 
     init {
@@ -22,7 +22,7 @@ open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val
 
     fun sendAll(data: ConduitableData) {
         val allClientIds:ArrayList<Int> = ArrayList()
-        allClientIds += 0..5
+        allClientIds += 0..(groupSize-1)
         val clientIdsToSendto = allClientIds.filter{ it != currentClientId }
         clientIdsToSendto.forEach{
             send(it, data)
@@ -72,13 +72,13 @@ open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val
 
         // list of all possible clientIds
         val allClientIds:ArrayList<Int> = ArrayList()
-        allClientIds += 0..5
+        allClientIds += 0..(groupSize-1)
 
         // filter self out
         val clientIdsToReadFrom = allClientIds.filter{ it != currentClientId }
 
         // pipes should be numbered from 1 to 5
-        (1..5).zip(clientIdsToReadFrom).forEach{
+        (1..(groupSize - 1)).zip(clientIdsToReadFrom).forEach{
             (pipeNumber, clientId) ->
             run {
                 dataLink.openReadingPipe(pipeNumber.toByte(), ConduitGroupHelper.getFullAddress(baseAddress, currentClientId, clientId))
