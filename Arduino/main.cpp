@@ -100,12 +100,12 @@ void openReadingPipe() {
         return;
     }
 
-    addresses[pipeNumber] = inPacket->payload[4];
+    addresses[pipeNumber] = inPacket->payload[4] & 0x0F;
     radio.openReadingPipe(pipeNumber, address);
     radio.startListening();
 
     SerialPacket packet = SerialPacket(COMMAND_OPEN_READING_PIPE, STATUS_SUCCESS);
-    sprintf(packet.payload, "RP 0x%08lx\n", *((uint32_t *) address));
+    sprintf(packet.payload, "RP %d %d 0x%08lx\n", pipeNumber, addresses[pipeNumber], *((uint32_t *) address));
     packet.write();
 }
 

@@ -95,8 +95,8 @@ public class DataLink implements DataLinkInterface {
             System.out.println("[DataLink] Registered Group Address " + String.format("0x%08X", groupAddress));
         }
 
-        // Create a new packetparser for this address
-        byte lsb = (byte)(address & 0x000000FF);
+        // Create a new packetparser for remote CLIENT
+        byte lsb = (byte)(address & 0x0000000F);
         networkPacketParsers.put(lsb, new NetworkPacketParser());
 
         byte a[] = Utils.intToBytes(address);
@@ -201,7 +201,7 @@ public class DataLink implements DataLinkInterface {
                         if (networkPacketParser == null) {
                             System.out.println("[DataLink] [Error] Received data from unexpected address " + String.format(
                                     "0x%08X",
-                                    (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource())
+                                    (0xFFFFFF00 & groupAddress) | (0x0000000F & serialPacket.getSource())
                             ));
                             return;
                         }
@@ -213,7 +213,7 @@ public class DataLink implements DataLinkInterface {
 
                             NetworkPacket networkPacket = networkPacketParser.getPacket();
                             notifyDataLinkObservers(
-                                    (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource()), // Combine group and source to get address
+                                    (0xFFFFFF00 & groupAddress) | (0x0000000F & serialPacket.getSource()), // Combine group and client id to get address
                                     networkPacket.getPayloadType(),
                                     networkPacket.getPacketPayload()
                             );
