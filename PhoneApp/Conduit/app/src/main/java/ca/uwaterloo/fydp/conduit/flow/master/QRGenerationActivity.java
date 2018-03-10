@@ -87,9 +87,11 @@ public class QRGenerationActivity extends Activity{
 
         // TODO: The following code is being used for debug purposes
         // Fire off the events using puppetmaster to simulate users joining the room
-        PuppetMaster puppetMaster = new PuppetMaster();
-        PuppetShow simulateConduitConnectionEvents = new BootstrappingConnectionEventsIncoming(conduitGroup);
-        puppetMaster.startShow(simulateConduitConnectionEvents);
+        if (AppConstants.PUPPET_MASTER_ENABLED) {
+            PuppetMaster puppetMaster = new PuppetMaster();
+            PuppetShow simulateConduitConnectionEvents = new BootstrappingConnectionEventsIncoming(conduitGroup);
+            puppetMaster.startShow(simulateConduitConnectionEvents);
+        }
 
         // display the first code
         nextCode();
