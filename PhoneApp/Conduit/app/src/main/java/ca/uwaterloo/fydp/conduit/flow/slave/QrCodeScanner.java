@@ -93,7 +93,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
         mScannerView.stopCamera();
 
         HandShakeData parsedHandshakeData = new HandShakeData(Integer.parseInt(values[0]), Integer.parseInt(values[1]), values[2], Integer.parseInt(values[3]), values[4]);
-        DataTransformation.setSecretKey(values[3]);
+        DataTransformation.setSecretKey(values[4]);
 
         performConduitEvents(parsedHandshakeData);
     }
