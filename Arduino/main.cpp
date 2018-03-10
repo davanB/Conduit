@@ -17,7 +17,7 @@ uint8_t currentReadPipe = 0;
 uint8_t addresses[NUM_READ_PIPES + 1];
 
 void setup() {
-    Serial.begin(57600);
+    Serial.begin(115200);
     inPacket = new SerialPacket();
 
     radio.begin();
