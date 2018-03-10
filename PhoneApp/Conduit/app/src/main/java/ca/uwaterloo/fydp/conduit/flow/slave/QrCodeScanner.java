@@ -87,12 +87,13 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
         // values[0] = master address
         // values[1] = friend address
         // values[2] = group name
-        // values[3] = password
+        // values[3] = group size
+        // values[4] = password
 
         mScannerView.stopCamera();
 
-        HandShakeData parsedHandshakeData = new HandShakeData(Integer.parseInt(values[0]),Integer.parseInt(values[1]), values[2], values[3]);
-        DataTransformation.setSecretKey(values[3]);
+        HandShakeData parsedHandshakeData = new HandShakeData(Integer.parseInt(values[0]), Integer.parseInt(values[1]), values[2], Integer.parseInt(values[3]), values[4]);
+        DataTransformation.setSecretKey(values[4]);
 
         performConduitEvents(parsedHandshakeData);
     }
@@ -145,8 +146,10 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
 
 
         // User this to simulate group data event firing with data
-        PuppetMaster puppetMaster = new PuppetMaster();
-        PuppetShow simulateQrScan = new BootstrappingGroupDataIncoming(group);
-        puppetMaster.startShow(simulateQrScan);
+        if(AppConstants.PUPPET_MASTER_ENABLED) {
+            PuppetMaster puppetMaster = new PuppetMaster();
+            PuppetShow simulateQrScan = new BootstrappingGroupDataIncoming(group);
+            puppetMaster.startShow(simulateQrScan);
+        }
     }
 }

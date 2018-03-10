@@ -25,6 +25,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import ca.uwaterloo.fydp.conduit.AppConstants
 import ca.uwaterloo.fydp.conduit.conduitview.ConduitActivity
 import kotlin.properties.Delegates
 
@@ -65,18 +66,18 @@ class DistributeGroupDataActivity : AppCompatActivity() {
             }
         }
 
-        for (i in 0..ConduitManager.getLedger().groupSize) {
-            val ledger: ConduitLedger = ConduitManager.getLedger()
-            val groupData = ConduitGroupData(ledger.groupName, ledger.groupSize, ledger.getGroupMemberNamesList())
-            conduitGroup.send(i, groupData)
-        }
-
+        // Send ledger and group info to the group
+        val ledger: ConduitLedger = ConduitManager.getLedger()
+        val groupData = ConduitGroupData(ledger.groupName, ledger.groupSize, ledger.getGroupMemberNamesList())
+        conduitGroup.sendAll(groupData)
 
 
         // TODO: The following code is being used for debug purposes
-        val puppetMaster = PuppetMaster()
-        val simulateConduitResponseEvents = BootstrappingDataReceivedEventsIncoming(conduitGroup)
-        puppetMaster.startShow(simulateConduitResponseEvents)
+        if(AppConstants.PUPPET_MASTER_ENABLED) {
+            val puppetMaster = PuppetMaster()
+            val simulateConduitResponseEvents = BootstrappingDataReceivedEventsIncoming(conduitGroup)
+            puppetMaster.startShow(simulateConduitResponseEvents)
+        }
 
     }
 
