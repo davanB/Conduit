@@ -25,6 +25,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import ca.uwaterloo.fydp.conduit.AppConstants
 import ca.uwaterloo.fydp.conduit.conduitview.ConduitActivity
 import kotlin.properties.Delegates
 
@@ -74,9 +75,11 @@ class DistributeGroupDataActivity : AppCompatActivity() {
 
 
         // TODO: The following code is being used for debug purposes
-        val puppetMaster = PuppetMaster()
-        val simulateConduitResponseEvents = BootstrappingDataReceivedEventsIncoming(conduitGroup)
-        puppetMaster.startShow(simulateConduitResponseEvents)
+        if(AppConstants.PUPPET_MASTER_ENABLED) {
+            val puppetMaster = PuppetMaster()
+            val simulateConduitResponseEvents = BootstrappingDataReceivedEventsIncoming(conduitGroup)
+            puppetMaster.startShow(simulateConduitResponseEvents)
+        }
 
     }
 
