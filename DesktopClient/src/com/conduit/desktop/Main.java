@@ -113,29 +113,49 @@ public class Main {
 
     private static void connect() {
         // Only the last byte should differ
-        int addrA = 0xABCDEF01; // Me
-        int addrB = 0xABCDEF04;
+//        int addrA = 0xABCDEF01; // Me
+//        int addrB = 0xABCDEF04;
+
+        int addrA = 0xABCDEF00; // Me
+        int addrB = 0xABCDEF20;
+
 //        int addrA = 0xABCDEF27; // Me
 //        int addrB = 0xABCDEF13;
 
         // Assuming ports are off by one
         if (portNumber % 2 == 0) {
             System.out.println("This is radio A");
-            dataLink.openReadingPipe((byte)1, addrB);
-            dataLink.openReadingPipe((byte)2, 0xABCDEF06);
-            dataLink.openReadingPipe((byte)3, 0xABCDEF07);
-            dataLink.openReadingPipe((byte)4, 0xABCDEF08);
-//            dataLink.openReadingPipe((byte)5, 0xABCDEF09);
-            dataLink.openWritingPipe(addrA);
+//            dataLink.openReadingPipe((byte)1, 0xABCDEF00);
+            dataLink.openReadingPipe((byte)1, 0xABCDEF01);
+            dataLink.openReadingPipe((byte)2, 0xABCDEF02);
+            dataLink.openReadingPipe((byte)3, 0xABCDEF03);
+            dataLink.openReadingPipe((byte)4, 0xABCDEF04);
+            dataLink.openReadingPipe((byte)5, 0xABCDEF05);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            dataLink.openWritingPipe(0xABCDEF20);
             remote = addrB;
         } else {
             System.out.println("This is radio B");
-            dataLink.openReadingPipe((byte)1, addrA);
-            dataLink.openReadingPipe((byte)2, 0xABCDEF06);
-            dataLink.openReadingPipe((byte)3, 0xABCDEF07);
-            dataLink.openReadingPipe((byte)4, 0xABCDEF08);
-//            dataLink.openReadingPipe((byte)5, 0xABCDEF09);
-            dataLink.openWritingPipe(addrB);
+            dataLink.openReadingPipe((byte)1, 0xABCDEF20);
+            dataLink.openReadingPipe((byte)2, 0xABCDEF21);
+            dataLink.openReadingPipe((byte)3, 0xABCDEF23);
+            dataLink.openReadingPipe((byte)4, 0xABCDEF24);
+            dataLink.openReadingPipe((byte)5, 0xABCDEF25);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            dataLink.openWritingPipe(0xABCDEF01);
+//            dataLink.openWritingPipe(0xABCDEF02); // TODO: WHY? This breaks.
             remote = addrA;
         }
 //        System.out.println("This is radio A");
