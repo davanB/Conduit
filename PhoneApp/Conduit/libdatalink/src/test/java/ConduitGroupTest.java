@@ -67,7 +67,7 @@ public class ConduitGroupTest {
                 addressessRecvd.add(address);
             }
         };
-        ConduitGroup group = new ConduitGroup(mockDataLink, 0xABCDEF00, 3);
+        ConduitGroup group = new ConduitGroup(mockDataLink, 0xABCDEF00, 3, 6);
 
         Assert.assertEquals(pipeNumbersExpected, pipeNumbersRecvd);
         Assert.assertEquals(addressessExpected, addressessRecvd);
