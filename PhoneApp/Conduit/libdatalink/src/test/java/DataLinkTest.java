@@ -61,7 +61,7 @@ public class DataLinkTest {
 
         final String DATA = "Hello World";
 
-        dataLink.openReadingPipe((byte)0, 0xAABBCCDD);
+        dataLink.openReadingPipe((byte)0, 0xAABBCC0D);
         dataLink.write((byte) 0, DATA.getBytes());
 
         // Need to wait for callback to complete
@@ -87,11 +87,11 @@ public class DataLinkTest {
         // Addresses must differ by the LSB only
         final int[] ADDRESSES = new int[] {
                 0xAABBCC01,
-                0xAABBCC22,
-                0xAABBCC43,
-                0xAABBCC64,
-                0xAABBCC85,
-                0xAABBCC96
+                0xAABBCC02,
+                0xAABBCC03,
+                0xAABBCC04,
+                0xAABBCC05,
+                0xAABBCC06
         };
 
         final CountDownLatch lock = new CountDownLatch(ADDRESSES.length);
@@ -108,6 +108,7 @@ public class DataLinkTest {
 
             @Override
             public void OnSerialError(byte commandId, byte[] payload) {
+                System.out.println("ERROR");
             }
         };
         dataLink.addReadListener(listener);
@@ -119,7 +120,7 @@ public class DataLinkTest {
         }
 
         // Need to wait for callback to complete
-        lock.await(2000, TimeUnit.MILLISECONDS);
+        lock.await(6000, TimeUnit.MILLISECONDS);
 
         assertEquals(ADDRESSES.length, outputAddresses.size());
 
