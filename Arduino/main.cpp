@@ -23,8 +23,6 @@ void setup() {
     radio.begin();
     radio.setAddressWidth(4); // 4 bytes
     radio.setAutoAck(true);
-    radio.enableAckPayload();
-    radio.enableDynamicPayloads();
     // radio.setPALevel(RF24_PA_LOW);
     // radio.setDataRate(RF24_250KBPS);
     radio.setRetries(15,15);
@@ -113,28 +111,18 @@ void writeRadio() {
     radio.stopListening(); //TODO: Evaluate effect on dropped packets
     uint32_t start = micros();
     uint32_t delta = 0;
-    uint8_t ack_buffer = 0;
 
     // Write buffer to radio
-    if (radio.write(inPacket->payload, PAYLOAD_SIZE)) {
-        if (radio.isAckPayloadAvailable()) {
-            // Get ACK payload and stop timing
-            radio.read(&ack_buffer, sizeof(uint8_t));
-            delta = micros() - start;
+    if (radio.writeFast(inPacket->payload, PAYLOAD_SIZE)) {
+        delta = micros() - start;
 
-            // Send ACK response and timing delta in response (Big Endian Formatted)
-            SerialPacket packet = SerialPacket(COMMAND_WRITE, STATUS_SUCCESS);
-            packet.payload[0] = (uint8_t) ((delta >> 24) & 0xFF);
-            packet.payload[1] = (uint8_t) ((delta >> 16) & 0xFF);
-            packet.payload[2] = (uint8_t) ((delta >> 8)  & 0xFF);
-            packet.payload[3] = (uint8_t) ((delta >> 0)  & 0xFF);
-            packet.payload[4] = (uint8_t) ((ack_buffer >> 8) & 0xFF);
-            packet.payload[5] = (uint8_t) ((ack_buffer >> 0) & 0xFF);
-            packet.write();
-
-        } else {
-            sendError(COMMAND_WRITE, ERROR_ACK_MISS);
-        }
+        // Send ACK response and timing delta in response (Big Endian Formatted)
+        SerialPacket packet = SerialPacket(COMMAND_WRITE, STATUS_SUCCESS);
+        packet.payload[0] = (uint8_t) ((delta >> 24) & 0xFF);
+        packet.payload[1] = (uint8_t) ((delta >> 16) & 0xFF);
+        packet.payload[2] = (uint8_t) ((delta >> 8)  & 0xFF);
+        packet.payload[3] = (uint8_t) ((delta >> 0)  & 0xFF);
+        packet.write();
     } else {
         sendError(COMMAND_WRITE, ERROR_TX_FAIL);
     }
@@ -142,13 +130,9 @@ void writeRadio() {
 }
 
 void readRadio() {
-    uint8_t ack_buffer = 5;
-    radio.writeAckPayload(currentReadPipe, &ack_buffer, sizeof(uint8_t));
-    byte payloadSize = radio.getPayloadSize();
-
     SerialPacket packet = SerialPacket(COMMAND_READ, STATUS_SUCCESS);
     packet.source = addresses[currentReadPipe]; //ADD Client ID
-    radio.read(packet.payload, payloadSize);
+    radio.read(packet.payload, PAYLOAD_SIZE);
     packet.write();
 }
 
