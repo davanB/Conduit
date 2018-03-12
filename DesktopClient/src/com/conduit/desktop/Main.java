@@ -3,10 +3,7 @@ package com.conduit.desktop;
 import com.conduit.libdatalink.ConduitGroup;
 import com.conduit.libdatalink.DataLink;
 import com.conduit.libdatalink.DataLinkListener;
-import com.conduit.libdatalink.conduitabledata.ConduitConnectionEvent;
-import com.conduit.libdatalink.conduitabledata.ConduitMessage;
-import com.conduit.libdatalink.conduitabledata.ConduitableData;
-import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes;
+import com.conduit.libdatalink.conduitabledata.*;
 import com.fazecast.jSerialComm.SerialPort;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -31,7 +28,8 @@ public class Main {
     private static final int ACTION_SERIAL_THROUGHPUT = 3;
     private static final int ACTION_NETWORK_THROUGHPUT = 4;
     private static final int ACTION_CONDUIT_CONNECTION_EVENT = 5;
-    private static final int ACTION_CONDUIT_GROUP_FLOW = 6;
+    private static final int ACTION_CONDUIT_GROUP_CONNECTION_FLOW_M = 6;
+    private static final int ACTION_CONDUIT_GROUP_CONNECTION_FLOW_S = 7;
     private static final int ACTION_STATS = 9;
 
     private static final byte PACKET_TYPE_DEBUG_JUNK = 1;
@@ -73,7 +71,8 @@ public class Main {
             System.out.println(String.format("[%d] Serial Throughput", ACTION_SERIAL_THROUGHPUT));
             System.out.println(String.format("[%d] Network Throughput", ACTION_NETWORK_THROUGHPUT));
             System.out.println(String.format("[%d] CCE", ACTION_CONDUIT_CONNECTION_EVENT));
-            System.out.println(String.format("[%d] Conduit Group Flow", ACTION_CONDUIT_GROUP_FLOW));
+            System.out.println(String.format("[%d] Conduit Group Connection Flow (M)", ACTION_CONDUIT_GROUP_CONNECTION_FLOW_M));
+            System.out.println(String.format("[%d] Conduit Group Connection Flow (S)", ACTION_CONDUIT_GROUP_CONNECTION_FLOW_S));
             System.out.println(String.format("[%d] Dump Stats", ACTION_STATS));
 
             int action = in.nextInt();
@@ -98,8 +97,11 @@ public class Main {
                 case ACTION_CONDUIT_CONNECTION_EVENT:
                     conduitConnectionEvent();
                     break;
-                case ACTION_CONDUIT_GROUP_FLOW:
-                    conduitGroupFlow();
+                case ACTION_CONDUIT_GROUP_CONNECTION_FLOW_M:
+                    conduitGroupFlow(true);
+                    break;
+                case ACTION_CONDUIT_GROUP_CONNECTION_FLOW_S:
+                    conduitGroupFlow(false);
                     break;
                 case ACTION_STATS:
                     dataLink.statsCollector.printStats();
@@ -187,15 +189,15 @@ public class Main {
         clientId++;
     }
 
-    private static void conduitGroupFlow() {
+    private static void conduitGroupFlow(boolean master) {
         int masterClientId = 0;
         int slaveClientId = 1;
 
-        if (portNumber % 2 == 0) {
+        if (master) {
 
             System.out.println("[Master] I am Master");
 
-            ConduitGroup conduitGroup = new ConduitGroup(dataLink, 0xABCDEF00, masterClientId);
+            ConduitGroup conduitGroup = new ConduitGroup(dataLink, 0xABCDEF00, masterClientId, 2);
             conduitGroup.addConduitableDataListener(ConduitableDataTypes.CONNECTION_EVENT, new Function1<ConduitableData, Unit>() {
                 @Override
                 public Unit invoke(ConduitableData conduitableData) {
@@ -220,21 +222,20 @@ public class Main {
 
         } else {
 
-            System.out.println("[Client] My name Jeff");
+            System.out.println("[Client] I am Client");
 
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            ConduitGroup conduitGroup = new ConduitGroup(dataLink, 0xABCDEF00, slaveClientId);
+            ConduitGroup conduitGroup = new ConduitGroup(dataLink, 0xABCDEF00, slaveClientId, 2);
             conduitGroup.addConduitableDataListener(ConduitableDataTypes.MESSAGE, new Function1<ConduitableData, Unit>() {
                 @Override
                 public Unit invoke(ConduitableData conduitableData) {
 
                     System.out.println("[Client] Got Ledger");
-                    conduitGroup.send(masterClientId, new ConduitMessage("Got the Ledger!"));
+
+                    ConduitMessage data = (ConduitMessage) conduitableData;
+//                    conduitableData
+
+                    // let master know that we're ready to go!
+                    conduitGroup.send(0, new ConduitConnectionEvent(slaveClientId, "Aaron"));
 
                     return null;
                 }
@@ -242,7 +243,7 @@ public class Main {
 
             System.out.println("[Client] Sent Connection Event");
             conduitGroup.send(masterClientId, new ConduitConnectionEvent(slaveClientId, "Aaron"));
-
+//            conduitGroup.send(masterClientId, new ConduitConnectionEvent(slaveClientId, "Aaron"));
         }
 
     }
