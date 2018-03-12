@@ -33,12 +33,17 @@ public class DataLink implements DataLinkInterface {
     private Thread consumerThread = new Thread(queueConsumer);
 
     private int groupAddress = -1;
-    public StatsCollector statsCollector = new StatsCollector();
+
+    private StatsCollector statsCollector = new StatsCollector();
 
     public DataLink(UsbDriverInterface usbDriver) {
         this.usbDriver = usbDriver;
         this.usbDriver.setReadListener(usbSerialListener);
         this.consumerThread.start();
+    }
+
+    public String getStats() {
+        return statsCollector.getStats();
     }
 
     public void debugLEDBlink(byte numBlinks) {

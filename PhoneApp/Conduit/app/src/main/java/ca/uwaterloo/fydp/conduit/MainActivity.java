@@ -268,15 +268,6 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_QRsetup) {
-            // launch new intent for QR
-            Intent intent = new Intent(this,QRGenerationActivity.class);
-            startActivity(intent);
-        } else if(id == R.id.action_setup) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }

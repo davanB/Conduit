@@ -88,11 +88,11 @@ public class Main {
                     break;
                 case ACTION_SERIAL_THROUGHPUT:
                     serialThroughput();
-                    dataLink.statsCollector.printStats();
+                    System.out.println(dataLink.getStats());
                     break;
                 case ACTION_NETWORK_THROUGHPUT:
                     networkThroughput();
-                    dataLink.statsCollector.printStats();
+                    System.out.println(dataLink.getStats());
                     break;
                 case ACTION_CONDUIT_CONNECTION_EVENT:
                     conduitConnectionEvent();
@@ -104,7 +104,7 @@ public class Main {
                     conduitGroupFlow(false);
                     break;
                 case ACTION_STATS:
-                    dataLink.statsCollector.printStats();
+                    System.out.println(dataLink.getStats());
                     break;
             }
 

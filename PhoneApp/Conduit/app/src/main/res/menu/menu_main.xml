@@ -2,19 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="ca.uwaterloo.fydp.conduit.MainActivity" >
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+    <item android:id="@+id/action_stats"
+        android:title="@string/action_stats"
         android:orderInCategory="100"
         app:showAsAction="never" />
-
-    <item android:id="@+id/action_setup"
-        android:title="setup"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
-
-    <item android:id="@+id/action_QRsetup"
-        android:title="Generate QR Code"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
-
 </menu>

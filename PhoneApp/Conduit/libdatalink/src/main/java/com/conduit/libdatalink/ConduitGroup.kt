@@ -5,10 +5,14 @@ import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int, val groupSize: Int) {
+open class ConduitGroup constructor(dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int, val groupSize: Int) {
     val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
 
+    var dataLink: DataLinkInterface
+        private set
+
     init {
+        this.dataLink = dataLink
         openInitialReadPipes(baseAddress, currentClientId)
         dataLink.addReadListener(object:DataLinkListener {
             override fun OnReceiveData(originAddress: Int, payloadType: Byte, payload: ByteBuffer?) {

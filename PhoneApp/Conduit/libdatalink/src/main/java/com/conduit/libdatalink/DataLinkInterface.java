@@ -14,4 +14,6 @@ public interface DataLinkInterface {
     void addReadListener(DataLinkListener listener);
 
     void removeReadListener(DataLinkListener listener);
+
+    String getStats();
 }
