@@ -193,7 +193,6 @@ public class DataLink implements DataLinkInterface {
                     SerialPacket serialPacket = serialPacketParser.getPacket();
                     byte[] payload = new byte[serialPacket.getPayloadSize()];
                     serialPacket.getPacketPayload(payload);
-                    statsCollector.serialPacketAck(serialPacket);
 
                     System.out.println("[DataLink] SerialPacket Ready: \n" + serialPacket.toString());
 
@@ -226,6 +225,7 @@ public class DataLink implements DataLinkInterface {
 
                     } else {
                         // This packet came from the Arduino
+                        statsCollector.serialPacketAck(serialPacket);
 
                         // Action on packet status
                         if (serialPacket.getStatus() == STATUS_SUCCESS) {
