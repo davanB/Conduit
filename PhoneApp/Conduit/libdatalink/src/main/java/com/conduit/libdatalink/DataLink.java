@@ -43,7 +43,10 @@ public class DataLink implements DataLinkInterface {
     }
 
     public String getStats() {
-        return statsCollector.getStats();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Queue Length: \t").append(processingQueue.size()).append('\n');
+        sb.append(statsCollector.getStats());
+        return sb.toString();
     }
 
     public void debugLEDBlink(byte numBlinks) {
