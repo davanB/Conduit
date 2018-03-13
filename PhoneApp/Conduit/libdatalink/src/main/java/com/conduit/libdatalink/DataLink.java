@@ -27,6 +27,7 @@ public class DataLink implements DataLinkInterface {
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
     private Map<Byte, NetworkPacketParser> networkPacketParsers = new HashMap<Byte, NetworkPacketParser>();
 
+    private boolean doneReset = false;
 
     final Semaphore txOkSem = new Semaphore(MAX_PACKETS_IN_FLIGHT);
     private QueueConsumer queueConsumer = new QueueConsumer();
@@ -137,6 +138,10 @@ public class DataLink implements DataLinkInterface {
             System.out.println("Starting Datalink Queue Consumer");
             try {
                 while (true) {
+                    if (!doneReset) {
+                        reset();
+                        doneReset = true;
+                    }
                     // wait till safe to send, then send single packet
                     txOkSem.acquire();
                     if (retryPacket != null) {
