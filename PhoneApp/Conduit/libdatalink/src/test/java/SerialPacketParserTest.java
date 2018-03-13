@@ -43,4 +43,26 @@ public class SerialPacketParserTest {
         }
     }
 
+    @Test
+    public void testGarbageHeaderParse() {
+        SerialPacketParser parser = new SerialPacketParser();
+        assertFalse(parser.isPacketReady());
+
+        byte[] PAYLOAD = "Test Payload".getBytes();
+        SerialPacket packet = new SerialPacket(SerialPacket.COMMAND_OPEN_READING_PIPE, SerialPacket.STATUS_SUCCESS, (byte) 2, PAYLOAD);
+
+        // Add some garbage data
+        parser.addBytes(new byte[]{ 12, 32, 12, 1, 2, 4 });
+
+        // Reset - should remove all data
+        parser.reset();
+
+        parser.addBytes(packet.getPacketByteBuffer().array());
+        assertTrue(parser.isPacketReady());
+
+        SerialPacket parserPacket = parser.getPacket();
+        assertArrayEquals(packet.getPacketPayload().array(), parserPacket.getPacketPayload().array());
+    }
+
+
 }

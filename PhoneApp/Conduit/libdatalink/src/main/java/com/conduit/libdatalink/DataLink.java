@@ -42,6 +42,10 @@ public class DataLink implements DataLinkInterface {
         this.consumerThread.start();
     }
 
+    public void reset() {
+        serialPacketParser.reset();
+    }
+
     public String getStats() {
         StringBuilder sb = new StringBuilder();
         sb.append("Queue Length: \t").append(processingQueue.size()).append('\n');

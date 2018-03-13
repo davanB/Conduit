@@ -1,6 +1,9 @@
 package com.conduit.libdatalink;
 
 public interface DataLinkInterface {
+
+    void reset();
+
     void debugLEDBlink(byte numBlinks);
 
     void debugEcho(byte value);
