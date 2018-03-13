@@ -56,6 +56,9 @@
         <activity android:name=".flow.master.DistributeGroupDataActivity" />
         <activity android:name=".flow.slave.GroupJoinActivity" />
         <activity android:name=".LogDumpActivity" />
+        <activity android:name=".StatsViewActivity"
+            android:label="View Debug Stats"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".conduitview.ConduitActivity"></activity>
     </application>
 
