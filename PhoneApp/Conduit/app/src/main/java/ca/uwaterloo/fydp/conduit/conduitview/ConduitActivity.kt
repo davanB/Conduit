@@ -88,6 +88,8 @@ class ConduitActivity : AppCompatActivity() {
 
     private fun conduitSend(data: ConduitableData) {
         conduitGroup.sendAll(data)
+
+        data.originAddress = ConduitManager.getLedger().currentUserId
         onConduitDataReceived(data)
     }
 

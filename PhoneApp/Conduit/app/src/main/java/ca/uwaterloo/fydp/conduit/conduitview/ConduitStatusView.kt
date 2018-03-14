@@ -7,10 +7,13 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import ca.uwaterloo.fydp.conduit.R
+import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
 import com.conduit.libdatalink.conduitabledata.ConduitMessage
 import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
+import kotlinx.android.synthetic.main.conduit_status_view.view.*
+import kotlinx.android.synthetic.main.content_main.view.*
 import java.security.AccessController.getContext
 import kotlin.properties.Delegates
 
@@ -22,26 +25,35 @@ class ConduitStatusView @JvmOverloads constructor(
 ) : RelativeLayout(context, attrs, defStyle, defStyleRes), ConduitView {
     override var data: List<ConduitableData> by Delegates.notNull()
 
-    var textView: TextView by Delegates.notNull()
+    //var textView: TextView by Delegates.notNull()
+    private var idToMessageView: (List<Pair<Int, ConduitStatusMessageView>>) by Delegates.notNull()
     init{
-        inflate(getContext(), R.layout.conduit_list_view, this)
-        textView = findViewById<TextView>(R.id.textview_test)
+        inflate(getContext(), R.layout.conduit_status_view, this)
+        val iconViews = listOf(
+                status_icon_top,
+                status_icon_right,
+                status_icon_bottom,
+                status_icon_left
+        )
+
+        val messageViews = listOf(
+                status_message_top,
+                status_message_right,
+                status_message_bottom,
+                status_message_left
+        )
+
+        val ledger = ConduitManager.getLedger()
+        iconViews.zip(ledger.getGroupMemberNamesList().filter{it != ledger.currentUserName}).forEach{
+            (view, name) -> view.setInformation(name)
+        }
+
+        idToMessageView = (0..4).filter { it != ledger.currentUserId }.zip(messageViews)
     }
 
     override fun notifyDataReceived() {
-        val sb = StringBuilder()
-        data.forEach{
-            when(it.payloadType) {
-                ConduitableDataTypes.MESSAGE -> sb.append((it as ConduitMessage).message)
-                ConduitableDataTypes.GPS_COORDS -> {
-                    it as ConduitGpsLocation
-                    sb.append(it.latitude)
-                    sb.append(it.longitude)
-                }
-                else -> {}
-            }
-            sb.append("\n")
+        idToMessageView.forEach{
+            (id, view) -> view.data = data.findLast { it.originAddress == id }
         }
-        textView.text = sb.toString()
     }
 }
