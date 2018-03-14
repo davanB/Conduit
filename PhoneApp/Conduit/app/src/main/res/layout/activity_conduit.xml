@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_plain"
     android:orientation="vertical"
     tools:context="ca.uwaterloo.fydp.conduit.conduitview.ConduitActivity">
 
@@ -17,7 +18,9 @@
     <ca.uwaterloo.fydp.conduit.conduitview.ConduitSendView
         android:id="@+id/conduit_send_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:background="#88FFFFFF"
+        />
 
 
 </LinearLayout>

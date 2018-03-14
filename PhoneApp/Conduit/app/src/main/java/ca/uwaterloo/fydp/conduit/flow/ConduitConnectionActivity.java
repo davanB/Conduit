@@ -20,7 +20,7 @@ public class ConduitConnectionActivity extends AppCompatActivity {
 
     private final int PERMISSIONS_READ_AND_GPS = 401;
 
-    private AnimationDrawable connectionAnimation;
+   // private AnimationDrawable connectionAnimation;
 
     private final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA};
@@ -46,15 +46,15 @@ public class ConduitConnectionActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-        ImageView connectionImage = findViewById(R.id.conduit_connect_image);
-        connectionImage.setBackgroundResource(R.drawable.connect_animation);
-        connectionAnimation = (AnimationDrawable) connectionImage.getBackground();
+//        ImageView connectionImage = findViewById(R.id.conduit_connect_image);
+//        connectionImage.setBackgroundResource(R.drawable.connect_animation);
+        //connectionAnimation = (AnimationDrawable) connectionImage.getBackground();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        connectionAnimation.start();
+        //connectionAnimation.start();
     }
 
     private boolean requestUserPermissions(String[] Permissions) {
