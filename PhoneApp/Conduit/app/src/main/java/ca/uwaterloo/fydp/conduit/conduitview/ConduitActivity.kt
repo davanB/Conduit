@@ -111,16 +111,22 @@ class ConduitActivity : AppCompatActivity() {
         startActivityForResult(Intent(MediaStore.ACTION_IMAGE_CAPTURE), IMAGE_REQUEST_CAMERA)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent) {
-        if (requestCode == IMAGE_REQUEST_GALLERY && resultCode == Activity.RESULT_OK) {
-            val stream = contentResolver.openInputStream(
-                    intentData.data)
-            val bitmap = BitmapFactory.decodeStream(stream)
-            stream!!.close()
-            conduitSendView.imageSelected(bitmap)
-        } else if (requestCode == IMAGE_REQUEST_CAMERA && resultCode == Activity.RESULT_OK) {
-            val bitmap = intentData.extras.get("data") as Bitmap
-            conduitSendView.imageSelected(bitmap)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent?) {
+
+        if(resultCode == Activity.RESULT_OK && intentData != null){
+            when(requestCode){
+                IMAGE_REQUEST_CAMERA ->{
+                    val bitmap = intentData.extras.get("data") as Bitmap
+                    conduitSendView.imageSelected(bitmap)
+                }
+                IMAGE_REQUEST_GALLERY ->{
+                    val stream = contentResolver.openInputStream(
+                            intentData.data)
+                    val bitmap = BitmapFactory.decodeStream(stream)
+                    stream!!.close()
+                    conduitSendView.imageSelected(bitmap)
+                }
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, intentData)
