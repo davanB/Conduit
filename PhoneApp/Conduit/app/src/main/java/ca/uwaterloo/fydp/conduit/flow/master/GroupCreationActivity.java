@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import ca.uwaterloo.fydp.conduit.AppConstants;
 import ca.uwaterloo.fydp.conduit.R;
@@ -24,7 +25,7 @@ public class GroupCreationActivity extends AppCompatActivity {
     // UI references.
     private TextInputEditText mGroupName;
     private TextInputEditText mUserName;
-    private TextInputEditText mPassword;
+    private String mPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,9 @@ public class GroupCreationActivity extends AppCompatActivity {
         // Set up the group form.
         mGroupName = (TextInputEditText) findViewById(R.id.group_name);
         mUserName = (TextInputEditText) findViewById(R.id.user_name);
-        mPassword = (TextInputEditText) findViewById(R.id.password);
+        Random rand = new Random();
+        Long randomNum = rand.nextLong();
+        mPassword = randomNum.toString();
         final Spinner groupSizeSpinner = findViewById(R.id.group_size_spinner);
 
         List<String> spinnerArray =  new ArrayList<>();
@@ -55,10 +58,10 @@ public class GroupCreationActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), QRGenerationActivity.class);
                 if (isGroupNameValid(mGroupName.getText().toString()) &&
-                        isInputValid(mUserName.getText().toString()) && isInputValid(mPassword.getText().toString())) {
+                        isInputValid(mUserName.getText().toString()) ) {
                     intent.putExtra(AppConstants.GROUP_NAME_KEY, mGroupName.getText().toString());
                     intent.putExtra(AppConstants.USER_NAME_KEY, mUserName.getText().toString());
-                    intent.putExtra(AppConstants.PASSWORD_KEY, mPassword.getText().toString());
+                    intent.putExtra(AppConstants.PASSWORD_KEY, mPassword);
                     intent.putExtra(AppConstants.GROUP_SIZE, Integer.parseInt(groupSizeSpinner.getSelectedItem().toString()));
                     startActivity(intent);
                 }
