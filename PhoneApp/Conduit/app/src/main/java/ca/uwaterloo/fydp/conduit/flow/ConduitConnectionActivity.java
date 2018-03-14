@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.AnimationDrawable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 
 import ca.uwaterloo.fydp.conduit.AppConstants;
@@ -27,6 +29,7 @@ public class ConduitConnectionActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().setExitTransition(null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conduit_connection);
 
@@ -42,13 +45,44 @@ public class ConduitConnectionActivity extends AppCompatActivity {
             ConduitManager.initializeMock();
         }
         if(ConduitManager.getDriver().isConnected()) {
-            Intent intent = new Intent(this, AppModeActivity.class);
-            startActivity(intent);
+
+            if(AppConstants.PUPPET_MASTER_ENABLED){
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                nextActivity();
+                            }
+                        });
+                    }
+                }).start();
+            } else {
+                nextActivity();
+            }
+
+
         }
 
 //        ImageView connectionImage = findViewById(R.id.conduit_connect_image);
 //        connectionImage.setBackgroundResource(R.drawable.connect_animation);
         //connectionAnimation = (AnimationDrawable) connectionImage.getBackground();
+    }
+
+    private void nextActivity() {
+
+        Intent intent = new Intent(this, AppModeActivity.class);
+
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(this, findViewById(R.id.conduit_connect_image), "logo");
+
+        startActivity(intent, options.toBundle());
     }
 
     @Override

@@ -41,8 +41,6 @@ class DistributeGroupDataActivity : AppCompatActivity() {
         responsesReceived[ConduitManager.getLedger().currentUserId] = true
         val conduitGroup = ConduitManager.getConduitGroup(ConduitManager.getLedger())
 
-        val respoTest = findViewById<TextView>(R.id.connection_response_evts)
-
 
         pendingConnectionsView = findViewById<RecyclerView>(R.id.pending_connections)
         pendingConnectionsView.layoutManager = LinearLayoutManager(this)
@@ -56,8 +54,6 @@ class DistributeGroupDataActivity : AppCompatActivity() {
                 responsesReceived[clientId] = true
                 pendingConnectionsAdapter.data = responsesReceived
                 pendingConnectionsAdapter.notifyDataSetChanged()
-
-                respoTest.append(ConduitManager.getLedger().getUserNameForId(clientId) + " has connected\n")
 
                 val finished = responsesReceived.all { it}
                 if (finished) {
@@ -107,8 +103,11 @@ class DistributeGroupDataActivity : AppCompatActivity() {
 
             fun bind(name: String, status: Boolean) = with(itemView) {
                 nameView.text = name
-                val imageId = if (status) android.R.drawable.ic_media_play else R.drawable.connect_animation
-                indicatorView.setImageResource(imageId)
+                val tintColor = if(status) R.color.colorPrimary else R.color.colorAccent
+                indicatorView.setColorFilter(indicatorView.resources.getColor(tintColor))
+//                val imageId = if (status) android.R.drawable.ic_media_play else R.drawable.connect_animation
+//                indicatorView.setImageResource(imageId)
+
             }
         }
     }

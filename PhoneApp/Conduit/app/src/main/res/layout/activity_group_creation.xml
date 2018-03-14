@@ -9,6 +9,7 @@
     android:padding="20dp"
     tools:context="ca.uwaterloo.fydp.conduit.flow.master.GroupCreationActivity">
 
+    <include layout="@layout/conduit_splash_logo_insertion_alt" />
 
     <android.support.design.widget.TextInputEditText
         android:id="@+id/group_name"
@@ -17,7 +18,8 @@
         android:layout_marginBottom="8dp"
         android:inputType="textAutoComplete"
         android:maxLines="1"
-        android:text="@string/prompt_group_name"
+        android:hint="@string/prompt_group_name"
+        android:gravity="center"
         app:layout_constraintBottom_toTopOf="@+id/group_creation_start_button"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/user_name"
@@ -29,8 +31,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:inputType="textPersonName"
+        android:gravity="center"
         android:maxLines="1"
-        android:text="@string/prompt_user_name"
+        android:hint="@string/prompt_user_name"
         app:layout_constraintBottom_toTopOf="@+id/group_creation_start_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/group_name"
@@ -55,17 +58,17 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="-2dp"
         android:text="group size: 2"
+        android:textColor="#444444"
         app:layout_constraintBottom_toTopOf="@+id/group_size_slider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/group_creation_start_button"
-        style="?android:textAppearanceSmall"
+        style="@style/GlassButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/action_start_group"
-        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
