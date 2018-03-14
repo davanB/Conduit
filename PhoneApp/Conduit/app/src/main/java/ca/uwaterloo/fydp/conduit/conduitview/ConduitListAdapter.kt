@@ -21,30 +21,32 @@ import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 class ConduitListAdapter(private val data: List<ConduitableData>) : RecyclerView.Adapter<ConduitListAdapter.BaseViewHolder>() {
 
     abstract class BaseViewHolder(rootView: View) : RecyclerView.ViewHolder(rootView) {
-        abstract fun bind(conduitableData: ConduitableData)
+        val nameTextView = rootView.findViewById<TextView>(R.id.user_name)
+        val dateTextView = rootView.findViewById<TextView>(R.id.time_stamp)
+        open fun bind(conduitableData: ConduitableData) {
+            nameTextView.text = ConduitManager.getLedger().getUserNameForId(conduitableData.originAddress and 0x000000FF)
+            dateTextView.text = "10:24 PM"
+        }
     }
     class MessageViewHolder(val rootView: View) : BaseViewHolder(rootView){
-        val nameTextView = rootView.findViewById<TextView>(R.id.user_name)
         val messageTextView = rootView.findViewById<TextView>(R.id.message)
 
         override fun bind(conduitableData: ConduitableData) {
+            super.bind(conduitableData)
             messageTextView.text = (conduitableData as ConduitMessage).message
-            nameTextView.text = ConduitManager.getLedger().getUserNameForId(conduitableData.originAddress and 0x000000FF) + ": "
         }
     }
     class GPSViewHolder(val rootView: View) : BaseViewHolder(rootView){
         val coord = rootView.findViewById<TextView>(R.id.gps_coord)
-        val nameTextView = rootView.findViewById<TextView>(R.id.user_name)
         override fun bind(conduitableData: ConduitableData) {
+            super.bind(conduitableData)
             coord.text = (conduitableData as ConduitGpsLocation).latitude.toString()
-            nameTextView.text = ConduitManager.getLedger().getUserNameForId(conduitableData.originAddress and 0x000000FF) + ": "
         }
     }
     class ImageViewHolder(rootView: View) : BaseViewHolder(rootView){
-        val nameTextView = rootView.findViewById<TextView>(R.id.user_name)
         val imageView = rootView.findViewById<ImageView>(R.id.image)
         override fun bind(conduitableData: ConduitableData) {
-            nameTextView.text = ConduitManager.getLedger().getUserNameForId(conduitableData.originAddress and 0x000000FF) + ": "
+            super.bind(conduitableData)
             imageView.setImageBitmap((conduitableData as ConduitImage).image)
         }
 
