@@ -1,26 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:orientation="horizontal"
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/send_view_text"
+    <View
         android:layout_width="match_parent"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:hint="enter some text"/>
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
 
-    <Button
-        android:id="@+id/send_view_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send"/>
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
 
-    <Button
-        android:id="@+id/send_image_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="noodz"/>
+        <ImageButton
+            android:id="@+id/insert_emoji_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:text="Location"
+            android:tint="@color/dark_gray"
+            app:srcCompat="@drawable/ic_insert_emoticon_black_48dp" />
+
+        <ImageButton
+            android:id="@+id/send_location_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:text="Location"
+            android:tint="@color/dark_gray"
+            app:srcCompat="@drawable/ic_location_on_black_48dp" />
+
+        <ImageButton
+            android:id="@+id/send_gallery_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:text="Gallery"
+            android:tint="@color/dark_gray"
+            app:srcCompat="@drawable/ic_insert_photo_black_48dp" />
+
+        <ImageButton
+            android:id="@+id/send_camera_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:text="Camera"
+            android:tint="@color/dark_gray"
+            app:srcCompat="@drawable/ic_camera_alt_black_48dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/send_view_text"
+            android:layout_width="135dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_weight="0.75"
+            android:hint="enter some text" />
+
+        <ImageButton
+            android:id="@+id/send_view_button"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:text="Send"
+            android:tint="@color/dark_gray"
+            app:srcCompat="@drawable/ic_send_black_48dp" />
+    </LinearLayout>
 
 </LinearLayout>
