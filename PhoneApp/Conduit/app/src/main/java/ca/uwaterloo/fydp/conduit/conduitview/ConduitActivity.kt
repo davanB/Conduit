@@ -32,6 +32,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toolbar
 import ca.uwaterloo.fydp.conduit.StatsViewActivity
 import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity
 
@@ -52,6 +53,12 @@ class ConduitActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conduit)
+
+        val toolbar = findViewById<android.support.v7.widget.Toolbar>(R.id.customToolBar2)
+
+        setSupportActionBar(toolbar)
+        supportActionBar!!.title = "@string/app_name"
+        supportActionBar!!.setIcon(getDrawable(R.drawable.logo))
 
         conduitListView = ConduitListView(this, conduitDataReceived)
 //        conduitListView.data = conduitDataReceived
