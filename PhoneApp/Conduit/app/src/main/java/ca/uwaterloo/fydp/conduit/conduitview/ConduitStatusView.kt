@@ -48,12 +48,21 @@ class ConduitStatusView @JvmOverloads constructor(
             (view, name) -> view.setInformation(name)
         }
 
+        // if excess views, hide some
+        if(ledger.groupSize - 1 < iconViews.size) {
+            (ledger.groupSize - 1 until iconViews.size ).forEach{
+                iconViews[it].visibility = View.INVISIBLE
+                messageViews[it].visibility = View.INVISIBLE
+            }
+        }
+
+
         idToMessageView = (0..4).filter { it != ledger.currentUserId }.zip(messageViews)
     }
 
     override fun notifyDataReceived() {
         idToMessageView.forEach{
-            (id, view) -> view.data = data.findLast { it.originAddress == id }
+            (id, view) -> view.data = data.findLast { (it.originAddress and 0x0000000F) == id }
         }
     }
 }

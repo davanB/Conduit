@@ -121,8 +121,8 @@ public class QRGenerationActivity extends Activity{
                 Contents.Type.TEXT,
                 BarcodeFormat.QR_CODE.toString(),
                 smallerDimension,
-                getColor(R.color.colorPrimary),
-                getColor(android.R.color.white)
+                getColor(android.R.color.white),
+                getColor(android.R.color.black)
                 );
         try {
             Bitmap bitmap = qrCodeEncoder.encodeAsBitmap();

@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/message_back_left">
 
     <TextView
@@ -11,7 +12,7 @@
         android:layout_gravity="center"
         android:layout_marginRight="16dp"
         android:gravity="center"
-        android:text="tats my barreh" />
+        tools:text="tats my barreh" />
 
     <ImageView
         android:id="@+id/message_image"
