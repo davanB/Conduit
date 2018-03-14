@@ -2,6 +2,7 @@ package ca.uwaterloo.fydp.conduit
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 import java.nio.ByteBuffer
@@ -28,8 +29,9 @@ class ConduitImage() : ConduitableData() {
 
     override fun getPayload(): ByteBuffer {
         val stream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        image.compress(Bitmap.CompressFormat.JPEG, 40, stream)
         val byteArray = stream.toByteArray()
+        Log.i("YEET", "IMAGE SIZE: " + byteArray.size)
         return ByteBuffer.wrap(byteArray)
     }
 }
