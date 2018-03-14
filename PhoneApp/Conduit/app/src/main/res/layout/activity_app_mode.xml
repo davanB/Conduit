@@ -9,11 +9,14 @@
     android:layout_height="match_parent"
     tools:context="ca.uwaterloo.fydp.conduit.flow.AppModeActivity">
 
+    <include layout="@layout/conduit_splash_logo_insertion_alt" />
 
     <Button
         android:id="@+id/startMasterButton"
         android:layout_width="wrap_content"
+        android:minWidth="150dp"
         android:layout_height="wrap_content"
+        style="@style/GlassButton"
         android:layout_marginEnd="8dp"
         android:text="@string/action_start_master_mode"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -26,6 +29,8 @@
         android:id="@+id/startSlaveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="150dp"
+        style="@style/GlassButton"
         android:text="@string/action_start_slave_mode"
         android:textAllCaps="true"
         app:layout_constraintHorizontal_chainStyle="packed"

@@ -45,7 +45,7 @@ public class GroupCreationActivity extends AppCompatActivity {
         groupSizeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                groupSizeReadout.setText(String.valueOf(i));
+                groupSizeReadout.setText("group size: " + i);
             }
 
             @Override

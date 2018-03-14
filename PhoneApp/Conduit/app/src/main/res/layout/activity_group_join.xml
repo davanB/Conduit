@@ -9,6 +9,9 @@
     android:padding="20dp"
     tools:context="ca.uwaterloo.fydp.conduit.flow.slave.GroupJoinActivity">
 
+
+    <include layout="@layout/conduit_splash_logo_insertion_alt" />
+
     <EditText
         android:id="@+id/user_name"
         android:layout_width="match_parent"
@@ -20,6 +23,7 @@
     <Button
         android:id="@+id/join_group"
         android:layout_width="match_parent"
+        style="@style/GlassButton"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_height="wrap_content"
         android:text="join group" />
