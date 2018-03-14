@@ -28,20 +28,34 @@ class ConduitSendView @JvmOverloads constructor(
 
     // trigger this when the user hits send
     var sendDelegate: ((ConduitableData)->Unit)? = null
-    var requestImageDelegate: (() -> Unit)? = null
+    var requestEmojiInsert: (() -> Unit)? = null
+    var requestLocationDelegate: (() -> Unit)? = null
+    var requestGalleryImageDelegate: (() -> Unit)? = null
+    var requestCameraImageDelegate: (() -> Unit)? = null
 
     init{
         inflate(getContext(), R.layout.conduit_send_view, this)
-        findViewById<Button>(R.id.send_view_button).setOnClickListener {
+        findViewById<ImageButton>(R.id.send_view_button).setOnClickListener {
             val editText = findViewById<EditText>(R.id.send_view_text)
             val textToSend = editText.text.toString()
             sendDelegate?.invoke(ConduitMessage(textToSend))
         }
 
-        findViewById<Button>(R.id.send_image_button).setOnClickListener {
-            requestImageDelegate?.invoke()
+        findViewById<ImageButton>(R.id.insert_emoji_button).setOnClickListener {
+            requestEmojiInsert?.invoke()
         }
 
+        findViewById<ImageButton>(R.id.send_location_button).setOnClickListener {
+            requestLocationDelegate?.invoke()
+        }
+
+        findViewById<ImageButton>(R.id.send_gallery_image_button).setOnClickListener {
+            requestGalleryImageDelegate?.invoke()
+        }
+
+        findViewById<ImageButton>(R.id.send_camera_image_button).setOnClickListener {
+            requestCameraImageDelegate?.invoke()
+        }
     }
 
     fun imageSelected(bitmap: Bitmap) {

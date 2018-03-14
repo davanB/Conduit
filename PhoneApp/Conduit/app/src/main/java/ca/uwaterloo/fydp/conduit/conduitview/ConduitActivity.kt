@@ -28,6 +28,8 @@ import android.graphics.BitmapFactory
 import java.io.FileNotFoundException
 import java.io.IOException
 import android.R.attr.bitmap
+import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import ca.uwaterloo.fydp.conduit.StatsViewActivity
@@ -59,7 +61,8 @@ class ConduitActivity : AppCompatActivity() {
 
         conduitSendView = findViewById<ConduitSendView>(R.id.conduit_send_view)
         conduitSendView.sendDelegate = {conduitSend(it)}
-        conduitSendView.requestImageDelegate = {requestImage()}
+        conduitSendView.requestGalleryImageDelegate = {requestGalleryImage()}
+        conduitSendView.requestCameraImageDelegate = {requestCameraImage()}
 
         viewPager = findViewById(R.id.view_pager)
         val viewPagerAdapter = ViewPagerAdapter()
@@ -94,27 +97,34 @@ class ConduitActivity : AppCompatActivity() {
     }
 
 
-    val image_request_code = 1
-    fun requestImage() {
+    val IMAGE_REQUEST_GALLERY = 1
+    fun requestGalleryImage() {
         val intent = Intent()
         intent.setType("image/*")
         intent.setAction(Intent.ACTION_GET_CONTENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
-        startActivityForResult(intent, image_request_code)
+        startActivityForResult(intent, IMAGE_REQUEST_GALLERY)
+    }
+
+    val IMAGE_REQUEST_CAMERA = 2
+    fun requestCameraImage() {
+        startActivityForResult(Intent(MediaStore.ACTION_IMAGE_CAPTURE), IMAGE_REQUEST_CAMERA)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent) {
-        if (requestCode == image_request_code && resultCode == Activity.RESULT_OK) {
+        if (requestCode == IMAGE_REQUEST_GALLERY && resultCode == Activity.RESULT_OK) {
             val stream = contentResolver.openInputStream(
                     intentData.data)
             val bitmap = BitmapFactory.decodeStream(stream)
             stream!!.close()
             conduitSendView.imageSelected(bitmap)
+        } else if (requestCode == IMAGE_REQUEST_CAMERA && resultCode == Activity.RESULT_OK) {
+            val bitmap = intentData.extras.get("data") as Bitmap
+            conduitSendView.imageSelected(bitmap)
         }
 
         super.onActivityResult(requestCode, resultCode, intentData)
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
