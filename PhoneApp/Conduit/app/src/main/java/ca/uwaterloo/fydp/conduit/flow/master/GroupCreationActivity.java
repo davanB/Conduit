@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -37,20 +39,22 @@ public class GroupCreationActivity extends AppCompatActivity {
         Random rand = new Random();
         Long randomNum = rand.nextLong();
         mPassword = randomNum.toString();
-        final Spinner groupSizeSpinner = findViewById(R.id.group_size_spinner);
+        final SeekBar groupSizeSlider = findViewById(R.id.group_size_slider);
+        final TextView groupSizeReadout = findViewById(R.id.group_size_readout);
 
-        List<String> spinnerArray =  new ArrayList<>();
-        spinnerArray.add("1");
-        spinnerArray.add("2");
-        spinnerArray.add("3");
-        spinnerArray.add("4");
-        spinnerArray.add("5");
-        spinnerArray.add("6");
+        groupSizeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                groupSizeReadout.setText(String.valueOf(i));
+            }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, spinnerArray);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        groupSizeSpinner.setAdapter(adapter);
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+
 
         Button mGroupNameButton = (Button) findViewById(R.id.group_creation_start_button);
         mGroupNameButton.setOnClickListener(new OnClickListener() {
@@ -59,10 +63,11 @@ public class GroupCreationActivity extends AppCompatActivity {
                 Intent intent = new Intent(view.getContext(), QRGenerationActivity.class);
                 if (isGroupNameValid(mGroupName.getText().toString()) &&
                         isInputValid(mUserName.getText().toString()) ) {
+                    Toast.makeText(GroupCreationActivity.this, groupSizeSlider.getProgress() + "", Toast.LENGTH_LONG).show();
                     intent.putExtra(AppConstants.GROUP_NAME_KEY, mGroupName.getText().toString());
                     intent.putExtra(AppConstants.USER_NAME_KEY, mUserName.getText().toString());
                     intent.putExtra(AppConstants.PASSWORD_KEY, mPassword);
-                    intent.putExtra(AppConstants.GROUP_SIZE, Integer.parseInt(groupSizeSpinner.getSelectedItem().toString()));
+                    intent.putExtra(AppConstants.GROUP_SIZE, groupSizeSlider.getProgress());
                     startActivity(intent);
                 }
                 else {

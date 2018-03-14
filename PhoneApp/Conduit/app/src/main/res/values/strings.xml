@@ -4,12 +4,12 @@
     <string name="title_activity_group_creation">Start Group!</string>
 
     <!-- String related to initial app mode -->
-    <string name="action_start_master_mode">Start a Group!</string>
-    <string name="action_start_slave_mode">Join a Group!</string>
+    <string name="action_start_master_mode">Start a Group</string>
+    <string name="action_start_slave_mode">Join a Group</string>
 
     <!-- Strings related to Group Creation -->
-    <string name="prompt_group_name">Group name</string>
-    <string name="prompt_user_name">Your first name</string>
+    <string name="prompt_group_name">group name</string>
+    <string name="prompt_user_name">your name</string>
     <string name="prompt_password">The group password</string>
     <string name="action_enter_group_name">Enter Group Name</string>
     <string name="action_start_group">Start Group Creation</string>
