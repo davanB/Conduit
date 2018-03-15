@@ -3,7 +3,11 @@ package ca.uwaterloo.fydp.conduit.flow;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Animatable2;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +30,8 @@ public class ConduitConnectionActivity extends AppCompatActivity {
 
     private final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA};
+
+    private boolean advanceFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,13 +64,14 @@ public class ConduitConnectionActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                nextActivity();
+                                // lmfao why deal with concurrency anyways
+                                advanceFlag = true;
                             }
                         });
                     }
                 }).start();
             } else {
-                nextActivity();
+                advanceFlag = true;
             }
 
 
@@ -73,6 +80,31 @@ public class ConduitConnectionActivity extends AppCompatActivity {
 //        ImageView connectionImage = findViewById(R.id.conduit_connect_image);
 //        connectionImage.setBackgroundResource(R.drawable.connect_animation);
         //connectionAnimation = (AnimationDrawable) connectionImage.getBackground();
+
+        ImageView logoImageView = findViewById(R.id.conduit_connect_image);
+        final AnimatedVectorDrawable logoDrawable = (AnimatedVectorDrawable) logoImageView.getDrawable();
+        logoDrawable.registerAnimationCallback(new Animatable2.AnimationCallback() {
+            @Override
+            public void onAnimationStart(Drawable drawable) {
+                super.onAnimationStart(drawable);
+            }
+
+            @Override
+            public void onAnimationEnd(Drawable drawable) {
+                super.onAnimationEnd(drawable);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(advanceFlag) {
+                            nextActivity();
+                        } else {
+                            logoDrawable.start();
+                        }
+                    }
+                });
+            }
+        });
+        logoDrawable.start();
     }
 
     private void nextActivity() {
