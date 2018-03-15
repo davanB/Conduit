@@ -18,8 +18,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import ca.uwaterloo.fydp.conduit.AppConstants;
-import ca.uwaterloo.fydp.conduit.Contents;
-import ca.uwaterloo.fydp.conduit.MainActivity;
+import ca.uwaterloo.fydp.conduit.qr.Contents;
 import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitLedger;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
