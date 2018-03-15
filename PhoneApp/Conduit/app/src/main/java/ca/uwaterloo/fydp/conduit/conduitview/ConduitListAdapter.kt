@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import ca.uwaterloo.fydp.conduit.ConduitImage
+import ca.uwaterloo.fydp.conduit.ConduitMessage
 import ca.uwaterloo.fydp.conduit.R
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
-import com.conduit.libdatalink.conduitabledata.ConduitMessage
 import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 

@@ -23,7 +23,13 @@ class ConduitImage() : ConduitableData() {
     override fun populateFromPayload(payload: ByteBuffer) {
         val payloadBytes = ByteArray(payload.remaining())
         payload.get(payloadBytes)
-        image = BitmapFactory.decodeByteArray(payloadBytes, 0, payloadBytes.size)
+
+        if(AppConstants.TRANSFORMATIONS_ENABLED){
+            val decryptedPayload = DataTransformation.decryptMessage(payloadBytes)
+            image = BitmapFactory.decodeByteArray(decryptedPayload, 0, decryptedPayload.size)
+        } else {
+            image = BitmapFactory.decodeByteArray(payloadBytes, 0, payloadBytes.size)
+        }
     }
 
 
@@ -32,6 +38,10 @@ class ConduitImage() : ConduitableData() {
         image.compress(Bitmap.CompressFormat.JPEG, 40, stream)
         val byteArray = stream.toByteArray()
         Log.i("YEET", "IMAGE SIZE: " + byteArray.size)
-        return ByteBuffer.wrap(byteArray)
+        if(AppConstants.TRANSFORMATIONS_ENABLED){
+            return ByteBuffer.wrap(DataTransformation.encryptMessage(byteArray))
+        } else {
+            return ByteBuffer.wrap(byteArray)
+        }
     }
 }

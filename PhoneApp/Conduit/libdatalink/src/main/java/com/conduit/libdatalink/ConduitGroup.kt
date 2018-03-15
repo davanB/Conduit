@@ -33,7 +33,7 @@ open class ConduitGroup constructor(dataLink: DataLinkInterface, val baseAddress
         }
     }
 
-    fun send(clientId: Int, data: ConduitableData) {
+    open fun send(clientId: Int, data: ConduitableData) {
         val address: Int = ConduitGroupHelper.getFullAddress(baseAddress, clientId, currentClientId)
         dataLink.openWritingPipe(address)
 //        System.out.println("YEET opening write pipe: " + ConduitGroupHelper.getFullAddress(baseAddress, clientId))
@@ -58,11 +58,10 @@ open class ConduitGroup constructor(dataLink: DataLinkInterface, val baseAddress
     }
 
     open fun getClassForPayloadType(payloadType: Byte): ConduitableData = when(payloadType) {
-        ConduitableDataTypes.MESSAGE.flag -> ConduitMessage()
         ConduitableDataTypes.GPS_COORDS.flag -> ConduitGpsLocation()
         ConduitableDataTypes.CONNECTION_EVENT.flag -> ConduitConnectionEvent()
         ConduitableDataTypes.GROUP_DATA.flag -> ConduitGroupData()
-        else -> ConduitMessage()
+        else -> ConduitGpsLocation()
         // TODO: maybe throw an exception here for unrecognized data?
     }
 

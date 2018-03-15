@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import com.conduit.libdatalink.ConduitGroup;
 import com.conduit.libdatalink.conduitabledata.ConduitConnectionEvent;
-import com.conduit.libdatalink.conduitabledata.ConduitMessage;
 import com.conduit.libdatalink.conduitabledata.ConduitableData;
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes;
 import com.github.clans.fab.FloatingActionMenu;

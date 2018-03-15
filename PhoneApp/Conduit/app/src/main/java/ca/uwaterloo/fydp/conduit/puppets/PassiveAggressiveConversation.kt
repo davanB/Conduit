@@ -1,7 +1,7 @@
 package ca.uwaterloo.fydp.conduit.puppets
 
+import ca.uwaterloo.fydp.conduit.ConduitMessage
 import com.conduit.libdatalink.ConduitGroup
-import com.conduit.libdatalink.conduitabledata.ConduitMessage
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 
 class PassiveAggressiveConversation(group: ConduitGroup) : PuppetShow(group) {
