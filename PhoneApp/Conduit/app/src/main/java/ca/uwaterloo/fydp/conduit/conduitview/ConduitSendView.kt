@@ -39,10 +39,16 @@ class ConduitSendView @JvmOverloads constructor(
             val editText = findViewById<EditText>(R.id.send_view_text)
             val textToSend = editText.text.toString()
             sendDelegate?.invoke(ConduitMessage(textToSend))
+            editText.setText("")
         }
 
         findViewById<ImageButton>(R.id.insert_emoji_button).setOnClickListener {
             requestEmojiInsert?.invoke()
+            val editText = findViewById<EditText>(R.id.send_view_text)
+            val startRange = 128512
+            val endRange =  128522
+            val randomEmoji: Int = ((Math.random()*(endRange-startRange)).toInt()) + startRange
+            editText.append(String(Character.toChars(randomEmoji)))
         }
 
         findViewById<ImageButton>(R.id.send_location_button).setOnClickListener {
