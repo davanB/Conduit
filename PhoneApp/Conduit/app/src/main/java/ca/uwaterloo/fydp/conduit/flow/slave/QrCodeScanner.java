@@ -132,7 +132,22 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
                         }
 
                         // let master know that we're ready to go!
-                        group.send(0, new ConduitConnectionEvent(assignedUserId, currentUserName));
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        group.send(0, new ConduitConnectionEvent(assignedUserId, currentUserName));
+                                    }
+                                });
+                            }
+                        }).start();
 
                         Log.v("NavTest", ledger.getGroupMemberNamesList().toString());
 
