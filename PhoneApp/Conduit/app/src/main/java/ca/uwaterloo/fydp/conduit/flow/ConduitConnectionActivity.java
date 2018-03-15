@@ -33,6 +33,10 @@ public class ConduitConnectionActivity extends AppCompatActivity {
 
     private boolean advanceFlag = false;
 
+    static {
+        System.loadLibrary("native-lib");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().setExitTransition(null);
@@ -52,7 +56,7 @@ public class ConduitConnectionActivity extends AppCompatActivity {
         }
         if(ConduitManager.getDriver().isConnected()) {
 
-            if(AppConstants.PUPPET_MASTER_ENABLED){
+            if(!AppConstants.USE_REAL_HARDWARE){
                 new Thread(new Runnable() {
                     @Override
                     public void run() {

@@ -8,7 +8,7 @@ import ca.uwaterloo.fydp.conduit.R
 import ca.uwaterloo.fydp.conduit.R.mipmap.ic_launcher
 import com.conduit.libdatalink.ConduitGroup
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
-import com.conduit.libdatalink.conduitabledata.ConduitMessage
+import ca.uwaterloo.fydp.conduit.ConduitMessage
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 
 class WhereYouAtConversation(val context: Context, group: ConduitGroup) : PuppetShow(group) {

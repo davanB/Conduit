@@ -5,10 +5,10 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.RelativeLayout
 import ca.uwaterloo.fydp.conduit.ConduitImage
+import ca.uwaterloo.fydp.conduit.ConduitMessage
 import ca.uwaterloo.fydp.conduit.R
 import ca.uwaterloo.fydp.conduit.R.attr.direction
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
-import com.conduit.libdatalink.conduitabledata.ConduitMessage
 import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 import kotlinx.android.synthetic.main.conduit_status_message_view.view.*

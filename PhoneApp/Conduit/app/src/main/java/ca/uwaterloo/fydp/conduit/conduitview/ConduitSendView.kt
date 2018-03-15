@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.*
 import ca.uwaterloo.fydp.conduit.R
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
-import com.conduit.libdatalink.conduitabledata.ConduitMessage
 import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 import java.security.AccessController.getContext
@@ -17,6 +16,7 @@ import android.content.Intent.CATEGORY_OPENABLE
 import android.content.Intent.ACTION_GET_CONTENT
 import android.graphics.Bitmap
 import ca.uwaterloo.fydp.conduit.ConduitImage
+import ca.uwaterloo.fydp.conduit.ConduitMessage
 
 
 class ConduitSendView @JvmOverloads constructor(

@@ -9,7 +9,6 @@ import android.widget.TextView
 import ca.uwaterloo.fydp.conduit.R
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
-import com.conduit.libdatalink.conduitabledata.ConduitMessage
 import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 import kotlinx.android.synthetic.main.conduit_status_view.view.*
