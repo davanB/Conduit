@@ -54,6 +54,10 @@ public class DataTransformation {
 
     private static boolean isKeySet() { return mSecretKeySet; }
 
+    static {
+        System.loadLibrary("native-lib");
+    }
+
     /*
         Methods to for small string compression/decompression (Shoco)
         Implementations defined in native-lib.cpp
