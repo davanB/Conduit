@@ -3,7 +3,7 @@
     <color name="colorPrimary">#B68662</color>
     <color name="colorPrimaryDark">#eab690</color>
     <color name="colorAccent">#8f8f8f</color>
-    <color name="messageBack">#88cfcfcf</color>
+    <color name="messageBack">#ffe9e9e9</color>
     <color name="dark_gray">#888888</color>
     <color name="logo_colour">#3C373D</color>
 </resources>
