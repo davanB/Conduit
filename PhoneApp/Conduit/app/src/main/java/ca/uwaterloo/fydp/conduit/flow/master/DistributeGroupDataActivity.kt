@@ -115,11 +115,22 @@ class DistributeGroupDataActivity : AppCompatActivity() {
                 val tintColor = if(status) android.R.color.black else R.color.colorAccent
                 indicatorView.setColorFilter(indicatorView.resources.getColor(tintColor))
 
+                if(!status) {
+                    indicatorView.setImageResource(R.drawable.initial_logo)
+                }
+
                 if(status && !hasAnimated[position]) {
                     hasAnimated[position] = true
+                    indicatorView.setImageResource(R.drawable.animated_logo_notext)
                     (indicatorView.drawable as AnimatedVectorDrawable).start()
                 }
 
+                if( status && hasAnimated[position]) {
+                    if(indicatorView.drawable !is AnimatedVectorDrawable){
+                        indicatorView.setImageResource(R.drawable.animated_logo_notext)
+                    }
+
+                }
 //                val imageId = if (status) android.R.drawable.ic_media_play else R.drawable.connect_animation
 //                indicatorView.setImageResource(imageId)
 
