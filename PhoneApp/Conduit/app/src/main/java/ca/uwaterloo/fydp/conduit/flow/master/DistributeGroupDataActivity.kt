@@ -2,6 +2,7 @@ package ca.uwaterloo.fydp.conduit.flow.master
 
 import android.content.ClipData
 import android.content.Intent
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.media.Image
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -78,11 +79,19 @@ class DistributeGroupDataActivity : AppCompatActivity() {
     }
 
     private fun nextScreen() {
-        val intent = Intent(this, ConduitActivity::class.java)
-        startActivity(intent)
+        Thread{
+            Thread.sleep(2000)
+            runOnUiThread{
+                val intent = Intent(this, ConduitActivity::class.java)
+                startActivity(intent)
+            }
+        }.start()
     }
 
     inner class PendingConnectionsAdapter(var data: BooleanArray) : RecyclerView.Adapter<PendingConnectionsAdapter.ViewHolder>(){
+
+        val hasAnimated: BooleanArray = BooleanArray(data.size, {false})
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             ViewHolder(LayoutInflater.from(parent.context)
                     .inflate(R.layout.connection_status_list_item, parent, false))
@@ -90,7 +99,7 @@ class DistributeGroupDataActivity : AppCompatActivity() {
         override fun getItemCount(): Int = data.size
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-            holder.bind(ConduitManager.getLedger().getUserNameForId(position), data[position])
+            holder.bind(ConduitManager.getLedger().getUserNameForId(position), data[position], position)
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             var indicatorView: ImageView by Delegates.notNull()
@@ -101,10 +110,16 @@ class DistributeGroupDataActivity : AppCompatActivity() {
                 nameView = itemView.findViewById(R.id.connection_status_username)
             }
 
-            fun bind(name: String, status: Boolean) = with(itemView) {
+            fun bind(name: String, status: Boolean, position: Int) = with(itemView) {
                 nameView.text = name
-                val tintColor = if(status) R.color.colorPrimary else R.color.colorAccent
+                val tintColor = if(status) android.R.color.black else R.color.colorAccent
                 indicatorView.setColorFilter(indicatorView.resources.getColor(tintColor))
+
+                if(status && !hasAnimated[position]) {
+                    hasAnimated[position] = true
+                    (indicatorView.drawable as AnimatedVectorDrawable).start()
+                }
+
 //                val imageId = if (status) android.R.drawable.ic_media_play else R.drawable.connect_animation
 //                indicatorView.setImageResource(imageId)
 

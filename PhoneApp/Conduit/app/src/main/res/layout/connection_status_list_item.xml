@@ -5,13 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:orientation="horizontal"
+    android:padding="4dp"
     android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/connection_status_indicator_imageview"
-        android:src="@drawable/logo"
-        android:tint="@color/colorAccent"
-        android:tintMode="add"
+        android:src="@drawable/animated_logo_notext"
         android:layout_width="40dp"
         android:layout_height="40dp"
         />
