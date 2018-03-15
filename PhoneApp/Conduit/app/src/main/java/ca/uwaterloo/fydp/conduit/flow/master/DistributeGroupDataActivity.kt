@@ -25,7 +25,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toolbar
 import ca.uwaterloo.fydp.conduit.AppConstants
 import ca.uwaterloo.fydp.conduit.conduitview.ConduitActivity
 import kotlin.properties.Delegates
@@ -37,12 +36,6 @@ class DistributeGroupDataActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_distribute_group_data)
-
-        val toolbar = findViewById<android.support.v7.widget.Toolbar>(R.id.customToolBar1)
-
-        setSupportActionBar(toolbar)
-        supportActionBar!!.title = "@string/app_name"
-        supportActionBar!!.setIcon(getDrawable(R.drawable.logo))
 
         val responsesReceived = BooleanArray(ConduitManager.getLedger().groupSize)
         responsesReceived[ConduitManager.getLedger().currentUserId] = true
@@ -91,13 +84,13 @@ class DistributeGroupDataActivity : AppCompatActivity() {
 
     inner class PendingConnectionsAdapter(var data: BooleanArray) : RecyclerView.Adapter<PendingConnectionsAdapter.ViewHolder>(){
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-            ViewHolder(LayoutInflater.from(parent.context)
-                    .inflate(R.layout.connection_status_list_item, parent, false))
+                ViewHolder(LayoutInflater.from(parent.context)
+                        .inflate(R.layout.connection_status_list_item, parent, false))
 
         override fun getItemCount(): Int = data.size
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-            holder.bind(ConduitManager.getLedger().getUserNameForId(position), data[position])
+                holder.bind(ConduitManager.getLedger().getUserNameForId(position), data[position])
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             var indicatorView: ImageView by Delegates.notNull()

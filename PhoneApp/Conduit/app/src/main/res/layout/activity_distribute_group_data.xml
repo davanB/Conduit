@@ -8,9 +8,6 @@
     android:padding="20dp"
     tools:context="ca.uwaterloo.fydp.conduit.flow.master.DistributeGroupDataActivity">
 
-    <include layout="@layout/customtoolbar"
-        android:id="@+id/customToolBar1"/>
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
