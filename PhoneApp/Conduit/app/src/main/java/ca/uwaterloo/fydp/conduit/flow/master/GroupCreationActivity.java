@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Random;
 
 import ca.uwaterloo.fydp.conduit.AppConstants;
+import ca.uwaterloo.fydp.conduit.DataTransformation;
 import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity;
 
@@ -39,6 +40,7 @@ public class GroupCreationActivity extends AppCompatActivity {
         Random rand = new Random();
         Long randomNum = rand.nextLong();
         mPassword = randomNum.toString();
+        DataTransformation.setSecretKey(mPassword);
         final SeekBar groupSizeSlider = findViewById(R.id.group_size_slider);
         final TextView groupSizeReadout = findViewById(R.id.group_size_readout);
 

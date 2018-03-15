@@ -29,6 +29,7 @@ public class ConduitableDataTest {
 
     @Test
     public void testConduitMessage() {
+        DataTransformation.setSecretKey("dawj90iadwji0");
         String text = "oh hai";
         ConduitMessage messageOut = new ConduitMessage();
         messageOut.setMessage(text);
