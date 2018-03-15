@@ -15,9 +15,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:src="@drawable/logo"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
+            android:src="@drawable/conduit_toolbar_icon"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:layout_gravity="left"/>
 
         <TextView
