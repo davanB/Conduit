@@ -40,7 +40,8 @@ class ConduitListAdapter(private val data: List<ConduitableData>) : RecyclerView
         val coord = rootView.findViewById<TextView>(R.id.gps_coord)
         override fun bind(conduitableData: ConduitableData) {
             super.bind(conduitableData)
-            coord.text = (conduitableData as ConduitGpsLocation).latitude.toString()
+            val gps = (conduitableData as ConduitGpsLocation)
+            coord.text = gps.latitude.toString() + ", " + gps.longitude
         }
     }
     class ImageViewHolder(rootView: View) : BaseViewHolder(rootView){

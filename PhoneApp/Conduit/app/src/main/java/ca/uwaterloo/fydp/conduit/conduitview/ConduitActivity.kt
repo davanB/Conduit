@@ -28,12 +28,18 @@ import android.graphics.BitmapFactory
 import java.io.FileNotFoundException
 import java.io.IOException
 import android.R.attr.bitmap
+import android.content.pm.PackageManager
+import android.location.Location
 import android.provider.MediaStore
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import ca.uwaterloo.fydp.conduit.StatsViewActivity
 import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity
+import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 
 class ConduitActivity : AppCompatActivity() {
@@ -48,6 +54,8 @@ class ConduitActivity : AppCompatActivity() {
             ConduitableDataTypes.GPS_COORDS,
             ConduitableDataTypes.IMAGE
     )
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +71,7 @@ class ConduitActivity : AppCompatActivity() {
         conduitSendView.sendDelegate = {conduitSend(it)}
         conduitSendView.requestGalleryImageDelegate = {requestGalleryImage()}
         conduitSendView.requestCameraImageDelegate = {requestCameraImage()}
+        conduitSendView.requestLocationDelegate = {requestLocation()}
 
         viewPager = findViewById(R.id.view_pager)
         val viewPagerAdapter = ViewPagerAdapter()
@@ -75,6 +84,7 @@ class ConduitActivity : AppCompatActivity() {
         subscribedDataTypes.forEach{
             conduitGroup.addConduitableDataListener(it, {onConduitDataReceived(it)})
         }
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val puppetMaster = PuppetMaster()
         val show = WhereYouAtConversation(this, conduitGroup)
@@ -109,6 +119,17 @@ class ConduitActivity : AppCompatActivity() {
     val IMAGE_REQUEST_CAMERA = 2
     fun requestCameraImage() {
         startActivityForResult(Intent(MediaStore.ACTION_IMAGE_CAPTURE), IMAGE_REQUEST_CAMERA)
+    }
+
+    fun requestLocation() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        val gps = ConduitGpsLocation(location?.latitude ?: 0.0, location?.longitude ?: 0.0)
+                        conduitSend(gps)
+                    }
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent?) {
