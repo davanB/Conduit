@@ -61,7 +61,7 @@
             android:label="View Debug Stats"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".conduitview.ConduitActivity"
-            android:theme="@style/AppTheme.ActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

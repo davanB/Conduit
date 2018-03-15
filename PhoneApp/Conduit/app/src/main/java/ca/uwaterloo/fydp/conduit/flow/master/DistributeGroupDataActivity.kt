@@ -90,7 +90,7 @@ class DistributeGroupDataActivity : AppCompatActivity() {
         override fun getItemCount(): Int = data.size
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-            holder.bind(ConduitManager.getLedger().getUserNameForId(position), data[position])
+                holder.bind(ConduitManager.getLedger().getUserNameForId(position), data[position])
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             var indicatorView: ImageView by Delegates.notNull()

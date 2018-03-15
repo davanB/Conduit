@@ -8,6 +8,9 @@
     android:orientation="vertical"
     tools:context="ca.uwaterloo.fydp.conduit.conduitview.ConduitActivity">
 
+    <include layout="@layout/customtoolbar"
+        android:id="@+id/customToolBar2"/>
+
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
