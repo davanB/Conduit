@@ -84,8 +84,8 @@ class DistributeGroupDataActivity : AppCompatActivity() {
 
     inner class PendingConnectionsAdapter(var data: BooleanArray) : RecyclerView.Adapter<PendingConnectionsAdapter.ViewHolder>(){
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-                ViewHolder(LayoutInflater.from(parent.context)
-                        .inflate(R.layout.connection_status_list_item, parent, false))
+            ViewHolder(LayoutInflater.from(parent.context)
+                    .inflate(R.layout.connection_status_list_item, parent, false))
 
         override fun getItemCount(): Int = data.size
 

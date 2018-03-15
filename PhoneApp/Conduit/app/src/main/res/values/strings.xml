@@ -20,6 +20,5 @@
     <!-- To fix some rendering bug -->
     <item name="visible" type="id" />
     <item name="masked" type="id" />
-    <string name="title_activity_base">BaseActivity</string>
 
 </resources>

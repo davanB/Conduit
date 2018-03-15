@@ -8,12 +8,6 @@
     android:padding="20dp"
     tools:context="ca.uwaterloo.fydp.conduit.flow.master.DistributeGroupDataActivity">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:id="@+id/connection_response_evts"/>
-
     <include layout="@layout/conduit_splash_logo_insertion_alt" />
 
     <android.support.v7.widget.RecyclerView
