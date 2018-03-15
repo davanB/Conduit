@@ -32,8 +32,6 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
-import ca.uwaterloo.fydp.conduit.Contents;
-
 public final class QRCodeEncoder {
     private int backgroundColor = 0xFFFFFFFF;
     private int foregroundColor = 0xFF000000;

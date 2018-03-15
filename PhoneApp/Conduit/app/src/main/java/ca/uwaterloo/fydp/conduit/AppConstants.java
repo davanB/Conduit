@@ -11,4 +11,5 @@ public abstract class AppConstants {
     public static final String GROUP_SIZE = "GroupSize";
     public static final boolean PUPPET_MASTER_ENABLED = true;
     public static final boolean USE_REAL_HARDWARE = !PUPPET_MASTER_ENABLED;
+    public static final boolean ENABLE_TRANSFORMATION = true;
 }

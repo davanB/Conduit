@@ -16,10 +16,10 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import ca.uwaterloo.fydp.conduit.AppConstants;
-import ca.uwaterloo.fydp.conduit.Contents;
-import ca.uwaterloo.fydp.conduit.MainActivity;
+import ca.uwaterloo.fydp.conduit.qr.Contents;
 import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitLedger;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
@@ -52,6 +52,9 @@ public class QRGenerationActivity extends Activity{
         Integer groupSize = intent.getIntExtra(AppConstants.GROUP_SIZE, 6);
 
         groupData = new GroupData(groupName, password, groupSize);
+
+        TextView textView = findViewById(R.id.group_name_label);
+        textView.setText(groupName);
 
         // TODO: baseaddress needs to be the common lower 3 bytes of all addresses... might need to double check that this consistent with what Davan did in this class
         // clientId is 0 since we are the master
@@ -121,8 +124,8 @@ public class QRGenerationActivity extends Activity{
                 Contents.Type.TEXT,
                 BarcodeFormat.QR_CODE.toString(),
                 smallerDimension,
-                getColor(android.R.color.white),
-                getColor(android.R.color.black)
+                getColor(android.R.color.transparent),
+                getColor(R.color.colorPrimary)
                 );
         try {
             Bitmap bitmap = qrCodeEncoder.encodeAsBitmap();
