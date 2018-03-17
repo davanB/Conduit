@@ -144,16 +144,17 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
                                     @Override
                                     public void run() {
                                         group.send(0, new ConduitConnectionEvent(assignedUserId, currentUserName));
+                                        Log.v("NavTest", ledger.getGroupMemberNamesList().toString());
+
+                                        // Off to main activity now
+                                        Intent intent = new Intent(QrCodeScanner.this, ConduitActivity.class);
+                                        startActivity(intent);
                                     }
                                 });
                             }
                         }).start();
 
-                        Log.v("NavTest", ledger.getGroupMemberNamesList().toString());
 
-                        // Off to main activity now
-                        Intent intent = new Intent(QrCodeScanner.this, ConduitActivity.class);
-                        startActivity(intent);
                     }
                 });
                 return null;
