@@ -1,5 +1,6 @@
 package ca.uwaterloo.fydp.conduit.conduitview;
 
+import android.media.MediaDataSource;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 
@@ -24,18 +25,18 @@ public class AudioRecord {
     }
 
     // start and stop playing audio
-    public void onPlay(boolean start) {
+    public void onPlay(boolean start, MediaDataSource mediaDataSource) {
         if (start) {
-            startPlaying();
+            startPlaying(mediaDataSource);
         } else {
             stopPlaying();
         }
     }
 
-    private void startPlaying() {
+    private void startPlaying(MediaDataSource mediaDataSource) {
         mPlayer = new MediaPlayer();
         try {
-            mPlayer.setDataSource(mOutputFileName);
+            mPlayer.setDataSource(mediaDataSource);
             mPlayer.prepare();
             mPlayer.start();
         } catch (IOException e) {
