@@ -58,6 +58,7 @@ public class AudioRecord {
         mRecorder.setAudioChannels(1);
         mRecorder.setAudioSamplingRate(8000); // 8kHz
         mRecorder.setAudioEncodingBitRate(12200);
+        mRecorder.setMaxDuration(4000);
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
