@@ -58,7 +58,8 @@ class ConduitActivity : AppCompatActivity() {
     private val subscribedDataTypes = listOf(
             ConduitableDataTypes.MESSAGE,
             ConduitableDataTypes.GPS_COORDS,
-            ConduitableDataTypes.IMAGE
+            ConduitableDataTypes.IMAGE,
+            ConduitableDataTypes.AUDIO
     )
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 

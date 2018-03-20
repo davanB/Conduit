@@ -5,8 +5,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import ca.uwaterloo.fydp.conduit.ConduitAudio
 import ca.uwaterloo.fydp.conduit.ConduitImage
 import ca.uwaterloo.fydp.conduit.ConduitMessage
 import ca.uwaterloo.fydp.conduit.R
@@ -50,13 +52,24 @@ class ConduitListAdapter(private val data: List<ConduitableData>) : RecyclerView
             super.bind(conduitableData)
             imageView.setImageBitmap((conduitableData as ConduitImage).image)
         }
-
+    }
+    class AudioViewHolder(rootView: View) : BaseViewHolder(rootView){
+        val audioView = rootView.findViewById<View>(R.id.audio_play)
+        val audioRecord = AudioRecord()
+        override fun bind(conduitableData: ConduitableData) {
+            super.bind(conduitableData)
+            (conduitableData as ConduitAudio)
+            audioView.setOnClickListener {
+                audioRecord.onPlay(true, conduitableData.audio)
+            }
+        }
     }
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(parent: ViewGroup,
                                     viewType: Int): ConduitListAdapter.BaseViewHolder {
         val layoutId = when (viewType) {
+            ConduitableDataTypes.AUDIO.flag.toInt() -> R.layout.conduit_list_audio_view
             ConduitableDataTypes.GPS_COORDS.flag.toInt() -> R.layout.conduit_list_gps_view
             ConduitableDataTypes.IMAGE.flag.toInt() -> R.layout.conduit_list_image_view
             else -> R.layout.conduit_list_message_view
@@ -64,6 +77,7 @@ class ConduitListAdapter(private val data: List<ConduitableData>) : RecyclerView
         val rootView = LayoutInflater.from(parent.context)
                 .inflate(layoutId, parent, false)
         val viewHolder = when(viewType) {
+            ConduitableDataTypes.AUDIO.flag.toInt() -> AudioViewHolder(rootView)
             ConduitableDataTypes.GPS_COORDS.flag.toInt() -> GPSViewHolder(rootView)
             ConduitableDataTypes.IMAGE.flag.toInt() -> ImageViewHolder(rootView)
             else -> MessageViewHolder(rootView)

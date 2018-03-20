@@ -22,7 +22,6 @@ class ConduitAudio() : ConduitableData() {
         this.audio = ByteArrayMediaDataSource(payloadBytes)
     }
 
-
     override fun getPayload(): ByteBuffer {
         Log.i("YEET", "AUDIO SIZE: " + this.audio.data.size)
         return ByteBuffer.wrap(this.audio.data)
