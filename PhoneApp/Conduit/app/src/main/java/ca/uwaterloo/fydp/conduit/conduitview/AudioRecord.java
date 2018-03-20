@@ -41,6 +41,7 @@ public class AudioRecord {
         mPlayer = new MediaPlayer();
         try {
             mPlayer.setDataSource(mediaDataSource);
+            mPlayer.setVolume(1.0f, 1.0f);
             mPlayer.prepare();
             mPlayer.start();
         } catch (IOException e) {

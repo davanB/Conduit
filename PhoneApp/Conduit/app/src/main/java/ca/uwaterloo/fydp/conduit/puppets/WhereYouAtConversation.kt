@@ -3,6 +3,7 @@ package ca.uwaterloo.fydp.conduit.puppets
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import ca.uwaterloo.fydp.conduit.ConduitAudio
 import ca.uwaterloo.fydp.conduit.ConduitImage
 import ca.uwaterloo.fydp.conduit.R
 import ca.uwaterloo.fydp.conduit.R.mipmap.ic_launcher
@@ -10,6 +11,11 @@ import com.conduit.libdatalink.ConduitGroup
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
 import ca.uwaterloo.fydp.conduit.ConduitMessage
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.util.*
 
 class WhereYouAtConversation(val context: Context, group: ConduitGroup) : PuppetShow(group) {
     override fun writeScript(){
@@ -42,6 +48,13 @@ class WhereYouAtConversation(val context: Context, group: ConduitGroup) : Puppet
                     R.mipmap.ic_launcher))
             pic.originAddress = 0x00000001
             script.add { group.conduitableListeners[ConduitableDataTypes.IMAGE.flag]?.invoke(pic)}
+            delay(2000)
+
+            val stream = context.assets.open("test.3gp")
+            val audioBytes = stream.readBytes(4096)
+            val audio = ConduitAudio(audioBytes)
+            pic.originAddress = 0x00000001
+            script.add { group.conduitableListeners[ConduitableDataTypes.AUDIO.flag]?.invoke(audio)}
         }
     }
 }
