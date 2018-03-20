@@ -38,11 +38,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toolbar
+import ca.uwaterloo.fydp.conduit.ConduitAudio
 import ca.uwaterloo.fydp.conduit.StatsViewActivity
 import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.android.synthetic.main.conduit_send_view.view.*
+import java.io.File
 
 
 class ConduitActivity : AppCompatActivity() {
@@ -81,6 +84,7 @@ class ConduitActivity : AppCompatActivity() {
         conduitSendView.requestGalleryImageDelegate = {requestGalleryImage()}
         conduitSendView.requestCameraImageDelegate = {requestCameraImage()}
         conduitSendView.requestLocationDelegate = {requestLocation()}
+        conduitSendView.requestAudioDelegate = {requestAudio()}
 
         viewPager = findViewById(R.id.view_pager)
         val viewPagerAdapter = ViewPagerAdapter()
@@ -139,6 +143,23 @@ class ConduitActivity : AppCompatActivity() {
                     }
         }
 
+    }
+
+    var recording = false
+    val audioRecord = AudioRecord()
+
+    fun requestAudio() {
+        if (recording) {
+            audioRecord.onRecord(false)
+            conduitGroup.sendAll(ConduitAudio(File(audioRecord.outputFileName).readBytes()))
+        } else {
+            val filePath = this.externalCacheDir.absolutePath + '/' + System.currentTimeMillis() + ".3gp"
+            Log.i("YEET", "Audio File: " + filePath)
+            audioRecord.SetOutputFile(filePath)
+            audioRecord.onRecord(true)
+        }
+        recording = !recording
+//        conduitSendView.send_audio_button.requestFocus()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent?) {

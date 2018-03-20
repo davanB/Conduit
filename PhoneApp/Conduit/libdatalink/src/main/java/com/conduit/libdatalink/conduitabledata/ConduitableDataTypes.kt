@@ -5,6 +5,7 @@ enum class ConduitableDataTypes(val flag: Byte) {
     GPS_COORDS(0x02),
     CONNECTION_EVENT(0x03),
     GROUP_DATA(0x04),
-    IMAGE(0x05)
+    IMAGE(0x05),
+    AUDIO(0x06)
 }
 

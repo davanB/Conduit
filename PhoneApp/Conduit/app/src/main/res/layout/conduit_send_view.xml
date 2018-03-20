@@ -41,6 +41,17 @@
             app:srcCompat="@drawable/ic_location_on_black_48dp" />
 
         <ImageButton
+            android:id="@+id/send_audio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:text="Location"
+            android:tint="@color/dark_gray"
+            app:srcCompat="@drawable/googleg_standard_color_18" />
+
+        <ImageButton
             android:id="@+id/send_gallery_image_button"
             android:layout_width="wrap_content"
             android:layout_height="32dp"

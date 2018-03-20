@@ -15,6 +15,10 @@ public class AudioRecord {
         mOutputFileName = fileName;
     }
 
+    public String getOutputFileName() {
+        return mOutputFileName;
+    }
+
     // start and stop recording audio
     public void onRecord(boolean start) {
         if (start) {
