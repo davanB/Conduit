@@ -7,7 +7,7 @@ import ca.uwaterloo.fydp.conduit.R
 
 import kotlinx.android.synthetic.main.activity_map_view.*
 import org.osmdroid.tileprovider.tilesource.XYTileSource
-
+import org.osmdroid.views.overlay.Marker
 
 
 class MapViewActivity : AppCompatActivity() {
@@ -31,9 +31,15 @@ class MapViewActivity : AppCompatActivity() {
                 ".png",
                 arrayOf()
         ))
+        val loc = org.osmdroid.util.GeoPoint(43.470113, -80.530086)
         mapview.setMaxZoomLevel(17.0)
-        mapview.getController().setCenter(org.osmdroid.util.GeoPoint(43.470113, -80.530086))
-        mapview.getController().setZoom(13.0)
+        mapview.getController().setCenter(loc)
+        mapview.getController().setZoom(16.0)
+
+        val startMarker = Marker(mapview)
+        startMarker.setPosition(loc)
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        mapview.getOverlays().add(startMarker)
 
     }
 

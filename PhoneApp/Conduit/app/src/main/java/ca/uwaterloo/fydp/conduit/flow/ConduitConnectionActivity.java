@@ -21,6 +21,7 @@ import android.widget.Toast;
 import ca.uwaterloo.fydp.conduit.AppConstants;
 import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager;
+import ca.uwaterloo.fydp.conduit.mapping.MapViewActivity;
 
 public class ConduitConnectionActivity extends AppCompatActivity {
 
@@ -46,6 +47,10 @@ public class ConduitConnectionActivity extends AppCompatActivity {
         getWindow().setExitTransition(null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conduit_connection);
+
+
+//        Intent intent = new Intent(this, MapViewActivity.class);
+//        startActivity(intent);
 
         SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
         AppConstants.PUPPET_MASTER_ENABLED = prefs.getBoolean("isPuppetMaster", false);
