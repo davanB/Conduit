@@ -5,11 +5,16 @@ import java.nio.ByteBuffer
 import kotlin.properties.Delegates
 
 
-class ConduitGpsLocation : ConduitableData() {
+class ConduitGpsLocation() : ConduitableData() {
     override val payloadType: ConduitableDataTypes = ConduitableDataTypes.GPS_COORDS
 
     var latitude: Double by Delegates.notNull()
     var longitude: Double by Delegates.notNull()
+
+    constructor(latitude: Double, longitude: Double) : this(){
+        this.latitude = latitude
+        this.longitude = longitude
+    }
 
     override fun populateFromPayload(payload: ByteBuffer) {
         latitude = payload.double

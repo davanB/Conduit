@@ -32,11 +32,9 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
-import ca.uwaterloo.fydp.conduit.Contents;
-
 public final class QRCodeEncoder {
-    private static final int WHITE = 0xFFFFFFFF;
-    private static final int BLACK = 0xFF000000;
+    private int backgroundColor = 0xFFFFFFFF;
+    private int foregroundColor = 0xFF000000;
 
     private int dimension = Integer.MIN_VALUE;
     private String contents = null;
@@ -45,9 +43,11 @@ public final class QRCodeEncoder {
     private BarcodeFormat format = null;
     private boolean encoded = false;
 
-    public QRCodeEncoder(String data, Bundle bundle, String type, String format, int dimension) {
+    public QRCodeEncoder(String data, Bundle bundle, String type, String format, int dimension, int backgroundColor, int foregroundColor) {
         this.dimension = dimension;
         encoded = encodeContents(data, bundle, type, format);
+        this.backgroundColor = backgroundColor;
+        this.foregroundColor = foregroundColor;
     }
 
     public String getContents() {
@@ -211,7 +211,7 @@ public final class QRCodeEncoder {
         for (int y = 0; y < height; y++) {
             int offset = y * width;
             for (int x = 0; x < width; x++) {
-                pixels[offset + x] = result.get(x, y) ? BLACK : WHITE;
+                pixels[offset + x] = result.get(x, y) ? foregroundColor : backgroundColor;
             }
         }
 

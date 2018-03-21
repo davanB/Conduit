@@ -22,7 +22,7 @@ class LogDumpActivity : AppCompatActivity() {
             val log = StringBuilder()
             var line:String? = ""
             while (line != null) {
-                log.append(line)
+                log.append(line).append('\n')
                 line = bufferedReader.readLine()
             }
             val tv = findViewById<TextView>(R.id.logdumpview)

@@ -2,6 +2,7 @@ package mock;
 
 import com.conduit.libdatalink.UsbDriverInterface;
 import com.conduit.libdatalink.UsbSerialListener;
+import com.conduit.libdatalink.internal.SerialPacket;
 
 import java.util.LinkedList;
 
@@ -10,7 +11,7 @@ import java.util.LinkedList;
  */
 public class FiniteBufferMockUsbDriver implements UsbDriverInterface {
 
-    private static final int SIZE = 32;
+    private static final int SIZE = SerialPacket.PACKET_SIZE;
 
     boolean overflow = false;
 

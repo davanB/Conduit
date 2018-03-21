@@ -5,18 +5,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:orientation="horizontal"
+    android:padding="4dp"
     android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/connection_status_indicator_imageview"
-        android:src="@drawable/connect_animation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:src="@drawable/animated_logo_notext"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         />
 
     <TextView
         android:id="@+id/connection_status_username"
-        android:text="hello"
+        tools:text="John Doe"
+        android:layout_marginStart="8dp"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:textColor="@android:color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 

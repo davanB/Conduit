@@ -10,14 +10,16 @@ import java.io.Serializable;
 public class HandShakeData implements Serializable {
     public int mMasterAddress;
     public int mFriendAddress;
+    public int mGroupSize;
     public String mGroupName;
     public String mPassword;
 
-    public HandShakeData(int masterAddress, int friendAddress, String groupName,
+    public HandShakeData(int masterAddress, int friendAddress, String groupName, int groupSize,
                          String password) {
         this.mMasterAddress = masterAddress;
         this.mFriendAddress = friendAddress;
         this.mGroupName = groupName;
+        this.mGroupSize = groupSize;
         this.mPassword = password;
     }
 
@@ -26,6 +28,7 @@ public class HandShakeData implements Serializable {
         result.append(this.mMasterAddress + ",");
         result.append(this.mFriendAddress + ",");
         result.append(this.mGroupName + ",");
+        result.append(this.mGroupSize + ",");
         result.append(this.mPassword);
         return result.toString();
     }

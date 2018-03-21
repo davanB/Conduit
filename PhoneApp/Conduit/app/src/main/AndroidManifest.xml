@@ -22,7 +22,7 @@
         <activity
             android:name=".flow.AppModeActivity"
             android:label="App Mode"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar.NoEntry" />
         <activity
             android:name=".flow.master.GroupCreationActivity"
             android:label="Create a group"
@@ -39,10 +39,9 @@
             android:name=".flow.ConduitConnectionActivity"
             android:label="@string/app_name"
             android:noHistory="true"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar.NoExit">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -53,10 +52,16 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-        <activity android:name=".flow.master.DistributeGroupDataActivity" />
-        <activity android:name=".flow.slave.GroupJoinActivity" />
+        <activity android:name=".flow.master.DistributeGroupDataActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".flow.slave.GroupJoinActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".LogDumpActivity" />
-        <activity android:name=".conduitview.ConduitActivity"></activity>
+        <activity android:name=".StatsViewActivity"
+            android:label="View Debug Stats"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".conduitview.ConduitActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

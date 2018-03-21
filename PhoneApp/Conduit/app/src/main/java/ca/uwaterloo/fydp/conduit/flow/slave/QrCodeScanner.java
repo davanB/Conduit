@@ -49,10 +49,13 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
         currentUserName = intent.getStringExtra(AppConstants.USER_NAME_KEY);
 
         // Use this to simulate reading a QR code (it will trigger the onResult event for you with data)
-        PuppetMaster puppetMaster = new PuppetMaster();
-        PuppetShow simulateQrScan = new BootstrappingQRCodeScanned(this, ConduitManager.getConduitGroup(0,0));
-        puppetMaster.startShow(simulateQrScan);
 
+        if(AppConstants.PUPPET_MASTER_ENABLED) {
+            PuppetMaster puppetMaster = new PuppetMaster();
+            PuppetShow simulateQrScan = new BootstrappingQRCodeScanned(this, ConduitManager.getConduitGroup(0,0,6));
+            puppetMaster.startShow(simulateQrScan);
+            return;
+        }
 
         mScannerView.startCamera();
     }
@@ -84,12 +87,13 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
         // values[0] = master address
         // values[1] = friend address
         // values[2] = group name
-        // values[3] = password
+        // values[3] = group size
+        // values[4] = password
 
         mScannerView.stopCamera();
 
-        HandShakeData parsedHandshakeData = new HandShakeData(Integer.parseInt(values[0]),Integer.parseInt(values[1]), values[2], values[3]);
-        DataTransformation.setSecretKey(values[3]);
+        HandShakeData parsedHandshakeData = new HandShakeData(Integer.parseInt(values[0]), Integer.parseInt(values[1]), values[2], Integer.parseInt(values[3]), values[4]);
+        DataTransformation.setSecretKey(values[4]);
 
         performConduitEvents(parsedHandshakeData);
     }
@@ -98,9 +102,10 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
         Log.v("YEET", "Handshake data recv'd! " + parsedHandshakeData);
         final int assignedUserId = parsedHandshakeData.mFriendAddress & 0x000000FF ;
         final int masterAddress = parsedHandshakeData.mMasterAddress;
+        final int groupSize = parsedHandshakeData.mGroupSize;
         final String groupName = parsedHandshakeData.mGroupName;
 
-        final ConduitGroup group = ConduitManager.getConduitGroup(masterAddress, assignedUserId);
+        final ConduitGroup group = ConduitManager.getConduitGroup(masterAddress, assignedUserId, groupSize);
 
         // Inform the master of our info
         group.send(0, new ConduitConnectionEvent(assignedUserId, currentUserName));
@@ -127,13 +132,29 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
                         }
 
                         // let master know that we're ready to go!
-                        group.send(0, new ConduitConnectionEvent(assignedUserId, currentUserName));
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        group.send(0, new ConduitConnectionEvent(assignedUserId, currentUserName));
+                                        Log.v("NavTest", ledger.getGroupMemberNamesList().toString());
 
-                        Log.v("NavTest", ledger.getGroupMemberNamesList().toString());
+                                        // Off to main activity now
+                                        Intent intent = new Intent(QrCodeScanner.this, ConduitActivity.class);
+                                        startActivity(intent);
+                                    }
+                                });
+                            }
+                        }).start();
 
-                        // Off to main activity now
-                        Intent intent = new Intent(QrCodeScanner.this, ConduitActivity.class);
-                        startActivity(intent);
+
                     }
                 });
                 return null;
@@ -142,8 +163,10 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
 
 
         // User this to simulate group data event firing with data
-        PuppetMaster puppetMaster = new PuppetMaster();
-        PuppetShow simulateQrScan = new BootstrappingGroupDataIncoming(group);
-        puppetMaster.startShow(simulateQrScan);
+        if(AppConstants.PUPPET_MASTER_ENABLED) {
+            PuppetMaster puppetMaster = new PuppetMaster();
+            PuppetShow simulateQrScan = new BootstrappingGroupDataIncoming(group);
+            puppetMaster.startShow(simulateQrScan);
+        }
     }
 }

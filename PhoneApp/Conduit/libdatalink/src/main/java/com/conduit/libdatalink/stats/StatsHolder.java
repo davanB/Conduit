@@ -25,11 +25,13 @@ public class StatsHolder {
         average = average + (value-average)/(float) count;
     }
 
-    public void printStats() {
-        System.out.println("\tMin:   " + min + " " + units);
-        System.out.println("\tMax:   " + max + " " + units);
-        System.out.println("\tLast:  " + last + " " + units);
-        System.out.println("\tAvg:   " + average + " " + units);
-        System.out.println("\tCount: " + count);
+    public String getStats() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\tMin:   \t" ).append(min).append(" ").append(units).append("\n");
+        sb.append("\tMax:   \t" ).append(max).append(" ").append(units).append("\n");
+        sb.append("\tLast:  \t" ).append(last).append(" ").append(units).append("\n");
+        sb.append("\tAvg:   \t" ).append(average).append(" ").append(units).append("\n");
+        sb.append("\tCount: \t" ).append(count).append(" ").append("\n");
+        return sb.toString();
     }
 }

@@ -52,7 +52,7 @@ public class GroupData {
 
     public HandShakeData generateHandShakeData() {
         int friendAddr = generateAddress();
-        HandShakeData friendData = new HandShakeData(this.mMasterAddress, friendAddr, this.mGroupName, this.mPassword);
+        HandShakeData friendData = new HandShakeData(this.mMasterAddress, friendAddr, this.mGroupName, this.mGroupSize, this.mPassword);
         mHandShakeDataList.add(friendData);
         return friendData;
     }

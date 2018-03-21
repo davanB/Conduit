@@ -34,4 +34,8 @@ public class SerialPacketParser {
 
         return packet;
     }
+
+    public void reset() {
+        accumulator.clear();
+    }
 }

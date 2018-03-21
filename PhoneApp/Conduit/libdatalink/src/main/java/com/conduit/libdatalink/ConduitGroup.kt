@@ -1,15 +1,18 @@
 package com.conduit.libdatalink
 
 import com.conduit.libdatalink.conduitabledata.*
-import org.omg.CORBA.Object
 import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int) {
+open class ConduitGroup constructor(dataLink: DataLinkInterface, val baseAddress: Int, val currentClientId: Int, val groupSize: Int) {
     val conduitableListeners: MutableMap<Byte ,((ConduitableData) -> Unit)> = HashMap()
 
+    var dataLink: DataLinkInterface
+        private set
+
     init {
+        this.dataLink = dataLink
         openInitialReadPipes(baseAddress, currentClientId)
         dataLink.addReadListener(object:DataLinkListener {
             override fun OnReceiveData(originAddress: Int, payloadType: Byte, payload: ByteBuffer?) {
@@ -17,21 +20,20 @@ open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val
             }
 
             override fun OnSerialError(commandId: Byte, payload: ByteArray?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
         })
     }
 
     fun sendAll(data: ConduitableData) {
         val allClientIds:ArrayList<Int> = ArrayList()
-        allClientIds += 0..5
+        allClientIds += 0..(groupSize-1)
         val clientIdsToSendto = allClientIds.filter{ it != currentClientId }
         clientIdsToSendto.forEach{
             send(it, data)
         }
     }
 
-    fun send(clientId: Int, data: ConduitableData) {
+    open fun send(clientId: Int, data: ConduitableData) {
         val address: Int = ConduitGroupHelper.getFullAddress(baseAddress, clientId, currentClientId)
         dataLink.openWritingPipe(address)
 //        System.out.println("YEET opening write pipe: " + ConduitGroupHelper.getFullAddress(baseAddress, clientId))
@@ -56,11 +58,10 @@ open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val
     }
 
     open fun getClassForPayloadType(payloadType: Byte): ConduitableData = when(payloadType) {
-        ConduitableDataTypes.MESSAGE.flag -> ConduitMessage()
         ConduitableDataTypes.GPS_COORDS.flag -> ConduitGpsLocation()
         ConduitableDataTypes.CONNECTION_EVENT.flag -> ConduitConnectionEvent()
         ConduitableDataTypes.GROUP_DATA.flag -> ConduitGroupData()
-        else -> ConduitMessage()
+        else -> ConduitGpsLocation()
         // TODO: maybe throw an exception here for unrecognized data?
     }
 
@@ -74,13 +75,13 @@ open class ConduitGroup constructor(private val dataLink: DataLinkInterface, val
 
         // list of all possible clientIds
         val allClientIds:ArrayList<Int> = ArrayList()
-        allClientIds += 0..5
+        allClientIds += 0..(groupSize-1)
 
         // filter self out
         val clientIdsToReadFrom = allClientIds.filter{ it != currentClientId }
 
         // pipes should be numbered from 1 to 5
-        (1..5).zip(clientIdsToReadFrom).forEach{
+        (1..(groupSize - 1)).zip(clientIdsToReadFrom).forEach{
             (pipeNumber, clientId) ->
             run {
                 dataLink.openReadingPipe(pipeNumber.toByte(), ConduitGroupHelper.getFullAddress(baseAddress, currentClientId, clientId))

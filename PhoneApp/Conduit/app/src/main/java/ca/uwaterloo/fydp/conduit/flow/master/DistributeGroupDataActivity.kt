@@ -2,6 +2,7 @@ package ca.uwaterloo.fydp.conduit.flow.master
 
 import android.content.ClipData
 import android.content.Intent
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.media.Image
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -25,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import ca.uwaterloo.fydp.conduit.AppConstants
 import ca.uwaterloo.fydp.conduit.conduitview.ConduitActivity
 import kotlin.properties.Delegates
 
@@ -40,8 +42,6 @@ class DistributeGroupDataActivity : AppCompatActivity() {
         responsesReceived[ConduitManager.getLedger().currentUserId] = true
         val conduitGroup = ConduitManager.getConduitGroup(ConduitManager.getLedger())
 
-        val respoTest = findViewById<TextView>(R.id.connection_response_evts)
-
 
         pendingConnectionsView = findViewById<RecyclerView>(R.id.pending_connections)
         pendingConnectionsView.layoutManager = LinearLayoutManager(this)
@@ -56,8 +56,6 @@ class DistributeGroupDataActivity : AppCompatActivity() {
                 pendingConnectionsAdapter.data = responsesReceived
                 pendingConnectionsAdapter.notifyDataSetChanged()
 
-                respoTest.append(ConduitManager.getLedger().getUserNameForId(clientId) + " has connected\n")
-
                 val finished = responsesReceived.all { it}
                 if (finished) {
                     nextScreen()
@@ -65,27 +63,35 @@ class DistributeGroupDataActivity : AppCompatActivity() {
             }
         }
 
-        for (i in 0..ConduitManager.getLedger().groupSize) {
-            val ledger: ConduitLedger = ConduitManager.getLedger()
-            val groupData = ConduitGroupData(ledger.groupName, ledger.groupSize, ledger.getGroupMemberNamesList())
-            conduitGroup.send(i, groupData)
-        }
-
+        // Send ledger and group info to the group
+        val ledger: ConduitLedger = ConduitManager.getLedger()
+        val groupData = ConduitGroupData(ledger.groupName, ledger.groupSize, ledger.getGroupMemberNamesList())
+        conduitGroup.sendAll(groupData)
 
 
         // TODO: The following code is being used for debug purposes
-        val puppetMaster = PuppetMaster()
-        val simulateConduitResponseEvents = BootstrappingDataReceivedEventsIncoming(conduitGroup)
-        puppetMaster.startShow(simulateConduitResponseEvents)
+        if(AppConstants.PUPPET_MASTER_ENABLED) {
+            val puppetMaster = PuppetMaster()
+            val simulateConduitResponseEvents = BootstrappingDataReceivedEventsIncoming(conduitGroup)
+            puppetMaster.startShow(simulateConduitResponseEvents)
+        }
 
     }
 
     private fun nextScreen() {
-        val intent = Intent(this, ConduitActivity::class.java)
-        startActivity(intent)
+        Thread{
+            Thread.sleep(2000)
+            runOnUiThread{
+                val intent = Intent(this, ConduitActivity::class.java)
+                startActivity(intent)
+            }
+        }.start()
     }
 
     inner class PendingConnectionsAdapter(var data: BooleanArray) : RecyclerView.Adapter<PendingConnectionsAdapter.ViewHolder>(){
+
+        val hasAnimated: BooleanArray = BooleanArray(data.size, {false})
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             ViewHolder(LayoutInflater.from(parent.context)
                     .inflate(R.layout.connection_status_list_item, parent, false))
@@ -93,7 +99,7 @@ class DistributeGroupDataActivity : AppCompatActivity() {
         override fun getItemCount(): Int = data.size
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-            holder.bind(ConduitManager.getLedger().getUserNameForId(position), data[position])
+            holder.bind(ConduitManager.getLedger().getUserNameForId(position), data[position], position)
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             var indicatorView: ImageView by Delegates.notNull()
@@ -104,10 +110,30 @@ class DistributeGroupDataActivity : AppCompatActivity() {
                 nameView = itemView.findViewById(R.id.connection_status_username)
             }
 
-            fun bind(name: String, status: Boolean) = with(itemView) {
+            fun bind(name: String, status: Boolean, position: Int) = with(itemView) {
                 nameView.text = name
-                val imageId = if (status) android.R.drawable.ic_media_play else R.drawable.connect_animation
-                indicatorView.setImageResource(imageId)
+                val tintColor = if(status) android.R.color.black else R.color.colorAccent
+                indicatorView.setColorFilter(indicatorView.resources.getColor(tintColor))
+
+                if(!status) {
+                    indicatorView.setImageResource(R.drawable.initial_logo)
+                }
+
+                if(status && !hasAnimated[position]) {
+                    hasAnimated[position] = true
+                    indicatorView.setImageResource(R.drawable.animated_logo_notext)
+                    (indicatorView.drawable as AnimatedVectorDrawable).start()
+                }
+
+                if( status && hasAnimated[position]) {
+                    if(indicatorView.drawable !is AnimatedVectorDrawable){
+                        indicatorView.setImageResource(R.drawable.animated_logo_notext)
+                    }
+
+                }
+//                val imageId = if (status) android.R.drawable.ic_media_play else R.drawable.connect_animation
+//                indicatorView.setImageResource(imageId)
+
             }
         }
     }

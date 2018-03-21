@@ -15,29 +15,43 @@ import static com.conduit.libdatalink.internal.SerialPacket.*;
 
 public class DataLink implements DataLinkInterface {
 
-    private static final int MAX_PACKETS_IN_FLIGHT = ARDUINO_SERIAL_RX_BUFFER_SIZE / SerialPacket.PACKET_SIZE;
+//    private static final int MAX_PACKETS_IN_FLIGHT = ARDUINO_SERIAL_RX_BUFFER_SIZE / SerialPacket.PACKET_SIZE;
+    private static final int MAX_PACKETS_IN_FLIGHT = 1;
 
     private UsbDriverInterface usbDriver;
     private List<DataLinkListener> dataLinkObservers = new ArrayList<DataLinkListener>();
 
     private BlockingQueue<SerialPacket> processingQueue = new LinkedBlockingQueue<SerialPacket>();
-    private BlockingQueue<SerialPacket> inFlightQueue = new LinkedBlockingQueue<SerialPacket>();
-    private BlockingQueue<SerialPacket> retryQueue = new LinkedBlockingQueue<SerialPacket>();
+    private SerialPacket inFlightPacket = null;
+    private SerialPacket retryPacket = null;
     private SerialPacketParser serialPacketParser = new SerialPacketParser();
     private Map<Byte, NetworkPacketParser> networkPacketParsers = new HashMap<Byte, NetworkPacketParser>();
 
+    private boolean doneReset = false;
 
     final Semaphore txOkSem = new Semaphore(MAX_PACKETS_IN_FLIGHT);
     private QueueConsumer queueConsumer = new QueueConsumer();
     private Thread consumerThread = new Thread(queueConsumer);
 
     private int groupAddress = -1;
-    public StatsCollector statsCollector = new StatsCollector();
+
+    private StatsCollector statsCollector = new StatsCollector();
 
     public DataLink(UsbDriverInterface usbDriver) {
         this.usbDriver = usbDriver;
         this.usbDriver.setReadListener(usbSerialListener);
         this.consumerThread.start();
+    }
+
+    public void reset() {
+        serialPacketParser.reset();
+    }
+
+    public String getStats() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Queue Length: \t").append(processingQueue.size()).append('\n');
+        sb.append(statsCollector.getStats());
+        return sb.toString();
     }
 
     public void debugLEDBlink(byte numBlinks) {
@@ -94,8 +108,8 @@ public class DataLink implements DataLinkInterface {
             System.out.println("[DataLink] Registered Group Address " + String.format("0x%08X", groupAddress));
         }
 
-        // Create a new packetparser for this address
-        byte lsb = (byte)(address & 0x000000FF);
+        // Create a new packetparser for remote CLIENT
+        byte lsb = (byte)(address & 0x0000000F);
         networkPacketParsers.put(lsb, new NetworkPacketParser());
 
         byte a[] = Utils.intToBytes(address);
@@ -124,10 +138,16 @@ public class DataLink implements DataLinkInterface {
             System.out.println("Starting Datalink Queue Consumer");
             try {
                 while (true) {
+                    if (!doneReset) {
+                        reset();
+                        doneReset = true;
+                    }
                     // wait till safe to send, then send single packet
                     txOkSem.acquire();
-                    if (!retryQueue.isEmpty()) {
-                        consume(retryQueue.take());
+                    if (retryPacket != null) {
+                        System.out.println("Retrying SerialPacket!");
+                        consume(retryPacket);
+                        retryPacket = null;
                     } else {
                         consume(processingQueue.take());
                     }
@@ -139,7 +159,7 @@ public class DataLink implements DataLinkInterface {
 
         void consume(SerialPacket packet) {
             statsCollector.serialPacketTx(packet);
-            inFlightQueue.add(packet);
+            inFlightPacket = packet;
             usbDriver.sendBuffer(packet.getPacketByteBuffer().array());
         }
     }
@@ -185,7 +205,6 @@ public class DataLink implements DataLinkInterface {
                     SerialPacket serialPacket = serialPacketParser.getPacket();
                     byte[] payload = new byte[serialPacket.getPayloadSize()];
                     serialPacket.getPacketPayload(payload);
-                    statsCollector.serialPacketAck(serialPacket);
 
                     System.out.println("[DataLink] SerialPacket Ready: \n" + serialPacket.toString());
 
@@ -198,7 +217,7 @@ public class DataLink implements DataLinkInterface {
                         if (networkPacketParser == null) {
                             System.out.println("[DataLink] [Error] Received data from unexpected address " + String.format(
                                     "0x%08X",
-                                    (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource())
+                                    (0xFFFFFF00 & groupAddress) | (0x0000000F & serialPacket.getSource())
                             ));
                             return;
                         }
@@ -210,7 +229,7 @@ public class DataLink implements DataLinkInterface {
 
                             NetworkPacket networkPacket = networkPacketParser.getPacket();
                             notifyDataLinkObservers(
-                                    (0xFFFFFF00 & groupAddress) | (0x000000FF & serialPacket.getSource()), // Combine group and source to get address
+                                    (0xFFFFFF00 & groupAddress) | (0x0000000F & serialPacket.getSource()), // Combine group and client id to get address
                                     networkPacket.getPayloadType(),
                                     networkPacket.getPacketPayload()
                             );
@@ -218,6 +237,7 @@ public class DataLink implements DataLinkInterface {
 
                     } else {
                         // This packet came from the Arduino
+                        statsCollector.serialPacketAck(serialPacket);
 
                         // Action on packet status
                         if (serialPacket.getStatus() == STATUS_SUCCESS) {
@@ -236,7 +256,8 @@ public class DataLink implements DataLinkInterface {
                                 case COMMAND_WRITE:
                                     // Apply serial packet retry policy
                                     // TODO: This only works with MAX_PACKETS_IN_FLIGHT == 1
-                                    retryQueue.put(inFlightQueue.take());
+                                    retryPacket = inFlightPacket;
+                                    inFlightPacket = null;
                                     break;
                             }
 

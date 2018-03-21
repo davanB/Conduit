@@ -8,13 +8,17 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import ca.uwaterloo.fydp.conduit.AppConstants;
+import ca.uwaterloo.fydp.conduit.DataTransformation;
 import ca.uwaterloo.fydp.conduit.R;
 import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity;
 
@@ -24,7 +28,7 @@ public class GroupCreationActivity extends AppCompatActivity {
     // UI references.
     private TextInputEditText mGroupName;
     private TextInputEditText mUserName;
-    private TextInputEditText mPassword;
+    private String mPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,21 +37,26 @@ public class GroupCreationActivity extends AppCompatActivity {
         // Set up the group form.
         mGroupName = (TextInputEditText) findViewById(R.id.group_name);
         mUserName = (TextInputEditText) findViewById(R.id.user_name);
-        mPassword = (TextInputEditText) findViewById(R.id.password);
-        final Spinner groupSizeSpinner = findViewById(R.id.group_size_spinner);
+        Random rand = new Random();
+        Long randomNum = rand.nextLong();
+        mPassword = randomNum.toString();
+        DataTransformation.setSecretKey(mPassword);
+        final SeekBar groupSizeSlider = findViewById(R.id.group_size_slider);
+        final TextView groupSizeReadout = findViewById(R.id.group_size_readout);
 
-        List<String> spinnerArray =  new ArrayList<>();
-        spinnerArray.add("1");
-        spinnerArray.add("2");
-        spinnerArray.add("3");
-        spinnerArray.add("4");
-        spinnerArray.add("5");
-        spinnerArray.add("6");
+        groupSizeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                groupSizeReadout.setText("group size: " + i);
+            }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, spinnerArray);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        groupSizeSpinner.setAdapter(adapter);
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+
 
         Button mGroupNameButton = (Button) findViewById(R.id.group_creation_start_button);
         mGroupNameButton.setOnClickListener(new OnClickListener() {
@@ -55,11 +64,12 @@ public class GroupCreationActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), QRGenerationActivity.class);
                 if (isGroupNameValid(mGroupName.getText().toString()) &&
-                        isInputValid(mUserName.getText().toString()) && isInputValid(mPassword.getText().toString())) {
+                        isInputValid(mUserName.getText().toString()) ) {
+                    Toast.makeText(GroupCreationActivity.this, groupSizeSlider.getProgress() + "", Toast.LENGTH_LONG).show();
                     intent.putExtra(AppConstants.GROUP_NAME_KEY, mGroupName.getText().toString());
                     intent.putExtra(AppConstants.USER_NAME_KEY, mUserName.getText().toString());
-                    intent.putExtra(AppConstants.PASSWORD_KEY, mPassword.getText().toString());
-                    intent.putExtra(AppConstants.GROUP_SIZE, Integer.parseInt(groupSizeSpinner.getSelectedItem().toString()));
+                    intent.putExtra(AppConstants.PASSWORD_KEY, mPassword);
+                    intent.putExtra(AppConstants.GROUP_SIZE, groupSizeSlider.getProgress());
                     startActivity(intent);
                 }
                 else {

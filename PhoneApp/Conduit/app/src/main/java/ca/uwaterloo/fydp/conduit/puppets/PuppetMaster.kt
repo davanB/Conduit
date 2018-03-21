@@ -1,5 +1,6 @@
 package ca.uwaterloo.fydp.conduit.puppets
 
+import ca.uwaterloo.fydp.conduit.AppConstants
 import java.util.ArrayList
 
 class PuppetMaster {
@@ -7,6 +8,9 @@ class PuppetMaster {
 
     // Chains shows in list one after the other
     fun chainShows(puppetShows: List<PuppetShow>) {
+        if(!AppConstants.PUPPET_MASTER_ENABLED) {
+            return
+        }
         for (puppetShow in puppetShows) {
             puppetShow.writeScript()
             val startTime = nextShowTime
@@ -21,6 +25,9 @@ class PuppetMaster {
     }
 
     fun startShow(puppetShow: PuppetShow) {
+        if(!AppConstants.PUPPET_MASTER_ENABLED) {
+            return
+        }
         val shows: ArrayList<PuppetShow> = ArrayList()
         shows.add(puppetShow)
         chainShows(shows)

@@ -1,6 +1,7 @@
 package ca.uwaterloo.fydp.conduit.flow;
 
 import android.content.Intent;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +16,7 @@ public class AppModeActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().setEnterTransition(null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app_mode);
 

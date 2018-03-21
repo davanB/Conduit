@@ -10,7 +10,7 @@ class BootstrappingQRCodeScanned(val qrResultHandler: ZXingScannerView.ResultHan
     override fun writeScript(){
         script.clear()
         delay(5000)
-        val mockHandshakeData = HandShakeData(GroupData.START_ADDRESS, 0x00000003, "Cool Friends", "sneaky")
+        val mockHandshakeData = HandShakeData(GroupData.START_ADDRESS, 0x00000003, "Cool Friends", 6,"sneaky")
         val result = Result(mockHandshakeData.toString(), null, null, null)
         qrResultHandler.handleResult(result)
     }

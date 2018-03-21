@@ -58,20 +58,28 @@ public class StatsCollector {
         statsNetworkRoundTripLatency.addMeasure(us / 1000f);
     }
 
-    public void printStats() {
-        System.out.println("Queue Wait Time");
-        statsQueueWait.printStats();
+    public String getStats() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Queue Wait Time\n");
+        sb.append(statsQueueWait.getStats());
+        sb.append("\n");
 
-        System.out.println("Serial Round Trip Latency");
-        statsSerialRoundTripLatency.printStats();
+        sb.append("Serial Round Trip Latency\n");
+        sb.append(statsSerialRoundTripLatency.getStats());
+        sb.append("\n");
 
-        System.out.println("Serial Round Trip Bandwidth");
-        statsSerialBandwidth.printStats();
+        sb.append("Serial Round Trip Bandwidth\n");
+        sb.append(statsSerialBandwidth.getStats());
+        sb.append("\n");
 
-        System.out.println("Network Round Trip Latency");
-        statsNetworkRoundTripLatency.printStats();
+        sb.append("Network Round Trip Latency\n");
+        sb.append(statsNetworkRoundTripLatency.getStats());
+        sb.append("\n");
 
-        System.out.println("Network Round Trip Bandwidth");
-        statsNetworkBandwidth.printStats();
+        sb.append("Network Round Trip Bandwidth\n");
+        sb.append(statsNetworkBandwidth.getStats());
+        sb.append("\n");
+
+        return sb.toString();
     }
 }

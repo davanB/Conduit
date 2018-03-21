@@ -36,5 +36,6 @@ class ConduitListView@JvmOverloads constructor(
 
     override fun notifyDataReceived() {
         viewAdapter.notifyDataSetChanged()
+        recyclerView.smoothScrollToPosition(data.size - 1)
     }
 }

@@ -3,10 +3,7 @@ package com.conduit.desktop;
 import com.conduit.libdatalink.ConduitGroup;
 import com.conduit.libdatalink.DataLink;
 import com.conduit.libdatalink.DataLinkListener;
-import com.conduit.libdatalink.conduitabledata.ConduitConnectionEvent;
-import com.conduit.libdatalink.conduitabledata.ConduitMessage;
-import com.conduit.libdatalink.conduitabledata.ConduitableData;
-import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes;
+import com.conduit.libdatalink.conduitabledata.*;
 import com.fazecast.jSerialComm.SerialPort;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -31,7 +28,8 @@ public class Main {
     private static final int ACTION_SERIAL_THROUGHPUT = 3;
     private static final int ACTION_NETWORK_THROUGHPUT = 4;
     private static final int ACTION_CONDUIT_CONNECTION_EVENT = 5;
-    private static final int ACTION_CONDUIT_GROUP_FLOW = 6;
+    private static final int ACTION_CONDUIT_GROUP_CONNECTION_FLOW_M = 6;
+    private static final int ACTION_CONDUIT_GROUP_CONNECTION_FLOW_S = 7;
     private static final int ACTION_STATS = 9;
 
     private static final byte PACKET_TYPE_DEBUG_JUNK = 1;
@@ -61,28 +59,6 @@ public class Main {
         if (portNumber == -1) portNumber = in.nextInt();
 
         dataLink = new DataLink(new UsbDriver(serialPorts.get(portNumber)));
-//        dataLink.addReadListener(new DataLinkListener() {
-//            @Override
-//            public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
-//                byte[] buf = new byte[payload.remaining()];
-//                payload.get(buf);
-//
-//                switch (payloadType) {
-//                    case PACKET_TYPE_DEBUG_IMAGE:
-//                        File fi = new File("tmp/" + System.currentTimeMillis() + ".jpg");
-//                        fi.getParentFile().mkdirs();
-//                        try {
-//                            Files.write(fi.toPath(), buf);
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                        break;
-//                    default:
-//                        System.out.println(String.format("0x%08X %1s", originAddress, new String(buf)));
-//                        break;
-//                }
-//            }
-//        });
 
 //        connect();
 //        sendString();
@@ -95,7 +71,8 @@ public class Main {
             System.out.println(String.format("[%d] Serial Throughput", ACTION_SERIAL_THROUGHPUT));
             System.out.println(String.format("[%d] Network Throughput", ACTION_NETWORK_THROUGHPUT));
             System.out.println(String.format("[%d] CCE", ACTION_CONDUIT_CONNECTION_EVENT));
-            System.out.println(String.format("[%d] Conduit Group Flow", ACTION_CONDUIT_GROUP_FLOW));
+            System.out.println(String.format("[%d] Conduit Group Connection Flow (M)", ACTION_CONDUIT_GROUP_CONNECTION_FLOW_M));
+            System.out.println(String.format("[%d] Conduit Group Connection Flow (S)", ACTION_CONDUIT_GROUP_CONNECTION_FLOW_S));
             System.out.println(String.format("[%d] Dump Stats", ACTION_STATS));
 
             int action = in.nextInt();
@@ -111,20 +88,23 @@ public class Main {
                     break;
                 case ACTION_SERIAL_THROUGHPUT:
                     serialThroughput();
-                    dataLink.statsCollector.printStats();
+                    System.out.println(dataLink.getStats());
                     break;
                 case ACTION_NETWORK_THROUGHPUT:
                     networkThroughput();
-                    dataLink.statsCollector.printStats();
+                    System.out.println(dataLink.getStats());
                     break;
                 case ACTION_CONDUIT_CONNECTION_EVENT:
                     conduitConnectionEvent();
                     break;
-                case ACTION_CONDUIT_GROUP_FLOW:
-                    conduitGroupFlow();
+                case ACTION_CONDUIT_GROUP_CONNECTION_FLOW_M:
+                    conduitGroupFlow(true);
+                    break;
+                case ACTION_CONDUIT_GROUP_CONNECTION_FLOW_S:
+                    conduitGroupFlow(false);
                     break;
                 case ACTION_STATS:
-                    dataLink.statsCollector.printStats();
+                    System.out.println(dataLink.getStats());
                     break;
             }
 
@@ -133,37 +113,58 @@ public class Main {
 
     private static void connect() {
         // Only the last byte should differ
-        int addrA = 0xABCDEF01; // Me
-        int addrB = 0xABCDEF04;
+//        int addrA = 0xABCDEF01; // Me
+//        int addrB = 0xABCDEF04;
+
+        int addrA = 0xABCDEF00; // Me
+        int addrB = 0xABCDEF20;
+
 //        int addrA = 0xABCDEF27; // Me
 //        int addrB = 0xABCDEF13;
 
         // Assuming ports are off by one
         if (portNumber % 2 == 0) {
             System.out.println("This is radio A");
-            dataLink.openReadingPipe((byte)1, addrB);
-            dataLink.openReadingPipe((byte)2, 0xABCDEF06);
-            dataLink.openReadingPipe((byte)3, 0xABCDEF07);
-            dataLink.openReadingPipe((byte)4, 0xABCDEF08);
-//            dataLink.openReadingPipe((byte)5, 0xABCDEF09);
-            dataLink.openWritingPipe(addrA);
+//            dataLink.openReadingPipe((byte)1, 0xABCDEF00);
+            dataLink.openReadingPipe((byte)1, 0xABCDEF01);
+            dataLink.openReadingPipe((byte)2, 0xABCDEF02);
+            dataLink.openReadingPipe((byte)3, 0xABCDEF03);
+            dataLink.openReadingPipe((byte)4, 0xABCDEF04);
+            dataLink.openReadingPipe((byte)5, 0xABCDEF05);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            dataLink.openWritingPipe(0xABCDEF20);
             remote = addrB;
         } else {
             System.out.println("This is radio B");
-            dataLink.openReadingPipe((byte)1, addrA);
-            dataLink.openReadingPipe((byte)2, 0xABCDEF06);
-            dataLink.openReadingPipe((byte)3, 0xABCDEF07);
-            dataLink.openReadingPipe((byte)4, 0xABCDEF08);
-//            dataLink.openReadingPipe((byte)5, 0xABCDEF09);
-            dataLink.openWritingPipe(addrB);
+            dataLink.openReadingPipe((byte)1, 0xABCDEF20);
+            dataLink.openReadingPipe((byte)2, 0xABCDEF21);
+            dataLink.openReadingPipe((byte)3, 0xABCDEF23);
+            dataLink.openReadingPipe((byte)4, 0xABCDEF24);
+            dataLink.openReadingPipe((byte)5, 0xABCDEF25);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            dataLink.openWritingPipe(0xABCDEF01);
+//            dataLink.openWritingPipe(0xABCDEF02); // TODO: WHY? This breaks.
             remote = addrA;
         }
 //        System.out.println("This is radio A");
-//        dataLink.openWritingPipe(0xABCDEF0D);
-//        dataLink.openReadingPipe((byte)1, 0xABCDEF04);
+//        dataLink.openWritingPipe(0xABCDEF01);
+//        dataLink.openReadingPipe((byte)1, 0xABCDEF10);
 //        remote = addrA;
 
         System.out.println("Ready to Tx/Rx");
+        addDataLinkListener();
     }
 
     private static void sendString() {
@@ -208,15 +209,15 @@ public class Main {
         clientId++;
     }
 
-    private static void conduitGroupFlow() {
+    private static void conduitGroupFlow(boolean master) {
         int masterClientId = 0;
         int slaveClientId = 1;
 
-        if (portNumber % 2 == 0) {
+        if (master) {
 
             System.out.println("[Master] I am Master");
 
-            ConduitGroup conduitGroup = new ConduitGroup(dataLink, 0xABCDEF00, masterClientId);
+            ConduitGroup conduitGroup = new ConduitGroup(dataLink, 0xABCDEF00, masterClientId, 2);
             conduitGroup.addConduitableDataListener(ConduitableDataTypes.CONNECTION_EVENT, new Function1<ConduitableData, Unit>() {
                 @Override
                 public Unit invoke(ConduitableData conduitableData) {
@@ -241,21 +242,20 @@ public class Main {
 
         } else {
 
-            System.out.println("[Client] My name Jeff");
+            System.out.println("[Client] I am Client");
 
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            ConduitGroup conduitGroup = new ConduitGroup(dataLink, 0xABCDEF00, slaveClientId);
+            ConduitGroup conduitGroup = new ConduitGroup(dataLink, 0xABCDEF00, slaveClientId, 2);
             conduitGroup.addConduitableDataListener(ConduitableDataTypes.MESSAGE, new Function1<ConduitableData, Unit>() {
                 @Override
                 public Unit invoke(ConduitableData conduitableData) {
 
                     System.out.println("[Client] Got Ledger");
-                    conduitGroup.send(masterClientId, new ConduitMessage("Got the Ledger!"));
+
+                    ConduitMessage data = (ConduitMessage) conduitableData;
+//                    conduitableData
+
+                    // let master know that we're ready to go!
+                    conduitGroup.send(0, new ConduitConnectionEvent(slaveClientId, "Aaron"));
 
                     return null;
                 }
@@ -263,7 +263,7 @@ public class Main {
 
             System.out.println("[Client] Sent Connection Event");
             conduitGroup.send(masterClientId, new ConduitConnectionEvent(slaveClientId, "Aaron"));
-
+//            conduitGroup.send(masterClientId, new ConduitConnectionEvent(slaveClientId, "Aaron"));
         }
 
     }
@@ -280,5 +280,35 @@ public class Main {
             }
         }
         return ports;
+    }
+
+    private static void addDataLinkListener() {
+        dataLink.addReadListener(new DataLinkListener() {
+            @Override
+            public void OnReceiveData(int originAddress, byte payloadType, ByteBuffer payload) {
+                byte[] buf = new byte[payload.remaining()];
+                payload.get(buf);
+
+                switch (payloadType) {
+                    case PACKET_TYPE_DEBUG_IMAGE:
+                        File fi = new File("tmp/" + System.currentTimeMillis() + ".jpg");
+                        fi.getParentFile().mkdirs();
+                        try {
+                            Files.write(fi.toPath(), buf);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    default:
+                        System.out.println(String.format("0x%08X %1s", originAddress, new String(buf)));
+                        break;
+                }
+            }
+
+            @Override
+            public void OnSerialError(byte commandId, byte[] payload) {
+                System.out.println("[Main] Serial Packet Error");
+            }
+        });
     }
 }
