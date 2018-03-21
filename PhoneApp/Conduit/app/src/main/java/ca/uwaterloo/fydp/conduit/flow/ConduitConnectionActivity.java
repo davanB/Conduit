@@ -1,7 +1,9 @@
 package ca.uwaterloo.fydp.conduit.flow;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Animatable2;
@@ -14,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import ca.uwaterloo.fydp.conduit.AppConstants;
 import ca.uwaterloo.fydp.conduit.R;
@@ -29,7 +32,8 @@ public class ConduitConnectionActivity extends AppCompatActivity {
    // private AnimationDrawable connectionAnimation;
 
     private final String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA};
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO};
 
     private boolean advanceFlag = false;
 
@@ -42,6 +46,23 @@ public class ConduitConnectionActivity extends AppCompatActivity {
         getWindow().setExitTransition(null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conduit_connection);
+
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        AppConstants.PUPPET_MASTER_ENABLED = prefs.getBoolean("isPuppetMaster", false);
+        AppConstants.USE_REAL_HARDWARE = !AppConstants.PUPPET_MASTER_ENABLED;
+        if(AppConstants.PUPPET_MASTER_ENABLED) {
+            Toast.makeText(ConduitConnectionActivity.this, "Puppet Master enabled", Toast.LENGTH_SHORT).show();
+        }
+
+        findViewById(R.id.conduit_connect_image).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+                prefs.edit().putBoolean("isPuppetMaster", !prefs.getBoolean("isPuppetMaster", false)).commit();
+                finish();
+                return true;
+            }
+        });
 
         if (!requestUserPermissions(PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_READ_AND_GPS);

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.RelativeLayout
+import ca.uwaterloo.fydp.conduit.ConduitAudio
 import ca.uwaterloo.fydp.conduit.ConduitImage
 import ca.uwaterloo.fydp.conduit.ConduitMessage
 import ca.uwaterloo.fydp.conduit.R
@@ -22,6 +23,7 @@ class ConduitStatusMessageView @JvmOverloads constructor(
         defStyleRes: Int = 0
 ) : RelativeLayout(context, attrs, defStyle, defStyleRes) {
 
+    val audioRecord = AudioRecord()
     init{
         var direction = 0
         val a = context.theme.obtainStyledAttributes(
@@ -67,6 +69,16 @@ class ConduitStatusMessageView @JvmOverloads constructor(
             ConduitableDataTypes.IMAGE -> {
                 value as ConduitImage
                 message_image.setImageBitmap(value.image)
+                message_image.setOnClickListener{}
+                message.visibility = View.GONE
+                message_image.visibility = View.VISIBLE
+            }
+            ConduitableDataTypes.AUDIO -> {
+                value as ConduitAudio
+                message_image.setImageResource(android.R.drawable.ic_btn_speak_now)
+                message_image.setOnClickListener{
+                    audioRecord.onPlay(true, value.audio)
+                }
                 message.visibility = View.GONE
                 message_image.visibility = View.VISIBLE
             }
