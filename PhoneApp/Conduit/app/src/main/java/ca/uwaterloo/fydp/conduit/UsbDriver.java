@@ -63,7 +63,7 @@ public class UsbDriver implements UsbDriverInterface {
     private SerialInputOutputManager.Listener seriaListener = new SerialInputOutputManager.Listener() {
         @Override
         public void onNewData(byte[] data) {
-            usbSerialListener.OnReceiveData(data);
+            if (usbSerialListener != null) usbSerialListener.OnReceiveData(data);
         }
 
         @Override
