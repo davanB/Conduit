@@ -12,10 +12,16 @@ import ca.uwaterloo.fydp.conduit.ConduitAudio
 import ca.uwaterloo.fydp.conduit.ConduitImage
 import ca.uwaterloo.fydp.conduit.ConduitMessage
 import ca.uwaterloo.fydp.conduit.R
+import ca.uwaterloo.fydp.conduit.R.id.mapview
 import ca.uwaterloo.fydp.conduit.connectionutils.ConduitManager
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
 import com.conduit.libdatalink.conduitabledata.ConduitableData
 import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
+import kotlinx.android.synthetic.main.activity_map_view.*
+import kotlinx.android.synthetic.main.content_main.view.*
+import org.osmdroid.tileprovider.tilesource.XYTileSource
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 
 /**
  * Created by alvin on 2018-03-08.
@@ -25,9 +31,12 @@ class ConduitListAdapter(private val data: List<ConduitableData>) : RecyclerView
     abstract class BaseViewHolder(rootView: View) : RecyclerView.ViewHolder(rootView) {
         val nameTextView = rootView.findViewById<TextView>(R.id.user_name)
         val dateTextView = rootView.findViewById<TextView>(R.id.time_stamp)
+        val iconView = rootView.findViewById<ConduitStatusIconView>(R.id.icon_view)
         open fun bind(conduitableData: ConduitableData) {
-            nameTextView.text = ConduitManager.getLedger().getUserNameForId(conduitableData.originAddress and 0x000000FF)
+            val userName = ConduitManager.getLedger().getUserNameForId(conduitableData.originAddress and 0x000000FF)
+            nameTextView.text = userName
             dateTextView.text = "10:24 PM"
+            iconView.setInformation(userName)
         }
     }
     class MessageViewHolder(val rootView: View) : BaseViewHolder(rootView){
@@ -39,11 +48,29 @@ class ConduitListAdapter(private val data: List<ConduitableData>) : RecyclerView
         }
     }
     class GPSViewHolder(val rootView: View) : BaseViewHolder(rootView){
-        val coord = rootView.findViewById<TextView>(R.id.gps_coord)
+        val mapview = rootView.findViewById<MapView>(R.id.gps_coord)
         override fun bind(conduitableData: ConduitableData) {
             super.bind(conduitableData)
             val gps = (conduitableData as ConduitGpsLocation)
-            coord.text = gps.latitude.toString() + ", " + gps.longitude
+
+            mapview.setUseDataConnection(false)
+            mapview.setTileSource(XYTileSource(
+                    "4uMaps",
+                    1,
+                    15,
+                    256,
+                    ".png",
+                    arrayOf()
+            ))
+            val loc = org.osmdroid.util.GeoPoint(gps.latitude, gps.longitude)
+            mapview.setMaxZoomLevel(17.0)
+            mapview.getController().setCenter(loc)
+            mapview.getController().setZoom(16.0)
+
+            val startMarker = Marker(mapview)
+            startMarker.setPosition(loc)
+            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            mapview.getOverlays().add(startMarker)
         }
     }
     class ImageViewHolder(rootView: View) : BaseViewHolder(rootView){

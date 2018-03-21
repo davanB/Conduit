@@ -35,15 +35,14 @@
         app:layout_constraintLeft_toRightOf="@+id/user_name"
         tools:text="10:42 PM" />
 
-    <TextView
+    <org.osmdroid.views.MapView
         android:id="@+id/gps_coord"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="250dp"
         android:layout_marginTop="2dp"
         android:textColor="@color/dark_gray"
         app:layout_constraintLeft_toRightOf="@+id/icon_view"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_name"
-        tools:text="It's like in the great stories, Mr. Frodo. The ones that really mattered. Full of darkness and danger they were. And sometimes you didn't want to know the end… because how could the end be happy?  " />
+        app:layout_constraintTop_toBottomOf="@+id/user_name" />
 
 </android.support.constraint.ConstraintLayout>
