@@ -10,14 +10,14 @@ class BootstrappingGroupDataIncoming(group: ConduitGroup) : PuppetShow(group) {
         script.clear()
         delay(5000)
         val groupMembers: ArrayList<String> = ArrayList()
-        groupMembers.add("Master Baytes")
-        groupMembers.add("Bob")
+        groupMembers.add("Aaron")
+        groupMembers.add("Alvin")
+        groupMembers.add("Navjot")
+        groupMembers.add("Shadmaan")
+        groupMembers.add("Davan")
         groupMembers.add("Joe")
-        groupMembers.add("Smith")
-        groupMembers.add("Fred")
-        groupMembers.add("Menma")
 
-        val groupData: ConduitGroupData =  ConduitGroupData("Cool guys", 6, groupMembers)
+        val groupData: ConduitGroupData =  ConduitGroupData("The Boys", 6, groupMembers)
         script.add { group.conduitableListeners[ConduitableDataTypes.GROUP_DATA.flag]?.invoke(groupData)}
     }
 

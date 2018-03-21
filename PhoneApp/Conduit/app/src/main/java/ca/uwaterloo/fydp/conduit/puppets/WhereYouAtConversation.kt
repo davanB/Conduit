@@ -22,19 +22,19 @@ class WhereYouAtConversation(val context: Context, group: ConduitGroup) : Puppet
         script.clear()
         for (i in 0..10) {
             delay(1000)
-            val msg0 = ConduitMessage("Oma wa mou Shindeiru")
+            val msg0 = ConduitMessage("Hey guys when should we meet up")
             msg0.originAddress = 0x00000000
             script.add { group.conduitableListeners[ConduitableDataTypes.MESSAGE.flag]?.invoke(msg0)}
 
-            val msglel = ConduitMessage("lmao u weeb")
+            val msglel = ConduitMessage("How about around 4pm?")
             msglel.originAddress = 0x00000004
             script.add { group.conduitableListeners[ConduitableDataTypes.MESSAGE.flag]?.invoke(msglel)}
 
-            val msg1 = ConduitMessage("Where are you?")
+            val msg1 = ConduitMessage("Okay cool, where should we meet?")
             msg1.originAddress = 0x00000002
             script.add { group.conduitableListeners[ConduitableDataTypes.MESSAGE.flag]?.invoke(msg1)}
             delay(2000)
-            val msg2 = ConduitMessage("Let me drop a pin")
+            val msg2 = ConduitMessage("I know a good spot, let me drop a pin")
             msg2.originAddress = 0x00000001
             script.add { group.conduitableListeners[ConduitableDataTypes.MESSAGE.flag]?.invoke(msg2)}
             delay(2000)
@@ -45,7 +45,7 @@ class WhereYouAtConversation(val context: Context, group: ConduitGroup) : Puppet
             script.add { group.conduitableListeners[ConduitableDataTypes.GPS_COORDS.flag]?.invoke(pin)}
             delay(2000)
             val pic = ConduitImage(BitmapFactory.decodeResource(context.resources,
-                    R.mipmap.ic_launcher))
+                    R.drawable.sunset))
             pic.originAddress = 0x00000001
             script.add { group.conduitableListeners[ConduitableDataTypes.IMAGE.flag]?.invoke(pic)}
             delay(2000)

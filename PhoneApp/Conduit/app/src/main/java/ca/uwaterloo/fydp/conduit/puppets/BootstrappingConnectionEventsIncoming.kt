@@ -7,11 +7,11 @@ import com.conduit.libdatalink.conduitabledata.ConduitableDataTypes
 class BootstrappingConnectionEventsIncoming(group: ConduitGroup) : PuppetShow(group) {
     override fun writeScript(){
         script.clear()
-        addUser(1, "Bob")
-        addUser(2, "Joe")
-        addUser(3, "Smith")
-        addUser(4, "Fred")
-        addUser(5, "Menma")
+        addUser(1, "Aaron")
+        addUser(2, "Alvin")
+        addUser(3, "Navjot")
+        addUser(4, "Shadmaan")
+        addUser(5, "Davan")
     }
 
     private fun addUser(clientId: Int, clientName: String) {
