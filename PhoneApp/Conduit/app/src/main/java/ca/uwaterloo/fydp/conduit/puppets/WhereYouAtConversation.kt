@@ -21,40 +21,44 @@ class WhereYouAtConversation(val context: Context, group: ConduitGroup) : Puppet
     override fun writeScript(){
         script.clear()
         for (i in 0..10) {
-            delay(1000)
+            delay(1500)
             val msg0 = ConduitMessage("Hey guys when should we meet up")
             msg0.originAddress = 0x00000000
             script.add { group.conduitableListeners[ConduitableDataTypes.MESSAGE.flag]?.invoke(msg0)}
 
+            delay(1500)
             val msglel = ConduitMessage("How about around 4pm?")
             msglel.originAddress = 0x00000004
             script.add { group.conduitableListeners[ConduitableDataTypes.MESSAGE.flag]?.invoke(msglel)}
 
+            delay(1500)
             val msg1 = ConduitMessage("Okay cool, where should we meet?")
             msg1.originAddress = 0x00000002
             script.add { group.conduitableListeners[ConduitableDataTypes.MESSAGE.flag]?.invoke(msg1)}
-            delay(2000)
+            delay(1500)
+
             val msg2 = ConduitMessage("I know a good spot, let me drop a pin")
             msg2.originAddress = 0x00000001
             script.add { group.conduitableListeners[ConduitableDataTypes.MESSAGE.flag]?.invoke(msg2)}
-            delay(2000)
+            delay(3000)
             val pin = ConduitGpsLocation()
             pin.originAddress = 0x00000001
-            pin.latitude = 45.4
-            pin.longitude = 45.2
+            pin.latitude = 43.472382
+            pin.longitude = -80.542040
             script.add { group.conduitableListeners[ConduitableDataTypes.GPS_COORDS.flag]?.invoke(pin)}
-            delay(2000)
+            delay(3000)
             val pic = ConduitImage(BitmapFactory.decodeResource(context.resources,
                     R.drawable.sunset))
-            pic.originAddress = 0x00000001
+            pic.originAddress = 0x00000002
             script.add { group.conduitableListeners[ConduitableDataTypes.IMAGE.flag]?.invoke(pic)}
-            delay(2000)
-
+            delay(3000)
             val stream = context.assets.open("test.3gp")
             val audioBytes = stream.readBytes(4096)
             val audio = ConduitAudio(audioBytes)
-            pic.originAddress = 0x00000001
+            pic.originAddress = 0x00000000
             script.add { group.conduitableListeners[ConduitableDataTypes.AUDIO.flag]?.invoke(audio)}
+
+            delay(7000)
         }
     }
 }
