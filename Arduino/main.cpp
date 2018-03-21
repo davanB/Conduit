@@ -113,7 +113,7 @@ void writeRadio() {
     uint32_t delta = 0;
 
     // Write buffer to radio
-    if (radio.writeFast(inPacket->payload, PAYLOAD_SIZE)) {
+    if (radio.write(inPacket->payload, PAYLOAD_SIZE)) {
         delta = micros() - start;
 
         // Send ACK response and timing delta in response (Big Endian Formatted)
