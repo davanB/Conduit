@@ -40,6 +40,15 @@
             android:tint="@color/dark_gray"
             app:srcCompat="@drawable/ic_location_on_black_48dp" />
 
+        <ca.uwaterloo.fydp.conduit.conduitview.ConduitRecordView
+            android:id="@+id/send_audio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless">
+
+        </ca.uwaterloo.fydp.conduit.conduitview.ConduitRecordView>
+
         <ImageButton
             android:id="@+id/send_gallery_image_button"
             android:layout_width="wrap_content"

@@ -38,11 +38,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toolbar
+import ca.uwaterloo.fydp.conduit.ConduitAudio
 import ca.uwaterloo.fydp.conduit.StatsViewActivity
 import ca.uwaterloo.fydp.conduit.flow.master.QRGenerationActivity
 import com.conduit.libdatalink.conduitabledata.ConduitGpsLocation
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.android.synthetic.main.conduit_send_view.view.*
+import java.io.File
 
 
 class ConduitActivity : AppCompatActivity() {
@@ -55,7 +58,8 @@ class ConduitActivity : AppCompatActivity() {
     private val subscribedDataTypes = listOf(
             ConduitableDataTypes.MESSAGE,
             ConduitableDataTypes.GPS_COORDS,
-            ConduitableDataTypes.IMAGE
+            ConduitableDataTypes.IMAGE,
+            ConduitableDataTypes.AUDIO
     )
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -81,6 +85,7 @@ class ConduitActivity : AppCompatActivity() {
         conduitSendView.requestGalleryImageDelegate = {requestGalleryImage()}
         conduitSendView.requestCameraImageDelegate = {requestCameraImage()}
         conduitSendView.requestLocationDelegate = {requestLocation()}
+        conduitSendView.requestAudioDelegate = {requestAudio(it)}
 
         viewPager = findViewById(R.id.view_pager)
         val viewPagerAdapter = ViewPagerAdapter()
@@ -139,6 +144,20 @@ class ConduitActivity : AppCompatActivity() {
                     }
         }
 
+    }
+
+    val audioRecord = AudioRecord()
+
+    fun requestAudio(start : Boolean) {
+        if (start) {
+            val filePath = this.externalCacheDir.absolutePath + '/' + System.currentTimeMillis() + ".3gp"
+            Log.i("YEET", "Audio File: " + filePath)
+            audioRecord.SetOutputFile(filePath)
+            audioRecord.onRecord(true)
+        } else {
+            audioRecord.onRecord(false)
+            conduitSend(ConduitAudio(File(audioRecord.outputFileName).readBytes()))
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent?) {

@@ -30,6 +30,7 @@ class ConduitSendView @JvmOverloads constructor(
     var sendDelegate: ((ConduitableData)->Unit)? = null
     var requestEmojiInsert: (() -> Unit)? = null
     var requestLocationDelegate: (() -> Unit)? = null
+    var requestAudioDelegate: ((Boolean) -> Unit)? = null
     var requestGalleryImageDelegate: (() -> Unit)? = null
     var requestCameraImageDelegate: (() -> Unit)? = null
 
@@ -53,6 +54,14 @@ class ConduitSendView @JvmOverloads constructor(
 
         findViewById<ImageButton>(R.id.send_location_button).setOnClickListener {
             requestLocationDelegate?.invoke()
+        }
+
+        findViewById<ConduitRecordView>(R.id.send_audio_button).recordStartCallback = {
+            requestAudioDelegate?.invoke(true)
+        }
+
+        findViewById<ConduitRecordView>(R.id.send_audio_button).recordStopCallback = {
+            requestAudioDelegate?.invoke(false)
         }
 
         findViewById<ImageButton>(R.id.send_gallery_image_button).setOnClickListener {
