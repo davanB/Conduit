@@ -55,6 +55,10 @@ public class AudioRecord {
     }
 
     private void startRecording() {
+        if (mRecorder != null) {
+            stopRecording();
+        }
+
         mRecorder = new MediaRecorder();
         mRecorder.setAudioChannels(1);
         mRecorder.setAudioSamplingRate(8000); // 8kHz
@@ -75,8 +79,10 @@ public class AudioRecord {
     }
 
     private void stopRecording() {
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;
+        if (mRecorder != null) {
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+        }
     }
 }

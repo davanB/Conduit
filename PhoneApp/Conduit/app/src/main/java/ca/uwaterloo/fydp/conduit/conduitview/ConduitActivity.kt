@@ -85,7 +85,7 @@ class ConduitActivity : AppCompatActivity() {
         conduitSendView.requestGalleryImageDelegate = {requestGalleryImage()}
         conduitSendView.requestCameraImageDelegate = {requestCameraImage()}
         conduitSendView.requestLocationDelegate = {requestLocation()}
-        conduitSendView.requestAudioDelegate = {requestAudio()}
+        conduitSendView.requestAudioDelegate = {requestAudio(it)}
 
         viewPager = findViewById(R.id.view_pager)
         val viewPagerAdapter = ViewPagerAdapter()
@@ -146,21 +146,18 @@ class ConduitActivity : AppCompatActivity() {
 
     }
 
-    var recording = false
     val audioRecord = AudioRecord()
 
-    fun requestAudio() {
-        if (recording) {
-            audioRecord.onRecord(false)
-            conduitSend(ConduitAudio(File(audioRecord.outputFileName).readBytes()))
-        } else {
+    fun requestAudio(start : Boolean) {
+        if (start) {
             val filePath = this.externalCacheDir.absolutePath + '/' + System.currentTimeMillis() + ".3gp"
             Log.i("YEET", "Audio File: " + filePath)
             audioRecord.SetOutputFile(filePath)
             audioRecord.onRecord(true)
+        } else {
+            audioRecord.onRecord(false)
+            conduitSend(ConduitAudio(File(audioRecord.outputFileName).readBytes()))
         }
-        recording = !recording
-//        conduitSendView.send_audio_button.requestFocus()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent?) {

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@null"
+    android:clickable="false"
+    android:focusable="false"
+    android:duplicateParentState="true" >
+
+    <ImageView
+        android:id="@+id/record_audio_imageview"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:clickable="false"
+        android:focusable="false"
+        android:scaleType="fitCenter"
+        android:text="Location"
+        android:tint="@color/dark_gray"
+        app:srcCompat="@drawable/ic_mic_black_48dp"
+        android:duplicateParentState="true"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
+        android:clickable="false"
+        android:max="100"
+        android:progress="0"
+        android:progressDrawable="@drawable/record_circular_progress" />
+</merge>
