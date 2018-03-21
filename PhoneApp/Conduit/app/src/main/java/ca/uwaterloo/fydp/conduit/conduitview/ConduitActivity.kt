@@ -152,7 +152,7 @@ class ConduitActivity : AppCompatActivity() {
     fun requestAudio() {
         if (recording) {
             audioRecord.onRecord(false)
-            conduitGroup.sendAll(ConduitAudio(File(audioRecord.outputFileName).readBytes()))
+            conduitSend(ConduitAudio(File(audioRecord.outputFileName).readBytes()))
         } else {
             val filePath = this.externalCacheDir.absolutePath + '/' + System.currentTimeMillis() + ".3gp"
             Log.i("YEET", "Audio File: " + filePath)
