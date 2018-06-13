@@ -1,3 +1,2 @@
-# Conduit #
-
-Suh dudes.
+# Conduit
+Copy of our private bitbucket repo
